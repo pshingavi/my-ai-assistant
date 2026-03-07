@@ -205,3 +205,9 @@ cython_debug/
 marimo/_static/
 marimo/_lsp/
 __marimo__/
+qdrant_storage/
+data/images/
+data/posts/
+data/topic_graph.json
+evals/data/
+evals/results/
