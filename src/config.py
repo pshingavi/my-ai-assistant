@@ -68,6 +68,9 @@ class Settings(BaseSettings):
     kg_graph_path: str = "data/topic_graph.json"
     kg_max_hops: int = 2
 
+    # ── Cohere ────────────────────────────────────────────────────────────────
+    cohere_api_key: str | None = None
+
     # ── Chunking ──────────────────────────────────────────────────────────────
     chunk_size: int = 512
     chunk_overlap: int = 50

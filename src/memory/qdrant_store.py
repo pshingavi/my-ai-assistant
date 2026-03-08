@@ -122,11 +122,11 @@ def _build_filter(conditions: dict[str, Any]) -> Filter:
 
 def get_langchain_retriever(collection_name: str, k: int = 5):
     """Return a LangChain-compatible retriever — used in RAGAS eval scripts."""
-    cfg = get_settings()
     ensure_collection(collection_name)
     store = QdrantVectorStore(
         client=get_qdrant_client(),
         collection_name=collection_name,
         embedding=get_embeddings(),
+        content_payload_key="content",  # our chunks store text under "content" not "page_content"
     )
     return store.as_retriever(search_kwargs={"k": k})

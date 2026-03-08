@@ -27,7 +27,7 @@ SAMPLE_DOCS_DIR = Path(__file__).parent.parent.parent / "Learn-AI-Engineering"
 def load_sample_documents(max_files: int = 5):
     """Load a representative subset of course materials as LangChain Documents."""
     from langchain_community.document_loaders import TextLoader
-    from langchain.text_splitter import RecursiveCharacterTextSplitter
+    from langchain_text_splitters import RecursiveCharacterTextSplitter
 
     target_files = [
         SAMPLE_DOCS_DIR / "03_The_Agent_Loop" / "HealthWellnessGuide.txt",

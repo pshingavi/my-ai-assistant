@@ -31,6 +31,12 @@ dependencies = [
     "numpy>=1.26.0",
     "nltk>=3.8.0",
     "plotly>=5.0.0",
+    "rapidfuzz>=3.14.3",
+    "rank-bm25>=0.2.2",
+    "langchain-cohere>=0.4.4",
+    "cohere>=5.12.0",
+    "langchain-experimental>=0.3.4",
+    "unstructured>=0.14.0",
 ]
 
 [dependency-groups]

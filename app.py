@@ -167,7 +167,7 @@ async def _run_content_pipeline(user_request: str) -> None:
         step.output = "✅ New topic — proceeding"
 
     # ── Step 3: RAG Context ───────────────────────────────────────────────────
-    async with cl.Step(name="📚 Retrieving Course Context (HyDE)", type="tool") as step:
+    async with cl.Step(name="📚 Retrieving Course Context (Dense)", type="tool") as step:
         from src.agents.content_pipeline import retrieve_context_node
         state.update(await retrieve_context_node(state))
         sources = list({c["source"] for c in state["kb_context"]})
@@ -246,66 +246,98 @@ async def _run_content_pipeline(user_request: str) -> None:
 
 # ── Chat Pipeline ─────────────────────────────────────────────────────────────
 
-_WEAK_SCORE = 0.35   # below this → try dense fallback
-_WEB_SCORE  = 0.25   # below this → also add Tavily web sources
-
-
-async def _tavily_search(query: str, n: int = 3) -> list[dict]:
-    """Run a direct Tavily search on the user query. Returns raw result dicts."""
-    try:
-        from tavily import TavilyClient
-        cfg = get_settings()
-        client = TavilyClient(api_key=cfg.tavily_api_key)
-        resp = client.search(query=query, max_results=n, search_depth="basic")
-        return resp.get("results", [])
-    except Exception:
-        return []
-
 
 async def _run_chat_pipeline(query: str) -> None:
     from src.config import get_settings
     cfg = get_settings()
 
-    # ── Step 1: KG + HyDE retrieval ───────────────────────────────────────────
-    async with cl.Step(name="🧠 Knowledge Graph + HyDE Retrieval", type="tool") as step:
-        from src.agents.chat_pipeline import kg_retrieve_node
-        state = {"query": query, "retrieved_chunks": [], "response": "", "messages": []}
-        state.update(await kg_retrieve_node(state))
-        chunks: list[dict] = state["retrieved_chunks"]
+    # ── Step 1: KG + Dense retrieval (large candidate pool for reranking) ────────
+    async with cl.Step(name="🧠 Knowledge Graph + Dense Retrieval", type="tool") as step:
+        from src.retrieval.kg_retriever import KGRetriever
+        from src.retrieval.dense_retriever import DenseRetriever
+
+        _CANDIDATE_K = 15  # large pool so Cohere rerank has full coverage
+
+        # KG retrieval: multi-hop expanded queries
+        kg_chunks = await KGRetriever().retrieve(query, k=_CANDIDATE_K)
+
+        # Direct dense on the raw query — ensures the most obvious matches survive
+        dense_raw = await DenseRetriever().retrieve(query, k=_CANDIDATE_K)
+
+        # Merge both sets, keep highest cosine score per unique chunk
+        combined: dict[str, dict] = {}
+        for c in [*kg_chunks, *dense_raw]:
+            key = c.content[:100] if hasattr(c, "content") else c["content"][:100]
+            entry = {
+                "content": c.content if hasattr(c, "content") else c["content"],
+                "score": c.score if hasattr(c, "score") else c["score"],
+                "source": c.source if hasattr(c, "source") else c["source"],
+                "metadata": c.metadata if hasattr(c, "metadata") else c.get("metadata", {}),
+            }
+            if key not in combined or entry["score"] > combined[key]["score"]:
+                combined[key] = entry
+
+        chunks: list[dict] = sorted(combined.values(), key=lambda c: c["score"], reverse=True)[:_CANDIDATE_K]
         max_score = max((c["score"] for c in chunks), default=0.0)
+        step.output = f"Retrieved {len(chunks)} candidates (max relevance: {max_score:.2f})"
 
-        # Fallback: dense retrieval when KG+HyDE is weak
-        if max_score < _WEAK_SCORE:
-            from src.retrieval.dense_retriever import DenseRetriever
-            dense_chunks = await DenseRetriever().retrieve(query, k=cfg.default_k)
-            if dense_chunks:
-                dense = [
-                    {"content": c.content, "score": c.score,
-                     "source": c.source, "metadata": c.metadata}
-                    for c in dense_chunks
+    # ── Step 2: Cohere Rerank (if available) ──────────────────────────────────
+    async with cl.Step(name="🎯 Cohere Rerank", type="tool") as step:
+        try:
+            from src.retrieval.rerank_retriever import RerankRetriever
+            reranker = RerankRetriever()
+            if reranker._has_cohere:
+                import asyncio, time
+                from langchain_classic.retrievers.contextual_compression import ContextualCompressionRetriever
+                from langchain_cohere import CohereRerank
+                from src.memory.qdrant_store import get_langchain_retriever as _get_lc_retriever
+
+                # Build a temporary in-memory retriever from already-fetched chunks
+                from langchain_core.documents import Document
+                from langchain_core.retrievers import BaseRetriever
+                from langchain_core.callbacks import CallbackManagerForRetrieverRun
+
+                class _MemRetriever(BaseRetriever):
+                    docs: list[Document]
+                    def _get_relevant_documents(self, q, *, run_manager=None):
+                        return self.docs
+
+                mem_docs = [
+                    Document(
+                        page_content=c["content"],
+                        metadata={"source": c["source"], **c.get("metadata", {})}
+                    )
+                    for c in chunks
                 ]
-                # Merge: prefer the higher-scoring of the two sets
-                combined = {c["content"][:80]: c for c in chunks + dense}
-                chunks = sorted(combined.values(), key=lambda c: c["score"], reverse=True)[:6]
-                max_score = max((c["score"] for c in chunks), default=0.0)
+                compressor = CohereRerank(model="rerank-v3.5", top_n=5)
+                compression_retriever = ContextualCompressionRetriever(
+                    base_compressor=compressor,
+                    base_retriever=_MemRetriever(docs=mem_docs),
+                )
+                reranked_docs = await asyncio.to_thread(compression_retriever.invoke, query)
+                if reranked_docs:
+                    chunks = [
+                        {
+                            "content": d.page_content,
+                            "score": d.metadata.get("relevance_score", 0.0),
+                            "source": d.metadata.get("source", "unknown"),
+                            "metadata": d.metadata,
+                        }
+                        for d in reranked_docs
+                    ]
+                    step.output = f"Reranked to {len(chunks)} chunks"
+                else:
+                    step.output = "Rerank returned no results — using KG results"
+            else:
+                step.output = "Skipped (no COHERE_API_KEY)"
+        except Exception as e:
+            step.output = f"Skipped ({e})"
 
-        step.output = f"Retrieved {len(chunks)} chunks (max relevance: {max_score:.2f})"
-
-    # Fallback: Tavily web search when KB coverage is poor
-    web_results: list[dict] = []
-    if max_score < _WEB_SCORE:
-        web_results = await _tavily_search(query, n=3)
-
-    # ── Step 2: Stream answer ─────────────────────────────────────────────────
+    # ── Step 3: Stream answer ─────────────────────────────────────────────────
     context_str = "\n\n---\n\n".join(
         f"[Source: {c['source']}, relevance={c['score']:.2f}]\n{c['content']}"
         for c in chunks[:6]
     )
-    if web_results and not context_str:
-        context_str = "\n\n---\n\n".join(
-            f"[Web: {r.get('title','')}, url={r.get('url','')}]\n{r.get('content','')[:400]}"
-            for r in web_results
-        )
 
     _CHAT_SYSTEM = (
         "You are an expert AI engineering educator. Every claim you make MUST be grounded "
@@ -342,51 +374,20 @@ async def _run_chat_pipeline(query: str) -> None:
             await response_msg.stream_token(delta.content)
     await response_msg.update()
 
-    # ── Sources — ALWAYS shown, never empty ───────────────────────────────────
-    source_elements: list[cl.Text | cl.Image] = []
+    # ── Sources — compact list only ────────────────────────────────────────────
+    source_lines: list[str] = []
+    seen_sources: set[str] = set()
 
     for i, c in enumerate(chunks[:6], 1):
         source = c.get("source", "unknown")
         score = c.get("score", 0.0)
-        content = c.get("content", "")
-        source_elements.append(
-            cl.Text(
-                name=f"[{i}] {source}  (relevance: {score:.2f})",
-                content=content,
-                display="side",
-            )
-        )
-        for murl in (c.get("metadata", {}).get("media_urls") or []):
-            if murl:
-                source_elements.append(
-                    cl.Image(url=murl, name=f"Media — {source}", display="inline")
-                )
+        if source not in seen_sources:
+            seen_sources.add(source)
+            source_lines.append(f"{i}. **{source}** (relevance: {score:.2f})")
 
-    # Add web fallback sources when KB coverage is poor
-    for r in web_results[:3]:
-        title = r.get("title", "Web source")
-        url = r.get("url", "")
-        snippet = r.get("content", "")[:400]
-        source_elements.append(
-            cl.Text(
-                name=f"[Web] {title[:70]}",
-                content=f"{snippet}\n\nURL: {url}",
-                display="side",
-            )
-        )
+    if source_lines:
+        sources_md = "**📚 Sources:**\n" + "\n".join(source_lines)
+    else:
+        sources_md = "⚠️ No course material found for this query."
 
-    if not source_elements:
-        # Absolute last resort — acknowledge honestly
-        source_elements.append(
-            cl.Text(
-                name="No course material found",
-                content=(
-                    "No relevant chunks were retrieved from the course knowledge base "
-                    f"for this query. Consider running `uv run python scripts/ingest_courses.py` "
-                    "to ensure course material is indexed."
-                ),
-                display="side",
-            )
-        )
-
-    await cl.Message(content="**Sources**", elements=source_elements).send()
+    await cl.Message(content=sources_md).send()

@@ -24,7 +24,7 @@ from src.config import get_settings
 from src.ingestion.post_ingester import GeneratedPost, PostIngester
 from src.llm import embed_texts, get_async_openai
 from src.memory.qdrant_store import search
-from src.retrieval.hyde_retriever import HyDERetriever
+from src.retrieval.dense_retriever import DenseRetriever
 from src.tools.image_tool import generate_poster
 from src.tools.tavily_tool import TopicResult, search_trending_topics
 from src.tools.x_tool import search_x_topics
@@ -196,12 +196,12 @@ async def inform_duplicate_node(state: ContentState) -> dict:
 
 
 async def retrieve_context_node(state: ContentState) -> dict:
-    """Retrieve relevant AIE9 course material for the selected topic via HyDE."""
+    """Retrieve relevant AIE9 course material for the selected topic via Dense retrieval."""
     topic = state.get("selected_topic", "")
     description = state.get("topic_description", "")
     query = f"{topic}: {description}"
 
-    retriever = HyDERetriever()
+    retriever = DenseRetriever()
     chunks = await retriever.retrieve(query, k=get_settings().default_k)
     kb_context = [
         {"content": c.content, "score": c.score, "source": c.source}

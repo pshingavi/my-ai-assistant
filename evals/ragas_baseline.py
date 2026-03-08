@@ -113,7 +113,9 @@ async def evaluate_baseline(testset: list[dict], delay: float = 0.5) -> dict:
         llm=evaluator_llm,
         **run_config_kwargs,
     )
-    return dict(result)
+    # EvaluationResult.to_pandas() gives per-sample scores; take column means
+    df = result.to_pandas()
+    return {col: float(df[col].mean()) for col in df.columns if df[col].dtype in ("float64", "float32")}
 
 
 def main() -> None:
