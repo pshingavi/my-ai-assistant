@@ -1,0 +1,195 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --bg: #0a0a0f;
+  --card: #13131a;
+  --card-hover: #1a1a24;
+  --purple: #8b5cf6;
+  --purple-dim: rgba(139, 92, 246, 0.2);
+  --purple-glow: rgba(139, 92, 246, 0.4);
+  --cyan: #22d3ee;
+  --cyan-dim: rgba(34, 211, 238, 0.2);
+  --cyan-glow: rgba(34, 211, 238, 0.4);
+  --border: rgba(139, 92, 246, 0.2);
+  --text-primary: #f1f5f9;
+  --text-secondary: #94a3b8;
+  --text-muted: #64748b;
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html,
+body {
+  background-color: var(--bg);
+  color: var(--text-primary);
+  font-family: 'Inter', system-ui, sans-serif;
+  min-height: 100vh;
+  scroll-behavior: smooth;
+}
+
+/* Scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: var(--card);
+}
+::-webkit-scrollbar-thumb {
+  background: var(--purple-dim);
+  border-radius: 3px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--purple);
+}
+
+/* Glassmorphism utility */
+@layer components {
+  .glass-card {
+    @apply rounded-xl border backdrop-blur-sm;
+    background: rgba(19, 19, 26, 0.8);
+    border-color: var(--border);
+  }
+
+  .glass-card-hover {
+    @apply glass-card transition-all duration-200;
+  }
+  .glass-card-hover:hover {
+    border-color: rgba(139, 92, 246, 0.4);
+    box-shadow: 0 0 20px rgba(139, 92, 246, 0.15);
+  }
+
+  .neon-text-purple {
+    color: var(--purple);
+    text-shadow: 0 0 20px rgba(139, 92, 246, 0.6);
+  }
+
+  .neon-text-cyan {
+    color: var(--cyan);
+    text-shadow: 0 0 20px rgba(34, 211, 238, 0.6);
+  }
+
+  .btn-primary {
+    @apply px-5 py-2.5 rounded-lg font-semibold text-sm transition-all duration-200;
+    background: var(--purple);
+    color: white;
+  }
+  .btn-primary:hover {
+    background: #7c3aed;
+    box-shadow: 0 0 20px rgba(139, 92, 246, 0.5);
+    transform: translateY(-1px);
+  }
+  .btn-primary:active {
+    transform: translateY(0);
+  }
+
+  .btn-secondary {
+    @apply px-5 py-2.5 rounded-lg font-semibold text-sm transition-all duration-200;
+    background: transparent;
+    color: var(--purple);
+    border: 1px solid var(--purple-dim);
+  }
+  .btn-secondary:hover {
+    border-color: var(--purple);
+    background: var(--purple-dim);
+  }
+
+  .btn-ghost {
+    @apply px-4 py-2 rounded-lg font-medium text-sm transition-all duration-200;
+    color: var(--text-secondary);
+  }
+  .btn-ghost:hover {
+    color: var(--text-primary);
+    background: rgba(255, 255, 255, 0.05);
+  }
+
+  .shimmer {
+    background: linear-gradient(
+      90deg,
+      rgba(255, 255, 255, 0.03) 0%,
+      rgba(255, 255, 255, 0.08) 50%,
+      rgba(255, 255, 255, 0.03) 100%
+    );
+    background-size: 200% 100%;
+    animation: shimmer 2s infinite;
+  }
+
+  .badge-module {
+    @apply text-xs font-bold px-2 py-0.5 rounded-full;
+    background: var(--purple-dim);
+    color: var(--purple);
+    border: 1px solid rgba(139, 92, 246, 0.3);
+  }
+
+  .badge-post {
+    @apply text-xs font-bold px-2 py-0.5 rounded-full;
+    background: var(--cyan-dim);
+    color: var(--cyan);
+    border: 1px solid rgba(34, 211, 238, 0.3);
+  }
+}
+
+@keyframes shimmer {
+  0% {
+    background-position: -200% 0;
+  }
+  100% {
+    background-position: 200% 0;
+  }
+}
+
+@keyframes float {
+  0%,
+  100% {
+    transform: translateY(0px);
+  }
+  50% {
+    transform: translateY(-10px);
+  }
+}
+
+/* D3 graph styles */
+.d3-graph-link {
+  stroke: rgba(139, 92, 246, 0.3);
+  stroke-width: 1;
+}
+
+.d3-graph-node-course {
+  fill: #8b5cf6;
+  cursor: pointer;
+  transition: r 0.2s;
+}
+.d3-graph-node-course:hover {
+  fill: #a78bfa;
+  filter: drop-shadow(0 0 8px rgba(139, 92, 246, 0.8));
+}
+
+.d3-graph-node-post {
+  fill: #22d3ee;
+  cursor: pointer;
+}
+.d3-graph-node-post:hover {
+  fill: #67e8f9;
+  filter: drop-shadow(0 0 8px rgba(34, 211, 238, 0.8));
+}
+
+.d3-graph-node-current {
+  fill: white !important;
+  filter: drop-shadow(0 0 12px white) !important;
+}
+
+.d3-graph-label {
+  fill: #94a3b8;
+  font-size: 11px;
+  font-family: 'Inter', sans-serif;
+  pointer-events: none;
+  user-select: none;
+}
