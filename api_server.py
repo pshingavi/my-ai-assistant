@@ -166,16 +166,15 @@ class ImageRequest(BaseModel):
 @app.post("/api/image/generate")
 async def generate_image(req: ImageRequest):
     """Generate a DALL-E analogy illustration for a byte card."""
-    from src.tools.image_tool import generate_image as _gen_image
+    from src.tools.image_tool import generate_poster
 
-    image_prompt = (
-        f"Minimalist digital illustration: {req.prompt}. "
-        "No text, no labels. Clean background. Educational, friendly style."
-    )
-    result = await _gen_image(req.topic_name, image_prompt)
-    if not result:
+    url, local_path = await generate_poster(req.topic_name, req.prompt)
+    if not url and not local_path:
         raise HTTPException(status_code=500, detail="Image generation failed")
-    return {"image_url": result.get("url", ""), "local_path": result.get("local_path", "")}
+    return {
+        "image_url": url,
+        "local_path": str(local_path) if local_path else "",
+    }
 
 
 # ── Share / Post endpoint ──────────────────────────────────────────────────────
