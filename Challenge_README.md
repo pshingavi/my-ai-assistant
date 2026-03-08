@@ -1,16 +1,17 @@
-<p align = "center" draggable="false" ><img src="https://github.com/AI-Maker-Space/LLM-Dev-101/assets/37101144/d1343317-fa2f-41e1-8af1-1dbb18399719"
-     width="200px"
-     height="auto"/>
-</p>
 
-## <h1 align="center" id="heading">Session 12: Certification Challenge</h1>
-| 📰 Session Sheet | ⏺️ Recording     | 🖼️ Slides        | 👨‍💻 Repo         | 📝 Homework      | 📁 Feedback       |
-|:-----------------|:-----------------|:-----------------|:-----------------|:-----------------|:-----------------|
-| [Industry Use Cases](https://github.com/AI-Maker-Space/AIE9/tree/main/00_Docs/Session_Sheets/12_Industry_Use_Cases) |[Recording!](https://us02web.zoom.us/rec/share/SBatPUo5ZEFKDBhjl1tNo4LxgkZJU9SUHCcPQZZY-MPSw5SA-DT78c_RLIglQD8.84JOZk6uq0hNt4Ov) <br> passcode: `G9?vCPR!`| [Session 12 Slides](https://www.canva.com/design/DAG-EPmlD1w/8U1cQ_UuwRej5uZNxaI1ZQ/edit?utm_content=DAG-EPmlD1w&utm_campaign=designshare&utm_medium=link2&utm_source=sharebutton) | You are here! | [Certification Challenge](https://forms.gle/yxvhpXiaMDUJ28Gv5) | [Feedback 2/19](https://forms.gle/jKhV6qgksdvgFhWw5) |
+
+## # Session 12: Certification Challenge
+
+
+| 📰 Session Sheet                                                                                                    | ⏺️ Recording                                                                                                                                          | 🖼️ Slides                                                                                                                                                                         | 👨‍💻 Repo    | 📝 Homework                                                    | 📁 Feedback                                          |
+| ------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------- | -------------------------------------------------------------- | ---------------------------------------------------- |
+| [Industry Use Cases](https://github.com/AI-Maker-Space/AIE9/tree/main/00_Docs/Session_Sheets/12_Industry_Use_Cases) | [Recording!](https://us02web.zoom.us/rec/share/SBatPUo5ZEFKDBhjl1tNo4LxgkZJU9SUHCcPQZZY-MPSw5SA-DT78c_RLIglQD8.84JOZk6uq0hNt4Ov) passcode: `G9?vCPR!` | [Session 12 Slides](https://www.canva.com/design/DAG-EPmlD1w/8U1cQ_UuwRej5uZNxaI1ZQ/edit?utm_content=DAG-EPmlD1w&utm_campaign=designshare&utm_medium=link2&utm_source=sharebutton) | You are here! | [Certification Challenge](https://forms.gle/yxvhpXiaMDUJ28Gv5) | [Feedback 2/19](https://forms.gle/jKhV6qgksdvgFhWw5) |
+
 
 # Requirements for Certification Challenge Submissions
 
 1. A public (or otherwise shared) link to a **GitHub repo** that contains:
+
 - A 5-minute (OR LESS) Loom video of a live **demo of your application** that also describes the use case.
 - A **written document** addressing each deliverable and answering each question
 - All relevant code
@@ -21,21 +22,23 @@ You must complete each of the following tasks:
 
 > Each task ends with a concrete deliverable.
 
-| Task | Outcome |
-|------|---------|
-| 🧩 1. Problem + Audience | Clear user + success criteria |
-| 💡 2. Solution | Proposed system + UX flow |
-| 🔐 3. Data + Keys | Data source + API access working |
-| 🤖 4. Prototype | End-to-end agentic RAG running |
-| 🧪 5. Eval Baseline | Synthetic set + baseline score |
-| 🧠 6. Retriever Upgrade | Improved metrics + analysis |
-| 🎬 7. Next Steps | Towards polished Demo Day |
+
+| Task                     | Outcome                          |
+| ------------------------ | -------------------------------- |
+| 🧩 1. Problem + Audience | Clear user + success criteria    |
+| 💡 2. Solution           | Proposed system + UX flow        |
+| 🔐 3. Data + Keys        | Data source + API access working |
+| 🤖 4. Prototype          | End-to-end agentic RAG running   |
+| 🧪 5. Eval Baseline      | Synthetic set + baseline score   |
+| 🧠 6. Retriever Upgrade  | Improved metrics + analysis      |
+| 🎬 7. Next Steps         | Towards polished Demo Day        |
+
 
 # 🗺️ Overview
 
 Welcome to the middle of the course!  We’re 5 weeks in, and we’ve covered a lot of ground - you all certainly have enough prototyping skill to be dangerous!
 
-It’s time to align the skills we’ve learned with the specific direction that _you’re aiming at_.
+It’s time to align the skills we’ve learned with the specific direction that *you’re aiming at*.
 
 What are your goals for 2026? How can you build 🏗️, ship 🚢, and share 🚀 your way towards achieving them?
 
@@ -49,9 +52,7 @@ It's time to put your skills to the test!
 
 During Cohort 8, here is how the numbers shook out. It took an average of 26.2 hours for people to complete the challenge. This is up slightly from 23.2 hours on average in Cohort 7.
 
-<p align="center">
-  <img src="CertChallenge_AIE8.webp" width="80%" />
-</p>
+
 
 This type of work, though - scoping a problem, creating a solution to that problem that solves a specific pain point for real customers or stakeholders, and engineering it for scale from day 1, is extremely valuable work. **This kind of pilot project work is easily worth $10-20k for as a solo consultant**. Of course, finding the right buyer and getting them to buy is a separate issue...
 
@@ -77,7 +78,7 @@ That’s really all you need.
 
 These kinds of things are important to iron out during the project scoping process, which can save us many headaches as we start building if done right!
 
-Remember, _planning is essential_. Thinking through things, step-by-step, and reasoning all the way to the end is extremely valuable to do ahead of excecuting a plan of action.
+Remember, *planning is essential*. Thinking through things, step-by-step, and reasoning all the way to the end is extremely valuable to do ahead of excecuting a plan of action.
 
 Agents know this, as humans.
 
@@ -113,23 +114,24 @@ Now that you’ve defined a problem and a user, *there are many possible solutio
 Choose one, and articulate it.
 
 *Hints:*  
+
 - *Recall the [LLM Application stack](https://a16z.com/emerging-architectures-for-llm-applications/) we’ve discussed*
 - *What are the specific solution architecture decisions you need to make, and what are the tradeoffs?*
 
 **✅ Deliverables**
 
 1. Write 1-2 paragraphs on your proposed solution.  How will it look and feel to the user? Describe the tools you plan to use to build it.
-2.  Create an infrastructure diagram of your stack showing how everything fits together.  Write one sentence on why you made each tooling choice.
-    1. LLM(s)
-    2. Agent orchestration framework 
-    3. Tool(s)
-    4. Embedding model
-    5. Vector Database
-    6. Monitoring tool
-    7. Evaluation framework
-    8. User interface
-    9. Deployment tool
-    10. Any other components you need
+2. Create an infrastructure diagram of your stack showing how everything fits together.  Write one sentence on why you made each tooling choice.
+  1. LLM(s)
+  2. Agent orchestration framework
+  3. Tool(s)
+  4. Embedding model
+  5. Vector Database
+  6. Monitoring tool
+  7. Evaluation framework
+  8. User interface
+  9. Deployment tool
+  10. Any other components you need
 3. What are the RAG and agent components of your project, exactly?
 
 ### Task 3: Collect your own data (RAG) and choose at least one external API to use (Agent)
@@ -140,13 +142,14 @@ Choose one, and articulate it.
 2. The ability to search publicly available data (e.g., a simple agentic search tool like [Tavily](https://tavily.com/))
 
 *Hints:*  
+
 - *Ask other real people (ideally the people you’re building for!) what they think.*
 - *What are the specific questions that your user is likely to ask of your application?  **Write these down**.*
-  
+
 **✅ Deliverables**
 
 1. Describe the default chunking strategy that you will use for your data.  Why did you make this decision?
-2. Describe your data source and the external API you plan to use, as well as what role they will play in your solution. Discuss how they interact during usage. 
+2. Describe your data source and the external API you plan to use, as well as what role they will play in your solution. Discuss how they interact during usage.
 
 ### Task 4: Build an end-to-end Agentic RAG application using a production-grade stack and your choice of commercial off-the-shelf model(s)
 
@@ -186,6 +189,8 @@ You are the **AI Solutions Engineer** working with the **AI Evaluation & Perform
 Please include the following in your final submission:
 
 1. A public (or otherwise shared) link to a **GitHub repo** that contains:
+
 - A 5-minute (OR LESS) Loom video of a live **demo of your application** that also describes the use case.
 - A **written document** addressing each deliverable and answering each question
 - All relevant code
+
