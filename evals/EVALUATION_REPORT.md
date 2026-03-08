@@ -1,43 +1,76 @@
-# AI Content Creator — Certification Challenge Deliverables
+# Zizi Byte — AIE9 Certification Challenge Deliverables
 
-**Project**: AI-powered LinkedIn Content Creator + KG-RAG Chat Assistant
-**Cohort**: AIE9 | **Submission Date**: 2026-03-07
+**"Learn in bytes. Think in leaps."**
+
+**Project**: Zizi Byte — Adaptive AI micro-learning platform
+**Cohort**: AIE9 | **Submission Date**: 2026-03-08
 
 ---
 
 ## Task 1: Problem + Audience
 
-**Problem**: Generative AI professionals need to stay visible on LinkedIn to attract clients, collaborators,
-and job opportunities — but consistently researching, writing, and publishing high-quality technical
-posts takes 1-3 hours per post. The bottleneck is not skill; it's time.
+**Problem**: Dense technical courses (PDFs, session slides, Jupyter notebooks) are hard to retain,
+connect across modules, and apply to real work. Students in AI engineering bootcamps struggle to:
 
-**Audience**: AI engineers, ML practitioners, and GenAI consultants who are active learners (enrolled
-in courses like AIE9) but lack the time to translate that learning into a consistent public presence.
+1. **Retain** concepts across weekly sessions (each 50–200 slides + notebooks)
+2. **Connect** ideas from earlier modules to later ones (e.g., Module 02 embeddings → Module 11 reranking)
+3. **Apply** abstract concepts to their own professional context
 
-**Sample user questions** (what the system must answer in Chat mode):
-- "What did AIE9 teach about HyDE and why does it improve retrieval?"
-- "Explain the difference between dense retrieval and KG-RAG"
-- "What is the agent loop and how does LangGraph implement it?"
+The bottleneck isn't motivation — it's the gap between dense technical documentation and the way
+humans actually learn: through vivid analogies, concrete examples, and connected mental models.
+
+**Audience**: AI engineering students in bootcamp cohorts — working professionals upskilling in LLMs,
+RAG, agents, and evaluation. People who are learning fast but need a tool that meets them where they
+are and explains things in terms that click for *their* background.
+
+**Why existing tools fail**:
+
+| Tool | Gap |
+|---|---|
+| ChatGPT / Claude | No access to the actual course knowledge base — generic answers, not grounded |
+| Course slides | Static, one-size-fits-all — no personalization, no concept linking |
+| Search | Returns pages, not explanations calibrated to your level |
+| Notes apps | Manual organization — no intelligent retrieval or concept connection |
+
+**Zizi Byte's differentiator**: RAG retrieval over the actual course knowledge base, with analogy-driven
+explanations that adapt to the question's framing. Named after Ziva — because learning should feel
+like play, not like work.
+
+**Sample user questions** (what the system must answer):
+- "Explain the agent loop like I am 5 years old"
+- "What is the difference between dense retrieval and KG-RAG?"
 - "How does RAGAS evaluate faithfulness?"
+- "What did we learn about advanced retrieval in Module 11?"
+- "Explain embeddings to someone who cooks"
 
 ---
 
 ## Task 2: Solution
 
-**System**: Two-mode Chainlit application running on a local endpoint (`http://localhost:8000`).
+**System**: Zizi Byte prototype — a Chainlit application running at `http://localhost:8000`
+combining a Learning Chat and a Content Creator in one interface.
 
 | Mode | Trigger | Pipeline |
 |---|---|---|
-| Content Pipeline | keywords: *post*, *write*, *trending* | `research → merge → dedup_check → retrieve → generate_post → generate_image → ingest_post` |
-| Chat (KG-RAG) | all other messages | `kg_retrieve → generate_answer` |
+| **Learning Chat** | Any question | `KG+Dense retrieval (k=15) → Cohere Rerank → analogy-first generation → sources` |
+| **Content Creator** | *post*, *write*, *trending*, *create* | `research → merge → dedup_check → retrieve → generate_post → generate_image → ingest_post` |
+| **KG View** | *kg*, *graph*, *topics* | Interactive Plotly knowledge graph of all ingested topics |
 
 **External APIs + Data Sources**:
-- **Tavily** — real-time web search; used in the `research` node to gather current AI news and trends for post topics. Runs as an agentic tool call inside the LangGraph content pipeline.
-- **OpenAI** — GPT-4o-mini for generation; text-embedding-3-small for embeddings; DALL-E 3 for images.
-- **Qdrant** (local Docker) — vector store for course knowledge base and generated post history.
-- **AIE9 course materials** (PDFs, notebooks, markdown) — ingested once at startup into Qdrant.
+- **OpenAI** — GPT-4o-mini for generation; text-embedding-3-small for embeddings; DALL-E 3 for images
+- **Cohere** — `rerank-v3.5` for post-retrieval reranking in the learning chat
+- **Tavily** — real-time web search for content creation research
+- **Qdrant** (local Docker) — vector store for course knowledge base and generated post history
+- **Course materials** (PDFs, notebooks, markdown) — 1,197 chunks from 8 AI engineering modules
 
-During a content generation run: Tavily fetches 5 web results → LLM merges topics → Qdrant dedup check prevents duplicate posts → KG+Dense retriever grounds the post in course material → GPT generates LinkedIn post → DALL-E generates matching image → post + image are persisted to Qdrant + knowledge graph.
+**Agentic decision point**: `dedup_check_node` — computes cosine similarity between proposed post
+topic and all stored posts. If similarity > 0.85, branches to `inform_duplicate` and stops. This is
+a true runtime conditional edge driven by observed data quality — the system decides based on evidence,
+not a fixed rule.
+
+During a content generation run: Tavily fetches 5 web results → LLM merges topics → Qdrant dedup
+check prevents duplicate posts → Dense retriever grounds the post in course material → GPT generates
+LinkedIn post → DALL-E generates matching image → post + image are persisted to Qdrant + knowledge graph.
 
 ---
 

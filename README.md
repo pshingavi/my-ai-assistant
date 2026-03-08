@@ -1,6 +1,26 @@
-# AI Content Creator
+# Zizi Byte
 
-> An agentic RAG application that researches trending AI topics, generates story-driven LinkedIn posts grounded in course material, and answers AI/ML questions with analogy-driven explanations — built for the AIE9 Certification Challenge.
+**"Learn in bytes. Think in leaps."**
+
+> Adaptive AI micro-learning platform that transforms dense course materials into
+> personalized, bite-sized learning experiences — powered by RAG, Knowledge Graph traversal,
+> Cohere reranking, and analogy-driven explanations.
+>
+> Named after Ziva — because learning should feel like play, not like work.
+
+Built as the AIE9 Certification Challenge submission.
+
+---
+
+## The Problem It Solves
+
+Dense technical courses (PDFs, notebooks, code) are hard to retain and connect across modules. Learners struggle to:
+
+1. **Retain** concepts across sessions (each 50-200 slides + notebooks)
+2. **Connect** ideas from earlier modules to later ones (e.g., Module 02 embeddings → Module 11 reranking)
+3. **Apply** abstract concepts to their own professional context
+
+**Zizi Byte's answer:** RAG retrieval over the actual course knowledge base + analogy-driven explanations personalized to the learner's question. Ask "explain embeddings" as a chef and get a recipe analogy. Ask it as an engineer and get a vector space analogy. The system grounds every answer in the course material — and never fabricates.
 
 ---
 
@@ -10,8 +30,8 @@
 
 | Type | Trigger | What happens |
 |------|---------|-------------|
+| **Learn / Chat** | Any question | KG+Dense (k=15) → Cohere Rerank → analogy-driven grounded answer |
 | **Content** | `create`, `trending`, `write post` | Research → dedup → RAG → LinkedIn post + HD poster image |
-| **Chat** | Any question | KG+Dense retrieval → Cohere Rerank → grounded analogy-driven answer |
 | **KG View** | `kg`, `graph`, `learning path` | Interactive Plotly knowledge graph of all topics |
 
 ---
@@ -38,7 +58,7 @@ cp .env.example .env
 # 3. Start Qdrant vector database
 docker compose up -d
 
-# 4. Ingest AIE9 course materials + build knowledge graph
+# 4. Ingest course materials + build knowledge graph
 uv run python scripts/ingest_courses.py
 
 # 5. Run the app
@@ -50,6 +70,23 @@ uv run chainlit run app.py
 
 ## Features
 
+### Adaptive Learning Chat
+
+```
+question → KG+Dense retrieval (k=15 candidates)
+         → Cohere Rerank (top 5)
+         → Analogy-first generation
+             1. Vivid analogy (makes the concept click)
+             2. Technical explanation (grounded in course material)
+             3. Why it matters (practical implication)
+             4. Follow-up question (deepens learning)
+         → Sources list (file + relevance score)
+```
+
+- **Multi-hop Knowledge Graph**: embeds query → finds nearest topic nodes in NetworkX graph → traverses edges (up to 2 hops) → Dense retrieval on original query + related topics
+- **Cohere Rerank**: `CohereRerank(model="rerank-v3.5")` reranks the 15-candidate pool to the top 5 most relevant chunks. Skips gracefully if `COHERE_API_KEY` not set.
+- **Strictly grounded**: every claim cited by source file. Low-relevance chunks flagged explicitly rather than hallucinated over.
+
 ### Content Creation Pipeline
 
 ```
@@ -59,65 +96,54 @@ create → research (Tavily + X.com)
            ↓ duplicate       ↓ new
          inform user    retrieve_context (Dense)
                         → generate_post (Hook→Analogy→Tech→CTA)
-                        → generate_image (DALL-E 3 HD, vivid style)
+                        → generate_image (DALL-E 3 HD)
                         → ingest (Qdrant + Knowledge Graph)
                         → show sources (Tavily + X.com citations)
 ```
 
-- **Trending research**: Tavily targets arxiv, OpenAI, DeepMind, HuggingFace, VentureBeat with the current month/year. X.com pulls high-engagement tweets with full media (images, video previews).
-- **Deduplication**: cosine similarity against `posts_collection` — if similarity > 0.85 the pipeline stops and suggests a fresh angle.
-- **Post structure**: Hook (challenge an assumption) → Analogy (vivid scene) → Tech concept (grounded in course KB) → CTA (question or reshare ask + hashtags).
-- **Images**: DALL-E 3 `quality=hd`, `style=vivid` — cinematic neon-noir with photorealistic visual metaphors.
-- **Source citations**: every post shows all Tavily URLs and X.com tweet links as collapsible references.
-
-### Knowledge Chat
-
-- **KG + Dense retrieval**: embeds query → finds nearest topic nodes in NetworkX graph → traverses edges (up to 2 hops) → runs Dense retrieval on original query + related topics. Simultaneously runs a direct dense search on the raw query to guarantee the most obvious matches are in the candidate pool (k=15 candidates total).
-- **Cohere Rerank**: `CohereRerank(model="rerank-v3.5")` reranks the 15-candidate pool to the top 5 most relevant chunks. Requires `COHERE_API_KEY`; skips gracefully if absent.
-- **Grounded answers**: system prompt enforces inline citations by source file name with analogy-first structure: Analogy → Technical explanation → Why it matters → Follow-up question.
-- **Sources always shown**: compact list of source filenames with relevance scores below every answer.
+- **Deduplication**: cosine similarity against stored posts — stops if similarity > 0.85 and suggests a fresh angle
+- **Post structure**: Hook → Analogy → Technical concept (KB-grounded) → CTA + hashtags
+- **Source citations**: Tavily URLs and X.com links shown after every post
 
 ### Knowledge Graph View
 
 Type `kg` to see an interactive Plotly network graph:
 
-- **Purple circles** — AIE9 bootcamp course modules (8 topics pre-wired with BUILDS_ON edges)
-- **Blue diamonds** — generated LinkedIn posts (added automatically after each `create` run)
+- **Purple circles** — course modules (8 topics, BUILDS_ON edges)
+- **Blue diamonds** — generated LinkedIn posts (added automatically after `create`)
 - Hover any node for description + related concepts
-- Grows automatically: add new course material via `ingest_courses.py`, new post topics via `create`
 
 ---
 
 ## Architecture
 
 ```
-┌─────────────────────────────────────────────────────────┐
-│                   Chainlit UI  (app.py)                  │
+┌──────────────────────────────────────────────────────────┐
+│                Zizi Byte  (app.py / Chainlit)            │
+│  question → Learning Chat                                │
 │  "create" → Content Pipeline                            │
 │  "kg"     → KG Visualization (Plotly)                   │
-│  question → Chat Pipeline                               │
-└──────────────┬──────────────────────┬───────────────────┘
-               │                      │
-   ┌───────────▼──────────┐  ┌────────▼──────────────────────────┐
-   │  Content Pipeline    │  │  Chat Pipeline                     │
-   │  (LangGraph)         │  │  (app.py inline)                   │
-   │                      │  │                                    │
-   │  research_node        │  │  1. KG+Dense retrieval (k=15)      │
-   │  merge_topics_node    │  │     KGRetriever (multi-hop)        │
-   │  dedup_check_node ←  │  │     + DenseRetriever (raw query)   │
-   │  [AGENTIC DECISION]  │  │                                    │
-   │  retrieve_context    │  │  2. Cohere Rerank → top 5          │
-   │  generate_post       │  │                                    │
-   │  generate_image      │  │  3. Stream answer (cited)          │
-   │  ingest_post         │  │  4. Sources list                   │
-   └──────────────────────┘  └────────────────────────────────────┘
+└──────────────┬─────────────────────┬─────────────────────┘
+               │                     │
+   ┌───────────▼──────────┐  ┌───────▼───────────────────────────┐
+   │  Content Pipeline    │  │  Learning Chat                     │
+   │  (LangGraph)         │  │                                    │
+   │  research            │  │  1. KG+Dense retrieval (k=15)      │
+   │  merge_topics        │  │     KGRetriever (multi-hop)        │
+   │  dedup_check ←──────│  │     + DenseRetriever (raw query)   │
+   │  [AGENTIC DECISION] │  │                                    │
+   │  retrieve_context   │  │  2. Cohere Rerank → top 5          │
+   │  generate_post      │  │                                    │
+   │  generate_image     │  │  3. Analogy-first generation       │
+   │  ingest_post        │  │  4. Sources list                   │
+   └─────────────────────┘  └────────────────────────────────────┘
                │
    ┌───────────▼──────────────────────────────────────────┐
    │  Shared Infrastructure                               │
    │  Qdrant (course_knowledge_base + generated_posts)    │
    │  NetworkX Topic Graph  (data/topic_graph.json)       │
    │  LangSmith tracing (optional, auto-on when key set)  │
-   └───────────────────────────────────────────────────────┘
+   └──────────────────────────────────────────────────────┘
 ```
 
 ### Retrieval Stack
@@ -125,9 +151,9 @@ Type `kg` to see an interactive Plotly network graph:
 | Retriever | When used | How |
 |-----------|-----------|-----|
 | `KGRetriever` | Chat (primary) | Embed query → cosine-match topic nodes → traverse edges → Dense on each related topic |
-| `DenseRetriever` | Chat (parallel with KG) | Embed raw query → Qdrant cosine search |
+| `DenseRetriever` | Chat (parallel) + Content pipeline | Embed raw query → Qdrant cosine search |
 | `RerankRetriever` | Chat (post-retrieval) | Cohere rerank-v3.5 on 15-candidate pool → top 5 |
-| `HyDERetriever` | Standalone eval only | Generate hypothetical doc → embed → Qdrant (Task 6 evaluation) |
+| `HyDERetriever` | Standalone eval only (Task 6) | Generate hypothetical doc → embed → Qdrant |
 | `BM25Retriever` | Module 11 eval only | Sparse keyword index from Qdrant scroll |
 | `MultiQueryRetriever` | Module 11 eval only | LLM generates 3 query variants |
 | `EnsembleRetriever` | Module 11 eval only | RRF fusion of BM25 + Dense |
@@ -138,12 +164,12 @@ Type `kg` to see an interactive Plotly network graph:
 
 | Component | Choice | Why |
 |-----------|--------|-----|
-| LLM | GPT-4o-mini | Best cost/quality for JSON output + streaming |
-| Image | DALL-E 3 HD | Cinematic poster quality |
+| LLM | GPT-4o-mini | Best cost/quality for analogy generation + streaming |
+| Image | DALL-E 3 HD | Cinematic poster quality for content creation |
 | Agent orchestration | LangGraph | Native conditional edges for agentic dedup decision |
 | Embedding | text-embedding-3-small | Cost-efficient, 1536-dim |
 | Vector DB | Qdrant (Docker) | Free local, metadata filtering, production-ready |
-| KG | NetworkX + JSON | Lightweight graph traversal, no extra infra |
+| Knowledge Graph | NetworkX + JSON | Lightweight multi-hop traversal, no extra infra |
 | Reranking | Cohere rerank-v3.5 | Best faithfulness in Module 11 eval; free tier available |
 | Search | Tavily + X.com (tweepy v2) | Real-time web + social trend coverage |
 | Monitoring | LangSmith | Native LangGraph tracing, auto-enables when key is set |
@@ -154,25 +180,25 @@ Type `kg` to see an interactive Plotly network graph:
 
 ## Knowledge Base
 
-**Sources ingested** (20 files, 1,197 chunks):
+**Sources ingested** (20 files, 1,197 chunks across 8 modules):
 
-| Module | Content | Format |
-|--------|---------|--------|
-| 02 Dense Vector Retrieval | Qdrant, embeddings, cosine similarity | PDF + notebook |
-| 03 The Agent Loop | ReAct pattern, tool calling, LangGraph | PDF + notebook |
-| 04 Agentic RAG | RAG pipeline, chunking, LangGraph | PDF + notebook |
-| 05 Multi-Agent with LangGraph | LangGraph, state machines, supervisor | PDF + notebook |
-| 06 Agent Memory | Episodic + vector memory, Qdrant | PDF + notebook |
-| 09 Synthetic Data + LangSmith | Tracing, evaluation datasets | PDF + notebook |
-| 10 Evaluating RAG with RAGAS | Faithfulness, context recall, RAGAS | PDF + notebook |
-| 11 Advanced Retrieval | BM25, reranking, multi-query, semantic chunking | PDF + notebook |
+| Module | Content |
+|--------|---------|
+| 02 Dense Vector Retrieval | Qdrant, embeddings, cosine similarity |
+| 03 The Agent Loop | ReAct pattern, tool calling, LangGraph |
+| 04 Agentic RAG | RAG pipeline, chunking, LangGraph |
+| 05 Multi-Agent with LangGraph | LangGraph, state machines, supervisor patterns |
+| 06 Agent Memory | Episodic + vector memory, Qdrant |
+| 09 Synthetic Data + LangSmith | Tracing, evaluation datasets |
+| 10 Evaluating RAG with RAGAS | Faithfulness, context recall, RAGAS |
+| 11 Advanced Retrieval | BM25, reranking, multi-query, semantic chunking |
 
 **Chunking strategy:**
 - **PDFs**: `RecursiveCharacterTextSplitter` (512 chars, 50 overlap)
 - **Notebooks**: cell-level pairing — each markdown cell paired with the following code cell
 - **Markdown**: fixed-size (512 chars, 50 overlap)
 
-To add new cohort material: drop modules into `../Learn-AI-Engineering/`, add entries to `_MODULE_TOPICS` and `_MODULE_RELATIONS` in `scripts/ingest_courses.py`, then re-run:
+To rebuild the KB from scratch:
 ```bash
 uv run python scripts/reingest_fresh.py
 ```
@@ -190,21 +216,20 @@ uv run python evals/synthetic_data_gen.py --size 15
 # Task 5 — Baseline: dense vector retrieval
 uv run python evals/ragas_baseline.py --delay 1.0
 
-# Task 6 — Advanced: HyDE retrieval + comparison
+# Task 6 — HyDE: advanced retrieval + comparison
 uv run python evals/ragas_hyde.py --delay 1.0
 
-# Task 6+ — KG+Dense multi-hop evaluation
+# Task 6+ — KG+Dense multi-hop
 uv run python evals/ragas_kg.py --delay 1.0
 
-# Module 11 — All 7 strategies (BM25, MultiQuery, ParentDoc, Rerank, Ensemble, SemanticChunking)
+# Module 11 — All 7 strategies
 uv run python evals/ragas_module11.py --delay 1.5
-uv run python evals/ragas_module11.py --only rerank --delay 2.0  # Cohere only
 
-# Ablation — retriever × k grid search
+# Ablation — retriever × k grid
 uv run python evals/ragas_ablation.py --delay 1.0
 ```
 
-### Key Results
+### Key Results (Module 11 full comparison)
 
 | Strategy | Context Recall | Faithfulness | Answer Relevancy | Composite |
 |---|---|---|---|---|
@@ -216,9 +241,8 @@ uv run python evals/ragas_ablation.py --delay 1.0
 | Multi-Query | 0.444 | 0.413 | 0.520 | 1.377 |
 | Parent-Document | 0.459 | 0.398 | 0.449 | 1.307 |
 | BM25 | 0.290 | 0.379 | 0.513 | 1.182 |
-| KG+Dense | 0.339 | 0.222 | 0.261 | 0.822 |
 
-> KG+Dense scores low on RAGAS (which rewards focused single-question recall) but excels at multi-hop breadth for exploratory learning questions — retained in the chat pipeline for this reason.
+> KG+Dense scores 0.822 composite on RAGAS (which rewards focused single-question recall), but excels at multi-hop breadth for exploratory learning questions — retained in the chat pipeline for its pedagogical value.
 
 ---
 
@@ -237,10 +261,10 @@ LANGCHAIN_API_KEY=lsv2_...
 # Optional — enables X.com media search
 X_BEARER_TOKEN=AAAA...
 
-# Optional — enables Cohere Rerank in chat pipeline (free tier available)
+# Optional — enables Cohere Rerank in chat (free tier available)
 COHERE_API_KEY=...
 
-# Image generation (dall-e-3 default)
+# Image generation
 IMAGE_MODEL=dall-e-3
 IMAGE_QUALITY=hd
 
@@ -256,15 +280,15 @@ CONTENT_DOMAIN=Generative AI
 ## Project Structure
 
 ```
-my-ai-assistant/
+zizi-byte/  (my-ai-assistant/)
 ├── app.py                        # Chainlit entry point — intent routing, UI
 ├── pyproject.toml                # uv project + all dependencies
 ├── docker-compose.yml            # Qdrant local container
 ├── evals/
-│   ├── EVALUATION_REPORT.md      # Full certification challenge deliverables document
+│   ├── EVALUATION_REPORT.md      # Full certification challenge deliverables
 │   ├── synthetic_data_gen.py     # RAGAS TestsetGenerator
 │   ├── ragas_baseline.py         # Task 5 — Dense retrieval baseline
-│   ├── ragas_hyde.py             # Task 6 — HyDE evaluation + comparison table
+│   ├── ragas_hyde.py             # Task 6 — HyDE evaluation + comparison
 │   ├── ragas_kg.py               # Task 6+ — KG+Dense multi-hop evaluation
 │   ├── ragas_module11.py         # Module 11 — all 7 strategies
 │   ├── ragas_ablation.py         # Retriever × k ablation study
@@ -279,23 +303,23 @@ my-ai-assistant/
     ├── agents/
     │   ├── state.py              # ContentState + ChatState TypedDicts
     │   ├── content_pipeline.py   # LangGraph content creation graph
-    │   └── chat_pipeline.py      # LangGraph KG RAG chat graph
+    │   └── chat_pipeline.py      # LangGraph KG RAG learning chat graph
     ├── tools/
-    │   ├── tavily_tool.py        # Trending topic search (news-focused)
-    │   ├── x_tool.py             # X.com tweet + media search (tweepy v2)
+    │   ├── tavily_tool.py        # Trending topic search
+    │   ├── x_tool.py             # X.com tweet + media search
     │   ├── image_tool.py         # DALL-E 3 HD poster generation
     │   └── kg_viz_tool.py        # Plotly knowledge graph visualization
     ├── retrieval/
     │   ├── base.py               # Retriever protocol
     │   ├── dense_retriever.py    # Baseline — embed query → Qdrant
-    │   ├── hyde_retriever.py     # HyDE — hypothetical doc → embed → Qdrant
-    │   ├── kg_retriever.py       # KG traversal + Dense multi-hop (chat pipeline)
-    │   ├── bm25_retriever.py     # BM25 sparse keyword (Module 11)
-    │   ├── multi_query_retriever.py  # MultiQueryRetriever (Module 11)
-    │   ├── rerank_retriever.py   # Cohere Rerank v3.5 (Module 11 + chat)
-    │   ├── ensemble_retriever.py # BM25+Dense RRF (Module 11)
-    │   ├── parent_doc_retriever.py   # ParentDocumentRetriever (Module 11)
-    │   └── semantic_chunking_retriever.py  # SemanticChunker (Module 11)
+    │   ├── hyde_retriever.py     # HyDE — hypothetical doc → embed → Qdrant (eval only)
+    │   ├── kg_retriever.py       # KG traversal + Dense multi-hop (production)
+    │   ├── bm25_retriever.py     # BM25 sparse keyword (Module 11 eval)
+    │   ├── multi_query_retriever.py  # MultiQueryRetriever (Module 11 eval)
+    │   ├── rerank_retriever.py   # Cohere Rerank v3.5 (Module 11 eval + production)
+    │   ├── ensemble_retriever.py # BM25+Dense RRF (Module 11 eval)
+    │   ├── parent_doc_retriever.py   # ParentDocumentRetriever (Module 11 eval)
+    │   └── semantic_chunking_retriever.py  # SemanticChunker (Module 11 eval)
     ├── memory/
     │   ├── qdrant_store.py       # Qdrant upsert/search + LangChain retriever
     │   └── topic_graph.py        # NetworkX KG — nodes, edges, traversal, JSON persistence
