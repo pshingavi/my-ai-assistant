@@ -6,7 +6,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 **Zizi Byte** — "Learn in bytes. Think in leaps." Adaptive AI micro-learning platform that transforms dense course materials into personalized, analogy-driven learning experiences. AIE9 Certification Challenge submission.
 
-Two modes: **Content Pipeline** (research → dedup → RAG → post + image) and **Learning Chat** (KG+Dense → Cohere Rerank → analogy-first grounded answer).
+Two modes: **Content Pipeline** (research → dedup → RAG → post + image) and **Chat** (KG+Dense → Cohere Rerank → analogy-first grounded answer).
 
 ## Commands
 

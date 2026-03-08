@@ -1,10 +1,8 @@
-"""Chainlit application — Zizi Byte.
-
-Adaptive AI micro-learning platform: learn in bytes, think in leaps.
+"""Chainlit application — AI Content Creator.
 
 Two modes, detected from the user's message:
   • CONTENT mode  — triggered by keywords like "create", "write post", "find topics"
-  • CHAT mode     — everything else → Knowledge Graph RAG Q&A with analogy-driven answers
+  • CHAT mode     — everything else → Knowledge Graph RAG Q&A
 
 Pipeline progress is shown as Chainlit Steps (accordion UI).
 """
@@ -54,15 +52,14 @@ async def on_chat_start() -> None:
 
     await cl.Message(
         content=(
-            f"👋 Welcome to **{cfg.app_name}** — *Learn in bytes. Think in leaps.*\n\n"
-            "I'm your adaptive AI learning companion for **Generative AI engineering**. "
-            "Ask me anything from the course knowledge base and I'll explain it through a vivid analogy "
-            "tailored to make it click — then ground it in the actual technical details.\n\n"
+            f"👋 Welcome to **{cfg.app_name}**!\n\n"
+            f"I help you create viral LinkedIn posts about **{cfg.content_domain}** "
+            "and answer your questions about AI/ML concepts.\n\n"
             "**Try:**\n"
-            "- `Explain the agent loop like I'm a chef` — analogy-driven explanation\n"
-            "- `What is RAG and why does it matter?` — grounded course answer\n"
-            "- `create` — research trending AI topics and generate a LinkedIn post\n"
-            "- `kg` — explore the GenAI knowledge graph"
+            "- `create` — find trending topics and generate a post\n"
+            "- `kg` — view the GenAI knowledge graph\n"
+            "- `What is the agent loop?` — chat with the knowledge base\n"
+            "- `Explain RAG like I'm a chef` — analogy-driven explanation"
         )
     ).send()
 

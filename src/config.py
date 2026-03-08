@@ -22,7 +22,7 @@ class Settings(BaseSettings):
     )
 
     # ── App ───────────────────────────────────────────────────────────────────
-    app_name: str = "Zizi Byte"
+    app_name: str = "AI Content Creator"
     content_domain: str = "Generative AI"
 
     # ── OpenAI ────────────────────────────────────────────────────────────────
@@ -54,7 +54,7 @@ class Settings(BaseSettings):
     # ── LangSmith ─────────────────────────────────────────────────────────────
     langchain_tracing_v2: str = "false"
     langchain_api_key: str | None = None
-    langchain_project: str = "zizi-byte"
+    langchain_project: str = "ai-content-creator"
     langchain_endpoint: str = "https://api.smith.langchain.com"
 
     # ── Agent tuning ──────────────────────────────────────────────────────────

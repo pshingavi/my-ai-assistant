@@ -1,7 +1,7 @@
 [project]
-name = "zizi-byte"
+name = "ai-content-creator"
 version = "0.1.0"
-description = "Adaptive AI micro-learning platform — learn in bytes, think in leaps"
+description = "AI-powered LinkedIn content creation and knowledge assistant for AI/GenAI professionals"
 readme = "README.md"
 requires-python = ">=3.11"
 dependencies = [
