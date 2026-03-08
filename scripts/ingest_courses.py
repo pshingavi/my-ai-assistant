@@ -131,41 +131,57 @@ _MODULE_TOPICS: dict[str, dict] = {
         "name": "Dense Vector Retrieval",
         "description": "Semantic search using dense vector embeddings and cosine similarity stored in Qdrant.",
         "concepts": ["embeddings", "cosine similarity", "Qdrant", "vector search", "text-embedding-3-small"],
+        "module_number": "02",
+        "source_url": "https://github.com/AI-Makerspace/Learn-AI-Engineering/tree/main/02_Dense_Vector_Retrieval",
     },
     "03_The_Agent_Loop": {
         "name": "The Agent Loop",
         "description": "ReAct pattern: AI agents reason and act in a loop by calling tools and reflecting on results.",
         "concepts": ["ReAct", "tool calling", "agent reasoning", "planning", "LLM loop"],
+        "module_number": "03",
+        "source_url": "https://github.com/AI-Makerspace/Learn-AI-Engineering/tree/main/03_The_Agent_Loop",
     },
     "04_Agentic_RAG_From_Scratch": {
         "name": "Agentic RAG",
         "description": "Building Retrieval-Augmented Generation with agentic decision-making and conditional retrieval steps.",
         "concepts": ["RAG", "chunking", "document loading", "conditional logic", "retrieval augmentation"],
+        "module_number": "04",
+        "source_url": "https://github.com/AI-Makerspace/Learn-AI-Engineering/tree/main/04_Agentic_RAG_From_Scratch",
     },
     "05_Multi_Agent_with_LangGraph": {
         "name": "Multi-Agent LangGraph",
         "description": "Orchestrating multiple specialized AI agents using LangGraph state machines and conditional edges.",
         "concepts": ["LangGraph", "multi-agent", "state machine", "conditional edges", "graph orchestration"],
+        "module_number": "05",
+        "source_url": "https://github.com/AI-Makerspace/Learn-AI-Engineering/tree/main/05_Multi_Agent_with_LangGraph",
     },
     "06_Agent_Memory": {
         "name": "Agent Memory",
         "description": "Persistent memory systems for AI agents: episodic, semantic, and procedural memory.",
         "concepts": ["episodic memory", "vector memory", "conversation history", "long-term memory", "memory retrieval"],
+        "module_number": "06",
+        "source_url": "https://github.com/AI-Makerspace/Learn-AI-Engineering/tree/main/06_Agent_Memory",
     },
     "09_Synthetic_Data_Generation_and_LangSmith": {
         "name": "Synthetic Data & LangSmith",
         "description": "Generating evaluation datasets synthetically and tracing AI pipelines with LangSmith observability.",
         "concepts": ["LangSmith", "tracing", "observability", "synthetic data", "evaluation datasets"],
+        "module_number": "09",
+        "source_url": "https://github.com/AI-Makerspace/Learn-AI-Engineering/tree/main/09_Synthetic_Data_Generation_and_LangSmith",
     },
     "10_Evaluating_RAG_With_Ragas": {
         "name": "RAG Evaluation with RAGAS",
         "description": "Measuring RAG quality using RAGAS: context recall, faithfulness, and answer relevancy metrics.",
         "concepts": ["RAGAS", "faithfulness", "context recall", "answer relevancy", "evaluation metrics"],
+        "module_number": "10",
+        "source_url": "https://github.com/AI-Makerspace/Learn-AI-Engineering/tree/main/10_Evaluating_RAG_With_Ragas",
     },
     "11_Advanced_Retrieval": {
         "name": "Advanced Retrieval",
         "description": "HyDE, reranking, and knowledge graph retrieval for bridging the semantic gap in RAG.",
         "concepts": ["HyDE", "reranking", "knowledge graph", "multi-hop retrieval", "hypothetical documents"],
+        "module_number": "11",
+        "source_url": "https://github.com/AI-Makerspace/Learn-AI-Engineering/tree/main/11_Advanced_Retrieval",
     },
 }
 
@@ -194,6 +210,8 @@ async def _build_course_kg(modules: list[str]) -> None:
                 description=info["description"],
                 concepts=info["concepts"],
                 embedding=vectors[0],
+                module_number=info.get("module_number", ""),
+                source_url=info.get("source_url", ""),
             )
             kg.add_topic(node)  # no related_to — we wire edges explicitly below
             added += 1

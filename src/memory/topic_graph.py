@@ -35,6 +35,8 @@ class TopicNode:
     concepts: list[str]
     post_id: str | None = None
     embedding: list[float] = field(default_factory=list)
+    module_number: str = ""
+    source_url: str = ""
 
     def to_dict(self) -> dict[str, Any]:
         return {
@@ -44,10 +46,15 @@ class TopicNode:
             "concepts": self.concepts,
             "post_id": self.post_id,
             "embedding": self.embedding,
+            "module_number": self.module_number,
+            "source_url": self.source_url,
         }
 
     @classmethod
     def from_dict(cls, d: dict[str, Any]) -> TopicNode:
+        # Handle legacy nodes without new fields
+        d.setdefault("module_number", "")
+        d.setdefault("source_url", "")
         return cls(**d)
 
 

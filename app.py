@@ -31,6 +31,11 @@ _KG_KEYWORDS = {
     "show topics", "what topics", "course topics", "topic map",
 }
 
+_LMS_KEYWORDS = {
+    "learn", "lms", "study", "byte", "lesson", "course", "module",
+    "interactive", "learning mode",
+}
+
 # ── Lifecycle ─────────────────────────────────────────────────────────────────
 
 @cl.on_chat_start
@@ -73,10 +78,25 @@ async def on_message(message: cl.Message) -> None:
 
     is_kg_mode = any(kw in text for kw in _KG_KEYWORDS)
 
+    is_lms_mode = any(kw in text for kw in _LMS_KEYWORDS) and not is_create_mode
+
     if is_create_mode:
         await _run_content_pipeline(message.content)
     elif is_kg_mode:
         await _show_knowledge_graph()
+    elif is_lms_mode:
+        await cl.Message(
+            content=(
+                "## 🎓 Zizi Byte LMS\n\n"
+                "The interactive byte-sized learning experience is available at:\n\n"
+                "**[http://localhost:3000](http://localhost:3000)**\n\n"
+                "Start the LMS frontend with:\n"
+                "```bash\ncd zizi-lms && npm run dev\n```\n"
+                "And the API server with:\n"
+                "```bash\nuv run python api_server.py\n```\n\n"
+                "Or ask me anything here — I'll answer with analogy-first grounded explanations."
+            )
+        ).send()
     else:
         await _run_chat_pipeline(message.content)
 
