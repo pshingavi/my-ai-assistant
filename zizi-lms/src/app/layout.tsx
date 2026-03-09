@@ -1,5 +1,6 @@
 import type { Metadata } from 'next';
 import { Toaster } from 'react-hot-toast';
+import GlobalNav from '@/src/components/GlobalNav';
 import './globals.css';
 
 export const metadata: Metadata = {
@@ -32,6 +33,7 @@ export default function RootLayout({
         />
       </head>
       <body className="antialiased" style={{ background: '#0a0a0f', color: '#f1f5f9' }}>
+        <GlobalNav />
         {children}
         <Toaster
           position="bottom-right"

@@ -28,7 +28,7 @@ export default function ShareModal({ topic }: ShareModalProps) {
     try {
       const result = await createSharePost(topic.id, customMessage || undefined);
       // Handle both structured and raw responses
-      const r = result as Record<string, unknown>;
+      const r = result as unknown as Record<string, unknown>;
       if (r.is_duplicate) {
         setIsDuplicate(true);
         setDuplicateReason((r.reason as string) || 'This topic was already posted recently.');

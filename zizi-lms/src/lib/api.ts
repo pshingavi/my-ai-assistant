@@ -12,6 +12,7 @@ const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8001';
 async function apiFetch<T>(path: string, options?: RequestInit): Promise<T> {
   const url = `${API_URL}${path}`;
   const res = await fetch(url, {
+    cache: 'no-store',
     ...options,
     headers: {
       'Content-Type': 'application/json',

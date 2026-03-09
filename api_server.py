@@ -236,6 +236,156 @@ async def create_post(req: ShareRequest):
     }
 
 
+# ── Chat endpoint (SSE streaming, KG+Dense → Cohere → analogy-first) ──────────
+
+class ChatMessage(BaseModel):
+    role: str   # "user" | "assistant"
+    content: str
+
+class ChatRequest(BaseModel):
+    message: str
+    history: list[ChatMessage] = []
+    conversation_id: str = ""
+
+
+_CHAT_SYSTEM = """\
+You are Zizi, an expert AI engineering educator with a passion for vivid analogies. \
+Every answer MUST be grounded in the retrieved course context below.
+
+RULES:
+1. Lead with a single, vivid analogy from everyday life (cooking, sports, music, cinema…).
+2. Then give the technical explanation, citing source files: (AIE9_Session03.pdf).
+3. If context relevance is low (< 0.4), acknowledge: "My course material has limited \
+coverage of this — here's what I found:".
+4. Never fabricate facts outside the context.
+5. End with one thought-provoking follow-up question.
+6. Be concise but complete — aim for 200–350 words.
+
+## Retrieved context (cite these):
+{context}
+"""
+
+_STEP_TOKEN = "\x00STEP\x00"
+_SRC_TOKEN  = "\x00SRCS\x00"
+_DONE_TOKEN = "\x00DONE\x00"
+
+
+@app.post("/api/chat/stream")
+async def chat_stream(req: ChatRequest):
+    """Stream a grounded analogy-first chat answer via SSE."""
+    from src.retrieval.kg_retriever import KGRetriever
+    from src.retrieval.dense_retriever import DenseRetriever
+    from src.config import get_settings
+    from src.llm import get_async_openai
+    import asyncio
+
+    cfg = get_settings()
+
+    async def event_stream():
+        # ── Step 1: KG + Dense retrieval ──────────────────────────────────────
+        yield f"data: {json.dumps({'type': 'step', 'content': '🧠 Knowledge Graph + Dense Retrieval…'})}\n\n"
+        try:
+            _K = 15
+            kg_chunks = await KGRetriever().retrieve(req.message, k=_K)
+            dense_raw = await DenseRetriever().retrieve(req.message, k=_K)
+
+            combined: dict[str, dict] = {}
+            for c in [*kg_chunks, *dense_raw]:
+                key = (c.content if hasattr(c, "content") else c["content"])[:100]
+                entry = {
+                    "content": c.content if hasattr(c, "content") else c["content"],
+                    "score":   c.score   if hasattr(c, "score")   else c["score"],
+                    "source":  c.source  if hasattr(c, "source")  else c["source"],
+                }
+                if key not in combined or entry["score"] > combined[key]["score"]:
+                    combined[key] = entry
+
+            chunks = sorted(combined.values(), key=lambda x: x["score"], reverse=True)[:_K]
+        except Exception as e:
+            chunks = []
+            yield f"data: {json.dumps({'type': 'step', 'content': f'⚠️ Retrieval error: {e}'})}\n\n"
+
+        # ── Step 2: Cohere rerank ──────────────────────────────────────────────
+        yield f"data: {json.dumps({'type': 'step', 'content': '🎯 Cohere Reranking…'})}\n\n"
+        try:
+            if cfg.cohere_api_key and chunks:
+                from langchain_core.documents import Document
+                from langchain_core.retrievers import BaseRetriever
+                from langchain_cohere import CohereRerank
+                from langchain_classic.retrievers.contextual_compression import ContextualCompressionRetriever
+
+                class _MemRetriever(BaseRetriever):
+                    docs: list[Document]
+                    def _get_relevant_documents(self, q, *, run_manager=None):
+                        return self.docs
+
+                mem_docs = [
+                    Document(page_content=c["content"], metadata={"source": c["source"]})
+                    for c in chunks
+                ]
+                compressor = CohereRerank(model="rerank-v3.5", top_n=5)
+                cr = ContextualCompressionRetriever(
+                    base_compressor=compressor,
+                    base_retriever=_MemRetriever(docs=mem_docs),
+                )
+                reranked = await asyncio.to_thread(cr.invoke, req.message)
+                if reranked:
+                    chunks = [
+                        {
+                            "content": d.page_content,
+                            "score":   d.metadata.get("relevance_score", 0.0),
+                            "source":  d.metadata.get("source", "unknown"),
+                        }
+                        for d in reranked
+                    ]
+        except Exception:
+            pass  # fall back to dense results
+
+        # ── Step 3: Build context ──────────────────────────────────────────────
+        context_str = "\n\n---\n\n".join(
+            f"[Source: {c['source']}, relevance={c['score']:.2f}]\n{c['content']}"
+            for c in chunks[:6]
+        ) or "No relevant course context found."
+
+        sources = []
+        seen: set[str] = set()
+        for c in chunks[:6]:
+            src = c.get("source", "unknown")
+            if src not in seen:
+                seen.add(src)
+                sources.append({"source": src, "score": round(c["score"], 3)})
+
+        yield f"data: {json.dumps({'type': 'step', 'content': f'📚 {len(chunks)} chunks retrieved — generating answer…'})}\n\n"
+
+        # ── Step 4: Build conversation messages ───────────────────────────────
+        system_msg = _CHAT_SYSTEM.format(context=context_str)
+        messages = [{"role": "system", "content": system_msg}]
+        for h in req.history[-8:]:   # last 8 turns for memory
+            messages.append({"role": h.role, "content": h.content})
+        messages.append({"role": "user", "content": req.message})
+
+        # ── Step 5: Stream LLM answer ─────────────────────────────────────────
+        client = get_async_openai()
+        stream = await client.chat.completions.create(
+            model=cfg.llm_model,
+            messages=messages,
+            max_tokens=700,
+            temperature=0.7,
+            stream=True,
+        )
+        async for chunk in stream:
+            delta = chunk.choices[0].delta
+            if delta.content:
+                yield f"data: {json.dumps({'type': 'token', 'content': delta.content})}\n\n"
+
+        # ── Step 6: Send sources + done ───────────────────────────────────────
+        yield f"data: {json.dumps({'type': 'sources', 'sources': sources})}\n\n"
+        yield f"data: {json.dumps({'type': 'done'})}\n\n"
+
+    return StreamingResponse(event_stream(), media_type="text/event-stream",
+                             headers={"X-Accel-Buffering": "no", "Cache-Control": "no-cache"})
+
+
 # ── Health check ──────────────────────────────────────────────────────────────
 
 @app.get("/health")
