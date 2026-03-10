@@ -249,19 +249,25 @@ class ChatRequest(BaseModel):
 
 
 _CHAT_SYSTEM = """\
-You are Zizi, an expert AI engineering educator with a passion for vivid analogies. \
-Every answer MUST be grounded in the retrieved course context below.
+You are Zizi, an expert AI engineering educator. \
+Your answers MUST be built EXCLUSIVELY from the retrieved course context below. \
+Do NOT use any pre-trained knowledge that is not present in the context chunks. \
+If the context does not contain enough information, say so explicitly.
 
 RULES:
-1. Lead with a single, vivid analogy from everyday life (cooking, sports, music, cinema…).
-2. Then give the technical explanation, citing source files: (AIE9_Session03.pdf).
-3. If context relevance is low (< 0.4), acknowledge: "My course material has limited \
-coverage of this — here's what I found:".
-4. Never fabricate facts outside the context.
+1. Lead with a single, vivid analogy from everyday life (cooking, sports, music, cinema…) \
+   that is inspired by or consistent with what the course material says.
+2. Then give the technical explanation using ONLY facts, quotes, and concepts that appear \
+   verbatim or clearly implied in the retrieved chunks. Cite the source file in parentheses \
+   e.g. (AIE9_Session03_The-Agent-Loop.pdf).
+3. If no chunk is directly relevant, say: "My course material has limited coverage of this — \
+   here is what I found:" and use only what is in the context.
+4. NEVER invent details, steps, or explanations that are not in the retrieved context, \
+   even if you know them from pre-training.
 5. End with one thought-provoking follow-up question.
 6. Be concise but complete — aim for 200–350 words.
 
-## Retrieved context (cite these):
+## Retrieved course context (your ONLY allowed knowledge source):
 {context}
 """
 
@@ -300,7 +306,10 @@ async def chat_stream(req: ChatRequest):
                 if key not in combined or entry["score"] > combined[key]["score"]:
                     combined[key] = entry
 
-            chunks = sorted(combined.values(), key=lambda x: x["score"], reverse=True)[:_K]
+            # Keep ALL unique chunks — let Cohere rerank decide relevance.
+            # Pre-filtering by embedding score loses exact-match docs that score
+            # lower than broader KG neighbourhood chunks.
+            chunks = list(combined.values())
         except Exception as e:
             chunks = []
             yield f"data: {json.dumps({'type': 'step', 'content': f'⚠️ Retrieval error: {e}'})}\n\n"
@@ -323,7 +332,7 @@ async def chat_stream(req: ChatRequest):
                     Document(page_content=c["content"], metadata={"source": c["source"]})
                     for c in chunks
                 ]
-                compressor = CohereRerank(model="rerank-v3.5", top_n=5)
+                compressor = CohereRerank(model="rerank-v3.5", top_n=8)
                 cr = ContextualCompressionRetriever(
                     base_compressor=compressor,
                     base_retriever=_MemRetriever(docs=mem_docs),
@@ -344,12 +353,12 @@ async def chat_stream(req: ChatRequest):
         # ── Step 3: Build context ──────────────────────────────────────────────
         context_str = "\n\n---\n\n".join(
             f"[Source: {c['source']}, relevance={c['score']:.2f}]\n{c['content']}"
-            for c in chunks[:6]
+            for c in chunks[:8]
         ) or "No relevant course context found."
 
         sources = []
         seen: set[str] = set()
-        for c in chunks[:6]:
+        for c in chunks[:8]:
             src = c.get("source", "unknown")
             if src not in seen:
                 seen.add(src)
