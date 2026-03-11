@@ -5,6 +5,7 @@ import type {
   KGData,
   TopicNeighbors,
   SharePostResult,
+  CachedByte,
 } from '@/src/types';
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8001';
@@ -62,6 +63,28 @@ export async function generateBuild(
   return apiFetch<BuildContent>('/api/build/generate', {
     method: 'POST',
     body: JSON.stringify({ topic_id: topicId, concept }),
+  });
+}
+
+export async function fetchCachedByte(topicId: string, concept: string): Promise<CachedByte | null> {
+  try {
+    return await apiFetch<CachedByte>(`/api/bytes/cached/${encodeURIComponent(topicId)}/${encodeURIComponent(concept)}`);
+  } catch {
+    return null;
+  }
+}
+
+export async function regenerateByte(topicId: string, concept: string): Promise<CachedByte> {
+  return apiFetch<CachedByte>('/api/bytes/regenerate', {
+    method: 'POST',
+    body: JSON.stringify({ topic_id: topicId, concept }),
+  });
+}
+
+export async function triggerWarmCache(topicIds?: string[]): Promise<{ topics_queued: number }> {
+  return apiFetch('/api/bytes/warm', {
+    method: 'POST',
+    body: JSON.stringify({ topic_ids: topicIds }),
   });
 }
 

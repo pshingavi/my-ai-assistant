@@ -13,14 +13,18 @@ import asyncio
 import json
 import logging
 from dataclasses import asdict
+from pathlib import Path
 
-from fastapi import FastAPI, HTTPException
+from fastapi import BackgroundTasks, FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import StreamingResponse
 from pydantic import BaseModel
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
+
+# Resolve DB path relative to this file so it works regardless of cwd.
+_DB_PATH = str(Path(__file__).parent / "data" / "analogies.db")
 
 app = FastAPI(title="Zizi Byte LMS API", version="1.0.0")
 
@@ -31,6 +35,15 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+
+# ── Startup: initialise SQLite analogy store ──────────────────────────────────
+
+@app.on_event("startup")
+async def _startup() -> None:
+    from src.lms.analogy_store import init_db
+    await init_db(_DB_PATH)
+    logger.info("analogy_store DB ready at %s", _DB_PATH)
 
 
 # ── Topic endpoints ────────────────────────────────────────────────────────────
@@ -93,17 +106,33 @@ class BuildRequest(BaseModel):
 
 @app.post("/api/bytes/generate")
 async def generate_byte(req: ByteRequest):
-    """Generate a byte-sized analogy-first learning card for one concept."""
+    """Generate a byte-sized analogy-first learning card for one concept.
+
+    Checks the SQLite cache first. If a cached row exists, returns it immediately.
+    Otherwise runs the full analogy pipeline (RAG → LLM → image → animation → persist).
+    """
+    from src.lms.analogy_store import get_active_byte
+    from src.lms.analogy_pipeline import run_byte_pipeline
     from src.lms.learning_path import get_topic_by_id
-    from src.lms.byte_generator import ByteGenerator
 
     topic = get_topic_by_id(req.topic_id)
     if not topic:
         raise HTTPException(status_code=404, detail="Topic not found")
 
-    gen = ByteGenerator()
-    byte_content = await gen.generate_byte(topic.name, req.concept)
-    return asdict(byte_content)
+    # Fast cache path
+    cached = await get_active_byte(req.topic_id, req.concept, db_path=_DB_PATH)
+    if cached:
+        logger.info("generate_byte: cache hit topic=%s concept=%s", req.topic_id, req.concept)
+        return cached
+
+    # Full pipeline
+    result = await run_byte_pipeline(
+        topic_id=req.topic_id,
+        topic_name=topic.name,
+        concept=req.concept,
+        db_path=_DB_PATH,
+    )
+    return result
 
 
 @app.post("/api/bytes/stream")
@@ -124,6 +153,100 @@ async def stream_byte(req: ByteRequest):
         yield "data: [DONE]\n\n"
 
     return StreamingResponse(event_generator(), media_type="text/event-stream")
+
+
+# ── Cache / versioning / warm endpoints ───────────────────────────────────────
+
+@app.get("/api/bytes/cached/{topic_id}/{concept}")
+async def get_cached_byte(topic_id: str, concept: str):
+    """Return the currently active cached byte for a (topic_id, concept) pair.
+
+    Returns 404 if no cached byte exists.
+    """
+    from src.lms.analogy_store import get_active_byte
+
+    row = await get_active_byte(topic_id, concept, db_path=_DB_PATH)
+    if not row:
+        raise HTTPException(status_code=404, detail="No cached byte found")
+    return row
+
+
+class RegenerateRequest(BaseModel):
+    topic_id: str
+    concept: str
+
+
+@app.post("/api/bytes/regenerate")
+async def regenerate_byte(req: RegenerateRequest):
+    """Force-regenerate a byte, bypassing the cache and saving a new version."""
+    from src.lms.analogy_pipeline import run_byte_pipeline
+    from src.lms.learning_path import get_topic_by_id
+
+    topic = get_topic_by_id(req.topic_id)
+    if not topic:
+        raise HTTPException(status_code=404, detail="Topic not found")
+
+    result = await run_byte_pipeline(
+        topic_id=req.topic_id,
+        topic_name=topic.name,
+        concept=req.concept,
+        force_regenerate=True,
+        db_path=_DB_PATH,
+    )
+    return result
+
+
+@app.get("/api/bytes/version-history/{topic_id}/{concept}")
+async def byte_version_history(topic_id: str, concept: str):
+    """Return all historical versions for a (topic_id, concept) pair."""
+    from src.lms.analogy_store import get_version_history
+
+    history = await get_version_history(topic_id, concept, db_path=_DB_PATH)
+    return {"versions": history}
+
+
+class WarmRequest(BaseModel):
+    topic_ids: list[str] | None = None
+
+
+async def warm_cache_all(topic_ids: list[str] | None = None) -> None:
+    """Background task: pre-generate bytes for all topics and concepts."""
+    from src.lms.analogy_pipeline import run_byte_pipeline
+    from src.lms.analogy_store import get_active_byte
+    from src.lms.learning_path import get_all_topics
+
+    topics = get_all_topics()
+    if topic_ids:
+        topics = [t for t in topics if t.id in topic_ids]
+
+    logger.info("warm_cache_all: warming %d topics", len(topics))
+    for topic in topics:
+        for concept in topic.concepts:
+            existing = await get_active_byte(topic.id, concept, db_path=_DB_PATH)
+            if existing:
+                logger.debug("warm_cache_all: already cached %s/%s — skipping", topic.id, concept)
+                continue
+            try:
+                await run_byte_pipeline(topic.id, topic.name, concept, db_path=_DB_PATH)
+                logger.info("warm_cache_all: warmed %s/%s", topic.id, concept)
+            except Exception as e:
+                logger.warning("warm_cache_all: failed %s/%s: %s", topic.id, concept, e)
+
+
+@app.post("/api/bytes/warm")
+async def warm_bytes(req: WarmRequest, background_tasks: BackgroundTasks):
+    """Kick off a background job to pre-generate bytes for all (or specified) topics."""
+    background_tasks.add_task(warm_cache_all, req.topic_ids)
+    return {"status": "started", "topic_ids": req.topic_ids}
+
+
+@app.get("/api/bytes/warm/status")
+async def warm_status():
+    """Return counts of pending/running/done/failed warm jobs."""
+    from src.lms.analogy_store import get_warm_status
+
+    counts = await get_warm_status(db_path=_DB_PATH)
+    return counts
 
 
 @app.post("/api/bytes/all")
