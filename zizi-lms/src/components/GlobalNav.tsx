@@ -3,6 +3,7 @@
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { motion } from 'framer-motion';
+import ThemeToggle from './ThemeToggle';
 
 const NAV_LINKS = [
   { href: '/', label: 'Galaxy', icon: '🌌' },
@@ -19,15 +20,16 @@ export default function GlobalNav() {
 
   return (
     <nav
-      className="fixed top-0 left-0 right-0 z-50 flex items-center justify-between px-5 py-3"
+      className="fixed top-0 left-0 right-0 z-50 flex items-center justify-between px-6 py-3.5"
       style={{
-        borderBottom: '1px solid rgba(139,92,246,0.12)',
-        backdropFilter: 'blur(14px)',
-        background: 'rgba(10,10,15,0.85)',
+        borderBottom: '1px solid var(--border)',
+        backdropFilter: 'blur(16px)',
+        background: 'var(--surface-2)',
+        boxShadow: '0 1px 0 var(--border)',
       }}
     >
       {/* Logo */}
-      <Link href="/" className="flex items-center gap-2 group">
+      <Link href="/" className="flex items-center gap-2.5 group">
         <motion.span
           animate={{ rotate: [0, 10, -10, 0] }}
           transition={{ duration: 4, repeat: Infinity, ease: 'easeInOut' }}
@@ -35,57 +37,54 @@ export default function GlobalNav() {
         >
           ⚡
         </motion.span>
-        <span className="font-extrabold text-sm hidden sm:block" style={{ color: '#8b5cf6' }}>
+        <span className="font-extrabold text-sm hidden sm:block" style={{ color: 'var(--accent)' }}>
           Zizi Byte
         </span>
-        <span className="text-xs hidden sm:block" style={{ color: '#334155' }}>
+        <span className="text-xs hidden lg:block" style={{ color: 'var(--text-4)', fontStyle: 'italic' }}>
           · Learn in bytes. Think in leaps.
         </span>
       </Link>
 
       {/* Links */}
-      <div className="flex items-center gap-1">
+      <div className="flex items-center gap-1 p-1 rounded-xl" style={{ background: 'var(--bg-2)', border: '1px solid var(--border)' }}>
         {NAV_LINKS.map((n) => {
           const active = pathname === n.href || (n.href !== '/' && pathname.startsWith(n.href));
           return (
             <Link
               key={n.href}
               href={n.href}
-              className="relative px-3 py-1.5 rounded-lg text-xs font-medium transition-all duration-200 flex items-center gap-1.5"
+              className="relative px-4 py-1.5 rounded-lg text-xs font-semibold transition-all duration-200 flex items-center gap-1.5"
               style={
                 active
-                  ? {
-                      background: 'rgba(139,92,246,0.2)',
-                      color: '#c4b5fd',
-                      border: '1px solid rgba(139,92,246,0.35)',
-                    }
-                  : { color: '#64748b', border: '1px solid transparent' }
+                  ? { background: 'var(--accent)', color: '#fff', boxShadow: '0 2px 8px rgba(124,58,237,0.35)' }
+                  : { color: 'var(--text-3)' }
               }
+              onMouseEnter={e => {
+                if (!active) (e.currentTarget as HTMLElement).style.color = 'var(--text-1)';
+              }}
+              onMouseLeave={e => {
+                if (!active) (e.currentTarget as HTMLElement).style.color = 'var(--text-3)';
+              }}
             >
               <span>{n.icon}</span>
               {n.label}
-              {active && (
-                <motion.div
-                  layoutId="nav-pill"
-                  className="absolute inset-0 rounded-lg"
-                  style={{ boxShadow: '0 0 12px rgba(139,92,246,0.3)' }}
-                  transition={{ type: 'spring', bounce: 0.2, duration: 0.4 }}
-                />
-              )}
             </Link>
           );
         })}
       </div>
 
-      {/* Status dot */}
-      <div className="flex items-center gap-1.5 text-xs" style={{ color: '#475569' }}>
-        <motion.span
-          animate={{ opacity: [0.4, 1, 0.4] }}
-          transition={{ duration: 2, repeat: Infinity }}
-          className="w-1.5 h-1.5 rounded-full inline-block"
-          style={{ background: '#22d3ee' }}
-        />
-        <span className="hidden sm:inline">KG+Dense · Cohere</span>
+      {/* Right: status + theme */}
+      <div className="flex items-center gap-3">
+        <div className="flex items-center gap-1.5 text-xs hidden sm:flex px-3 py-1.5 rounded-lg" style={{ color: 'var(--text-4)', background: 'var(--bg-2)', border: '1px solid var(--border)' }}>
+          <motion.span
+            animate={{ opacity: [0.4, 1, 0.4] }}
+            transition={{ duration: 2, repeat: Infinity }}
+            className="w-1.5 h-1.5 rounded-full inline-block"
+            style={{ background: 'var(--accent)' }}
+          />
+          KG+Dense · Cohere
+        </div>
+        <ThemeToggle />
       </div>
     </nav>
   );

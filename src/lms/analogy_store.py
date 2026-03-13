@@ -31,8 +31,16 @@ CREATE TABLE IF NOT EXISTS analogies (
     animation_props TEXT    NOT NULL DEFAULT '{}',
     sources         TEXT    NOT NULL DEFAULT '[]',
     created_at      TEXT    NOT NULL DEFAULT (datetime('now')),
-    is_active       INTEGER NOT NULL DEFAULT 1
+    is_active       INTEGER NOT NULL DEFAULT 1,
+    audio_url       TEXT    NOT NULL DEFAULT '',
+    audio_local_path TEXT   NOT NULL DEFAULT '',
+    mechanism_diagram_props TEXT NOT NULL DEFAULT '{}'
 );
+"""
+
+_MIGRATE_AUDIO_COLUMNS = """
+ALTER TABLE analogies ADD COLUMN audio_url TEXT NOT NULL DEFAULT '';
+ALTER TABLE analogies ADD COLUMN audio_local_path TEXT NOT NULL DEFAULT '';
 """
 
 _CREATE_ANALOGY_INDEXES = """
@@ -57,6 +65,40 @@ _CREATE_WARM_JOBS_INDEX = """
 CREATE INDEX IF NOT EXISTS idx_warm_status ON warm_jobs(status);
 """
 
+_CREATE_P5_SKETCHES = """
+CREATE TABLE IF NOT EXISTS p5_sketches (
+    topic_id    TEXT    NOT NULL,
+    concept     TEXT    NOT NULL,
+    version     INTEGER NOT NULL DEFAULT 1,
+    sketch_code TEXT    NOT NULL DEFAULT '',
+    steps_json  TEXT    NOT NULL DEFAULT '[]',
+    analogy     TEXT    NOT NULL DEFAULT '',
+    created_at  TEXT    NOT NULL DEFAULT (datetime('now')),
+    PRIMARY KEY (topic_id, concept, version)
+);
+"""
+
+_CREATE_P5_INDEX = """
+CREATE INDEX IF NOT EXISTS idx_p5_lookup ON p5_sketches(topic_id, concept, version);
+"""
+
+_CREATE_CLAUDE_INTERACTIONS = """
+CREATE TABLE IF NOT EXISTS claude_interactions (
+    topic_id    TEXT    NOT NULL,
+    concept     TEXT    NOT NULL,
+    version     INTEGER NOT NULL DEFAULT 1,
+    sketch_code TEXT    NOT NULL DEFAULT '',
+    steps_json  TEXT    NOT NULL DEFAULT '[]',
+    analogy     TEXT    NOT NULL DEFAULT '',
+    created_at  TEXT    NOT NULL DEFAULT (datetime('now')),
+    PRIMARY KEY (topic_id, concept, version)
+);
+"""
+
+_CREATE_CLAUDE_INDEX = """
+CREATE INDEX IF NOT EXISTS idx_claude_lookup ON claude_interactions(topic_id, concept, version);
+"""
+
 
 async def init_db(db_path: str) -> None:
     """Create tables and indexes idempotently. Creates DB file if not present."""
@@ -74,6 +116,29 @@ async def init_db(db_path: str) -> None:
             stmt = stmt.strip()
             if stmt:
                 await db.execute(stmt)
+        await db.execute(_CREATE_P5_SKETCHES)
+        for stmt in _CREATE_P5_INDEX.strip().splitlines():
+            stmt = stmt.strip()
+            if stmt:
+                await db.execute(stmt)
+        await db.execute(_CREATE_CLAUDE_INTERACTIONS)
+        for stmt in _CREATE_CLAUDE_INDEX.strip().splitlines():
+            stmt = stmt.strip()
+            if stmt:
+                await db.execute(stmt)
+
+        # Migrate: add audio columns if they don't exist yet (idempotent)
+        async with db.execute("PRAGMA table_info(analogies)") as cursor:
+            cols = {row[1] async for row in cursor}
+        for col, stmt in [
+            ("audio_url", "ALTER TABLE analogies ADD COLUMN audio_url TEXT NOT NULL DEFAULT ''"),
+            ("audio_local_path", "ALTER TABLE analogies ADD COLUMN audio_local_path TEXT NOT NULL DEFAULT ''"),
+            ("mechanism_diagram_props", "ALTER TABLE analogies ADD COLUMN mechanism_diagram_props TEXT NOT NULL DEFAULT '{}'"),
+        ]:
+            if col not in cols:
+                await db.execute(stmt)
+                logger.info("analogy_store: migrated column %s", col)
+
         await db.commit()
     logger.info("analogy_store: DB initialised at %s", db_path)
 
@@ -104,6 +169,7 @@ async def get_active_byte(topic_id: str, concept: str, db_path: str = "data/anal
     # Deserialise JSON fields
     result["animation_props"] = json.loads(result.get("animation_props") or "{}")
     result["sources"] = json.loads(result.get("sources") or "[]")
+    result["mechanism_diagram_props"] = json.loads(result.get("mechanism_diagram_props") or "{}")
     return result
 
 
@@ -126,6 +192,7 @@ async def get_version_history(
     for r in results:
         r["animation_props"] = json.loads(r.get("animation_props") or "{}")
         r["sources"] = json.loads(r.get("sources") or "[]")
+        r["mechanism_diagram_props"] = json.loads(r.get("mechanism_diagram_props") or "{}")
     return results
 
 
@@ -164,17 +231,20 @@ async def save_byte(
         # Serialise compound fields
         animation_props = data.get("animation_props", {})
         sources = data.get("sources", [])
+        mechanism_diagram_props = data.get("mechanism_diagram_props", {})
         if isinstance(animation_props, dict):
             animation_props = json.dumps(animation_props)
         if isinstance(sources, list):
             sources = json.dumps(sources)
+        if isinstance(mechanism_diagram_props, dict):
+            mechanism_diagram_props = json.dumps(mechanism_diagram_props)
 
         cursor = await db.execute(
             """INSERT INTO analogies
                (topic_id, concept, version, analogy, explanation, why_it_matters,
                 emoji, image_prompt, image_url, image_local_path, animation_props,
-                sources, is_active)
-               VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 1)""",
+                sources, is_active, audio_url, audio_local_path, mechanism_diagram_props)
+               VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 1, ?, ?, ?)""",
             (
                 topic_id,
                 concept,
@@ -188,6 +258,9 @@ async def save_byte(
                 data.get("image_local_path", ""),
                 animation_props,
                 sources,
+                data.get("audio_url", ""),
+                data.get("audio_local_path", ""),
+                mechanism_diagram_props,
             ),
         )
         new_id = cursor.lastrowid
@@ -260,3 +333,148 @@ async def upsert_warm_job(
                 (topic_id, concept, status, error),
             )
         await db.commit()
+
+
+# ── P5 Sketch store ────────────────────────────────────────────────────────────
+
+async def get_p5_sketch(
+    topic_id: str, concept: str, db_path: str = "data/analogies.db"
+) -> dict | None:
+    """Return the latest version of the p5.js sketch for (topic_id, concept), or None."""
+    import aiosqlite
+
+    async with aiosqlite.connect(db_path) as db:
+        async with db.execute(
+            """SELECT topic_id, concept, version, sketch_code, steps_json, analogy, created_at
+               FROM p5_sketches
+               WHERE topic_id=? AND concept=?
+               ORDER BY version DESC LIMIT 1""",
+            (topic_id, concept),
+        ) as cursor:
+            row = await cursor.fetchone()
+            if row is None:
+                return None
+            result = _row_to_dict(row, cursor)
+
+    result["steps"] = json.loads(result.get("steps_json") or "[]")
+    return result
+
+
+async def save_p5_sketch(
+    topic_id: str,
+    concept: str,
+    sketch_code: str,
+    steps_json: list | str,
+    analogy: str,
+    db_path: str = "data/analogies.db",
+) -> None:
+    """Save a new version of the p5.js sketch, auto-incrementing version."""
+    import aiosqlite
+
+    if isinstance(steps_json, list):
+        steps_json = json.dumps(steps_json)
+
+    async with aiosqlite.connect(db_path) as db:
+        async with db.execute(
+            "SELECT COALESCE(MAX(version), 0) FROM p5_sketches WHERE topic_id=? AND concept=?",
+            (topic_id, concept),
+        ) as cursor:
+            row = await cursor.fetchone()
+            current_max = row[0] if row else 0
+        new_version = current_max + 1
+
+        await db.execute(
+            """INSERT INTO p5_sketches (topic_id, concept, version, sketch_code, steps_json, analogy)
+               VALUES (?, ?, ?, ?, ?, ?)""",
+            (topic_id, concept, new_version, sketch_code, steps_json, analogy),
+        )
+        await db.commit()
+
+    logger.info(
+        "analogy_store: saved p5 sketch topic=%s concept=%s version=%s",
+        topic_id, concept, new_version,
+    )
+
+
+async def clear_concept_cache(
+    topic_id: str, concept: str, db_path: str = "data/analogies.db"
+) -> None:
+    """Delete all analogy rows and p5 sketches for (topic_id, concept) so regeneration starts fresh."""
+    import aiosqlite
+
+    async with aiosqlite.connect(db_path) as db:
+        await db.execute(
+            "DELETE FROM analogies WHERE topic_id=? AND concept=?",
+            (topic_id, concept),
+        )
+        await db.execute(
+            "DELETE FROM p5_sketches WHERE topic_id=? AND concept=?",
+            (topic_id, concept),
+        )
+        await db.commit()
+
+    logger.info(
+        "analogy_store: cleared concept cache topic=%s concept=%s",
+        topic_id, concept,
+    )
+
+
+# ── Claude Interaction store ────────────────────────────────────────────────────
+
+async def get_claude_interaction(
+    topic_id: str, concept: str, db_path: str = "data/analogies.db"
+) -> dict | None:
+    """Return the latest Claude interaction HTML for (topic_id, concept), or None."""
+    import aiosqlite
+
+    async with aiosqlite.connect(db_path) as db:
+        async with db.execute(
+            """SELECT topic_id, concept, version, sketch_code, steps_json, analogy, created_at
+               FROM claude_interactions
+               WHERE topic_id=? AND concept=?
+               ORDER BY version DESC LIMIT 1""",
+            (topic_id, concept),
+        ) as cursor:
+            row = await cursor.fetchone()
+            if row is None:
+                return None
+            result = _row_to_dict(row, cursor)
+
+    result["steps"] = json.loads(result.get("steps_json") or "[]")
+    return result
+
+
+async def save_claude_interaction(
+    topic_id: str,
+    concept: str,
+    sketch_code: str,
+    steps_json: list | str,
+    analogy: str,
+    db_path: str = "data/analogies.db",
+) -> None:
+    """Save a new version of the Claude interaction HTML, auto-incrementing version."""
+    import aiosqlite
+
+    if isinstance(steps_json, list):
+        steps_json = json.dumps(steps_json)
+
+    async with aiosqlite.connect(db_path) as db:
+        async with db.execute(
+            "SELECT COALESCE(MAX(version), 0) FROM claude_interactions WHERE topic_id=? AND concept=?",
+            (topic_id, concept),
+        ) as cursor:
+            row = await cursor.fetchone()
+            current_max = row[0] if row else 0
+        new_version = current_max + 1
+
+        await db.execute(
+            """INSERT INTO claude_interactions (topic_id, concept, version, sketch_code, steps_json, analogy)
+               VALUES (?, ?, ?, ?, ?, ?)""",
+            (topic_id, concept, new_version, sketch_code, steps_json, analogy),
+        )
+        await db.commit()
+
+    logger.info(
+        "analogy_store: saved claude interaction topic=%s concept=%s version=%s",
+        topic_id, concept, new_version,
+    )

@@ -21,6 +21,7 @@ class ContentState(TypedDict):
     x_topics: list[TopicResult]
     selected_topic: str
     topic_description: str
+    concept: str
     # Dedup
     is_duplicate: bool
     duplicate_reason: str

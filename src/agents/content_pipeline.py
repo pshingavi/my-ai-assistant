@@ -225,13 +225,23 @@ async def generate_post_node(state: ContentState) -> dict:
         for c in kb_context[:5]
     )
 
+    analogy_section = (
+        f"Use this exact analogy from the ZiziByte learning byte for the analogy story section:\n"
+        f"\"{analogy_hint}\"\n"
+        "Build the analogy story directly around this — do not invent a different one.\n\n"
+        if analogy_hint
+        else f"Analogy idea to explore: {analogy_hint}\n\n"
+    )
+
     user_prompt = (
         f"Write a LinkedIn post about: **{topic}**\n\n"
         f"Topic context: {description}\n\n"
-        f"Analogy idea to explore: {analogy_hint}\n\n"
+        f"{analogy_section}"
         f"Knowledge base context to ground the tech section:\n{context_str}\n\n"
         "Follow the structure in your instructions exactly. "
-        "Make the hook genuinely surprising. Make the analogy vivid and specific."
+        "Make the hook genuinely surprising. Make the analogy vivid and specific.\n\n"
+        "End the post with this line verbatim as the last line:\n"
+        "🧠 Concept explained by #ZiziByte — Learn in bytes. Think in leaps. 🚀"
     )
 
     response = await client.chat.completions.create(

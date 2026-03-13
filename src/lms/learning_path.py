@@ -51,12 +51,14 @@ def get_all_topics() -> list[TopicSummary]:
         node = kg.graph.nodes[nid]["data"]
         summaries.append(_node_to_summary(node))
 
-    # Course modules first (sorted numerically), then generated posts
+    # Course modules first (sorted by zero-padded module_number), then generated posts
     def _sort_key(s: TopicSummary) -> tuple[int, str]:
-        try:
-            return (0, f"{int(s.module_number):04d}") if s.module_number else (1, s.name)
-        except ValueError:
+        if s.is_post or not s.module_number:
             return (1, s.name)
+        try:
+            return (0, f"{int(s.module_number):04d}")
+        except ValueError:
+            return (0, s.module_number.zfill(4))
 
     summaries.sort(key=_sort_key)
     return summaries

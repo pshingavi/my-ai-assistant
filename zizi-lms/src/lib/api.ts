@@ -6,6 +6,7 @@ import type {
   TopicNeighbors,
   SharePostResult,
   CachedByte,
+  P5Sketch,
 } from '@/src/types';
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8001';
@@ -90,10 +91,59 @@ export async function triggerWarmCache(topicIds?: string[]): Promise<{ topics_qu
 
 export async function createSharePost(
   topicId: string,
+  concept: string,
+  analogy?: string,
+  imageUrl?: string,
   customMessage?: string
 ): Promise<SharePostResult> {
   return apiFetch<SharePostResult>('/api/share/create-post', {
     method: 'POST',
-    body: JSON.stringify({ topic_id: topicId, custom_message: customMessage }),
+    body: JSON.stringify({ topic_id: topicId, concept, analogy, image_url: imageUrl, custom_message: customMessage }),
   });
+}
+
+// ── P5 Sketch API ──────────────────────────────────────────────────────────────
+
+export async function fetchP5Sketch(topicId: string, concept: string): Promise<P5Sketch> {
+  return apiFetch<P5Sketch>(
+    `/api/topic/${encodeURIComponent(topicId)}/concept/${encodeURIComponent(concept)}/p5sketch`
+  );
+}
+
+export async function regenerateWithAnalogy(
+  topicId: string,
+  concept: string,
+  analogy?: string
+): Promise<{ byte: CachedByte; sketch_code: string; steps: P5Sketch['steps'] }> {
+  return apiFetch(
+    `/api/topic/${encodeURIComponent(topicId)}/concept/${encodeURIComponent(concept)}/p5sketch/regenerate`,
+    {
+      method: 'POST',
+      body: JSON.stringify({ analogy: analogy || null }),
+    }
+  );
+}
+
+export async function fetchAnalogySuggestions(
+  topicId: string,
+  concept: string
+): Promise<string[]> {
+  const data = await apiFetch<{ suggestions: string[] }>(
+    `/api/topic/${encodeURIComponent(topicId)}/concept/${encodeURIComponent(concept)}/analogy-suggestions`
+  );
+  return data.suggestions;
+}
+
+export async function fetchClaudeInteraction(topicId: string, concept: string): Promise<P5Sketch> {
+  return apiFetch<P5Sketch>(
+    `/api/topic/${encodeURIComponent(topicId)}/concept/${encodeURIComponent(concept)}/claude-interaction`
+  );
+}
+
+export function downloadNotebook(topicId: string, concept: string): void {
+  const url = `${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8001'}/api/topic/${encodeURIComponent(topicId)}/concept/${encodeURIComponent(concept)}/notebook`;
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `${concept.toLowerCase().replace(/\s+/g, '_')}.ipynb`;
+  a.click();
 }

@@ -3,31 +3,36 @@
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import toast from 'react-hot-toast';
-import { createSharePost } from '@/src/lib/api';
+import { createSharePost, downloadNotebook } from '@/src/lib/api';
 import type { TopicSummary } from '@/src/types';
 
 interface ShareModalProps {
   topic: TopicSummary;
+  currentConcept: string;
+  byteAnalogy?: string;
+  byteImageUrl?: string;
 }
 
-export default function ShareModal({ topic }: ShareModalProps) {
+export default function ShareModal({ topic, currentConcept, byteAnalogy, byteImageUrl }: ShareModalProps) {
   const [loading, setLoading] = useState(false);
   const [postText, setPostText] = useState('');
-  const [imageUrl, setImageUrl] = useState('');
   const [isDuplicate, setIsDuplicate] = useState(false);
   const [duplicateReason, setDuplicateReason] = useState('');
   const [customMessage, setCustomMessage] = useState('');
   const [copied, setCopied] = useState(false);
 
+  // Images are served by Next.js static at /generated/images/... — use relative path directly
+  const resolvedImageUrl = byteImageUrl?.startsWith('http')
+    ? byteImageUrl
+    : byteImageUrl || '';
+
   const handleGenerate = async () => {
     setLoading(true);
     setPostText('');
-    setImageUrl('');
     setIsDuplicate(false);
     setCopied(false);
     try {
-      const result = await createSharePost(topic.id, customMessage || undefined);
-      // Handle both structured and raw responses
+      const result = await createSharePost(topic.id, currentConcept, byteAnalogy, byteImageUrl, customMessage || undefined);
       const r = result as unknown as Record<string, unknown>;
       if (r.is_duplicate) {
         setIsDuplicate(true);
@@ -39,7 +44,6 @@ export default function ShareModal({ topic }: ShareModalProps) {
           (r.content as string) ||
           '';
         setPostText(text);
-        setImageUrl((r.image_url as string) || '');
         if (text) toast.success('LinkedIn post generated!');
       }
     } catch {
@@ -60,81 +64,135 @@ export default function ShareModal({ topic }: ShareModalProps) {
     }
   };
 
+  const handleDownloadNotebook = () => {
+    if (!currentConcept) { toast.error('No concept selected'); return; }
+    downloadNotebook(topic.id, currentConcept);
+    toast.success('Downloading notebook…');
+  };
+
+  const handleDownloadImage = () => {
+    if (!resolvedImageUrl) return;
+    const a = document.createElement('a');
+    a.href = resolvedImageUrl;
+    a.download = `${currentConcept.toLowerCase().replace(/\s+/g, '_')}_byte.png`;
+    a.target = '_blank';
+    a.click();
+    toast.success('Downloading image…');
+  };
+
   return (
-    <div className="space-y-5 max-w-2xl">
-      {/* Topic summary card */}
-      <div
-        className="rounded-2xl p-5"
-        style={{ background: 'rgba(139,92,246,0.06)', border: '1px solid rgba(139,92,246,0.2)' }}
-      >
-        <div className="flex items-start justify-between gap-3 mb-2">
-          <h3 className="text-base font-bold" style={{ color: '#f1f5f9' }}>
-            {topic.name}
-          </h3>
-          {topic.module_number && (
-            <span className="badge-module shrink-0">Module {topic.module_number}</span>
-          )}
+    <div className="space-y-6 max-w-2xl">
+      {/* Header */}
+      <div>
+        <div className="flex items-center gap-3 mb-1">
+          <span className="text-2xl">🚀</span>
+          <h2 className="text-xl font-extrabold" style={{ color: 'var(--text-1)' }}>Share to LinkedIn</h2>
         </div>
-        <p className="text-sm mb-4" style={{ color: '#64748b' }}>
-          {topic.description}
+        <p className="text-sm" style={{ color: 'var(--text-4)', marginLeft: 44 }}>
+          Generate a compelling post from this byte.
         </p>
-        <div className="flex flex-wrap gap-1.5">
-          {topic.concepts.map((c) => (
-            <span
-              key={c}
-              className="px-2 py-0.5 rounded-full text-xs"
-              style={{ background: 'rgba(139,92,246,0.12)', color: '#a78bfa', border: '1px solid rgba(139,92,246,0.2)' }}
-            >
-              {c}
-            </span>
-          ))}
+      </div>
+
+      {/* Current byte summary */}
+      <div className="rounded-2xl p-5" style={{ background: 'var(--accent-soft)', border: '1px solid var(--border)' }}>
+        <div className="flex items-start gap-4">
+          {resolvedImageUrl && (
+            <div className="relative flex-shrink-0">
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
+                src={resolvedImageUrl}
+                alt=""
+                className="w-20 h-20 rounded-xl object-cover"
+                style={{ border: '1px solid var(--border)' }}
+              />
+              <button
+                onClick={handleDownloadImage}
+                title="Download image"
+                className="absolute -bottom-2 -right-2 w-6 h-6 rounded-full flex items-center justify-center text-xs transition-all hover:scale-110"
+                style={{
+                  background: 'var(--accent)',
+                  color: '#fff',
+                  boxShadow: '0 2px 8px rgba(0,0,0,0.2)',
+                }}
+              >
+                ↓
+              </button>
+            </div>
+          )}
+          <div className="flex-1 min-w-0">
+            <p className="text-xs font-bold uppercase tracking-widest mb-1" style={{ color: 'var(--text-5)', letterSpacing: '0.12em' }}>
+              {topic.name}
+            </p>
+            <h3 className="text-sm font-bold mb-2" style={{ color: 'var(--text-1)' }}>{currentConcept}</h3>
+            {byteAnalogy && (
+              <p className="text-xs leading-relaxed italic" style={{ color: 'var(--text-3)' }}>
+                &ldquo;{byteAnalogy.slice(0, 120)}{byteAnalogy.length > 120 ? '…' : ''}&rdquo;
+              </p>
+            )}
+          </div>
         </div>
       </div>
 
       {/* Custom angle */}
       <div>
-        <label className="block text-xs font-semibold mb-1.5" style={{ color: '#64748b' }}>
-          Custom angle (optional)
+        <label className="block text-xs font-bold uppercase tracking-widest mb-2" style={{ color: 'var(--text-4)', letterSpacing: '0.1em' }}>
+          Custom Angle <span style={{ fontWeight: 400, textTransform: 'none', letterSpacing: 0 }}>(optional)</span>
         </label>
         <input
           value={customMessage}
           onChange={(e) => setCustomMessage(e.target.value)}
-          placeholder={`e.g. "Focus on ${topic.name} for junior ML engineers"`}
-          className="w-full rounded-xl px-4 py-2.5 text-sm outline-none transition-colors"
+          placeholder={`e.g. "Focus on ${currentConcept} for junior ML engineers"`}
+          className="w-full rounded-xl px-4 py-3 text-sm outline-none transition-colors"
           style={{
-            background: 'rgba(255,255,255,0.04)',
-            border: '1px solid rgba(139,92,246,0.2)',
-            color: '#f1f5f9',
+            background: 'var(--bg-2)',
+            border: '1px solid var(--border-strong)',
+            color: 'var(--text-1)',
           }}
           onFocus={(e) => (e.target.style.borderColor = 'rgba(139,92,246,0.5)')}
-          onBlur={(e) => (e.target.style.borderColor = 'rgba(139,92,246,0.2)')}
+          onBlur={(e) => (e.target.style.borderColor = 'var(--border-strong)')}
         />
       </div>
 
-      {/* Generate button */}
-      <button
-        onClick={handleGenerate}
-        disabled={loading}
-        className="w-full py-3 rounded-xl font-semibold text-white transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
-        style={{
-          background: loading
-            ? 'rgba(139,92,246,0.4)'
-            : 'linear-gradient(135deg, #8b5cf6 0%, #22d3ee 100%)',
-          boxShadow: loading ? 'none' : '0 0 20px rgba(139,92,246,0.3)',
-        }}
-      >
-        {loading ? (
-          <>
-            <span
-              className="w-4 h-4 rounded-full border-2 border-t-transparent animate-spin"
-              style={{ borderColor: 'white', borderTopColor: 'transparent' }}
-            />
-            Generating LinkedIn Post...
-          </>
-        ) : (
-          <>{'\uD83D\uDE80'} Generate LinkedIn Post</>
-        )}
-      </button>
+      {/* Action buttons row */}
+      <div className="flex flex-col gap-3">
+        {/* Generate post */}
+        <button
+          onClick={handleGenerate}
+          disabled={loading}
+          className="w-full py-4 rounded-xl font-bold text-white transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 text-sm"
+          style={{
+            background: loading
+              ? 'rgba(139,92,246,0.4)'
+              : 'linear-gradient(135deg, #8b5cf6 0%, #22d3ee 100%)',
+            boxShadow: loading ? 'none' : '0 4px 24px rgba(139,92,246,0.4)',
+          }}
+        >
+          {loading ? (
+            <>
+              <span
+                className="w-4 h-4 rounded-full border-2 animate-spin"
+                style={{ borderColor: 'rgba(255,255,255,0.4)', borderTopColor: 'white' }}
+              />
+              Generating LinkedIn Post...
+            </>
+          ) : (
+            <>{'\uD83D\uDE80'} Generate LinkedIn Post</>
+          )}
+        </button>
+
+        {/* Download notebook */}
+        <button
+          onClick={handleDownloadNotebook}
+          className="w-full py-3 rounded-xl font-bold transition-all duration-200 flex items-center justify-center gap-2 text-sm"
+          style={{
+            background: 'rgba(16,185,129,0.08)',
+            border: '1px solid rgba(16,185,129,0.2)',
+            color: '#34d399',
+          }}
+        >
+          📓 Download Notebook
+        </button>
+      </div>
 
       <AnimatePresence>
         {/* Duplicate warning */}
@@ -162,21 +220,20 @@ export default function ShareModal({ topic }: ShareModalProps) {
             initial={{ opacity: 0, y: 12 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0 }}
-            className="space-y-4"
+            className="space-y-5"
           >
             <div className="relative">
-              <div
-                className="text-xs font-semibold mb-2 flex items-center justify-between"
-                style={{ color: '#475569' }}
-              >
-                <span>LinkedIn Post</span>
+              <div className="flex items-center justify-between mb-3">
+                <span className="text-xs font-bold uppercase tracking-widest" style={{ color: 'var(--text-4)', letterSpacing: '0.1em' }}>
+                  LinkedIn Post
+                </span>
                 <button
                   onClick={handleCopy}
-                  className="flex items-center gap-1.5 px-3 py-1 rounded-lg text-xs font-medium transition-all duration-200"
+                  className="flex items-center gap-1.5 px-4 py-1.5 rounded-lg text-xs font-semibold transition-all duration-200 hover:scale-105"
                   style={{
                     background: copied ? 'rgba(34,211,238,0.15)' : 'rgba(139,92,246,0.15)',
                     color: copied ? '#22d3ee' : '#8b5cf6',
-                    border: copied ? '1px solid rgba(34,211,238,0.3)' : '1px solid rgba(139,92,246,0.3)',
+                    border: copied ? '1px solid rgba(34,211,238,0.35)' : '1px solid rgba(139,92,246,0.35)',
                   }}
                 >
                   {copied ? (
@@ -189,43 +246,17 @@ export default function ShareModal({ topic }: ShareModalProps) {
               <textarea
                 readOnly
                 value={postText}
-                rows={12}
-                className="w-full rounded-xl px-4 py-3 text-sm resize-none outline-none"
+                rows={13}
+                className="w-full rounded-xl px-5 py-4 text-sm resize-none outline-none"
                 style={{
-                  background: 'rgba(255,255,255,0.03)',
-                  border: '1px solid rgba(255,255,255,0.08)',
-                  color: '#e2e8f0',
+                  background: 'var(--bg-2)',
+                  border: '1px solid var(--border)',
+                  color: 'var(--text-2)',
                   fontFamily: 'Inter, sans-serif',
-                  lineHeight: 1.6,
+                  lineHeight: 1.7,
                 }}
               />
             </div>
-
-            {/* Generated image */}
-            {imageUrl && (
-              <div>
-                <p className="text-xs font-semibold mb-2" style={{ color: '#475569' }}>
-                  Generated Poster
-                </p>
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img
-                  src={imageUrl}
-                  alt="Generated poster for LinkedIn post"
-                  className="w-full rounded-xl"
-                  style={{ border: '1px solid rgba(139,92,246,0.2)' }}
-                />
-                <a
-                  href={imageUrl}
-                  download
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="mt-2 block text-center text-xs transition-colors"
-                  style={{ color: '#8b5cf6' }}
-                >
-                  Download image &rarr;
-                </a>
-              </div>
-            )}
           </motion.div>
         )}
       </AnimatePresence>

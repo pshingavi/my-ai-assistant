@@ -9,8 +9,6 @@
     "lint": "next lint"
   },
   "dependencies": {
-    "@remotion/player": "^4.0.434",
-    "@remotion/shapes": "^4.0.434",
     "clsx": "^2",
     "d3": "^7",
     "framer-motion": "^11",
@@ -19,7 +17,6 @@
     "react-dom": "^18",
     "react-hot-toast": "^2",
     "react-syntax-highlighter": "^15",
-    "remotion": "^4.0.434",
     "zustand": "^4"
   },
   "devDependencies": {

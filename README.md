@@ -2,328 +2,407 @@
 
 **"Learn in bytes. Think in leaps."**
 
-> Adaptive AI micro-learning platform that transforms dense course materials into
-> personalized, bite-sized learning experiences — powered by RAG, Knowledge Graph traversal,
-> Cohere reranking, and analogy-driven explanations.
+> An adaptive AI micro-learning platform that transforms dense technical course materials
+> into personalized, analogy-driven, interactive learning experiences — powered by RAG,
+> Knowledge Graph traversal, Cohere reranking, and Claude Sonnet-generated SVG animations.
 >
 > Named after Ziva — because learning should feel like play, not like work.
 
-Built as the AIE9 Certification Challenge submission.
+Built as the **AIE9 Certification Challenge** final submission by Preetam (AIE9 cohort).
 
 ---
 
-## The Problem It Solves
+## The Problem
 
-Dense technical courses (PDFs, notebooks, code) are hard to retain and connect across modules. Learners struggle to:
+Dense technical courses — PDFs, Jupyter notebooks, code — are hard to retain and connect across modules. Learners struggle to:
 
-1. **Retain** concepts across sessions (each 50-200 slides + notebooks)
-2. **Connect** ideas from earlier modules to later ones (e.g., Module 02 embeddings → Module 11 reranking)
-3. **Apply** abstract concepts to their own professional context
+1. **Retain** concepts from week-to-week (each session is 50-200 slides + notebooks)
+2. **Connect** ideas across modules (e.g., Module 02 embeddings → Module 11 reranking → Module 09 LangSmith)
+3. **Apply** abstract AI/ML concepts to their own professional context
 
-**Zizi Byte's answer:** RAG retrieval over the actual course knowledge base + analogy-driven explanations personalized to the learner's question. Ask "explain embeddings" as a chef and get a recipe analogy. Ask it as an engineer and get a vector space analogy. The system grounds every answer in the course material — and never fabricates.
-
----
-
-## What It Does
-
-**Two modes, one chat interface:**
-
-| Type | Trigger | What happens |
-|------|---------|-------------|
-| **Learn / Chat** | Any question | KG+Dense (k=15) → Cohere Rerank → analogy-driven grounded answer |
-| **Content** | `create`, `trending`, `write post` | Research → dedup → RAG → LinkedIn post + HD poster image |
-| **KG View** | `kg`, `graph`, `learning path` | Interactive Plotly knowledge graph of all topics |
+**Zizi Byte's answer:** RAG retrieval over the actual course knowledge base, two-step mechanism research, analogy-first explanations, interactive p5.js visualizations, grounded technical deep dives — and a chat interface that cites every claim to its source file.
 
 ---
 
-## Quick Start
+## What It Does — Three Surfaces
 
-### Prerequisites
-- Python 3.11+
-- [uv](https://docs.astral.sh/uv/) — `curl -LsSf https://astral.sh/uv/install.sh | sh`
-- Docker — for Qdrant
+### 1. LMS — Byte-Sized Learning (`localhost:3000`)
 
-### Setup
+Every concept gets a complete **Zizi Byte**: one focused learning artifact that covers the concept from three angles:
 
-```bash
-# 1. Install dependencies
-uv sync
+**Learn Mode — 3 tabs:**
 
-# 2. Configure environment
-cp .env.example .env
-# Required: OPENAI_API_KEY, TAVILY_API_KEY
-# Optional: LANGCHAIN_API_KEY (LangSmith tracing), X_BEARER_TOKEN (X.com search)
-# Optional: COHERE_API_KEY (Cohere Rerank — free tier at dashboard.cohere.com/api-keys)
+| Tab | What It Shows |
+|-----|---------------|
+| **Analogy** | Simple everyday analogy (Claude Sonnet 4.6, evaluated for simplicity/clarity/memorability) + DALL-E 3 image + why it matters |
+| **Interactive** | Claude Sonnet 4.6-generated SVG animation in a sandboxed iframe. 5 discrete steps with Next/Prev navigation and anime.js transitions. Fires `postMessage` to sync the React step panel. |
+| **Deep Dive** | Verbatim technical explanation grounded in RAG-retrieved course chunks, with source citations |
 
-# 3. Start Qdrant vector database
-docker compose up -d
+**Build Mode:**
+- Same interactive widget as Learn (shared API endpoint, no re-fetch)
+- Code panel syncs to current step via `postMessage` — shows code snippet + explanation per step
+- "Download Notebook" button: returns best matching `.ipynb` from indexed course materials
 
-# 4. Ingest course materials + build knowledge graph
-uv run python scripts/ingest_courses.py
+**Share Mode:**
+- LinkedIn post generation (uses exact byte analogy, ZiziByte attribution appended)
+- Custom angle input for tailoring the post
+- Image download, Notebook download
 
-# 5. Run the app
-uv run chainlit run app.py
-# → http://localhost:8000
-```
+**Regenerate with custom analogy:**
+- Clicking Regenerate opens a slide-down panel with 3 LLM-generated alternative analogies + a custom text input
+- Selecting or submitting clears all caches and regenerates the byte, sketch, and deep dive from scratch
 
----
+### 2. Chat — Grounded Q&A (`localhost:8000` via Chainlit)
 
-## Features
-
-### Adaptive Learning Chat
+Ask anything about the AIE9 course content:
 
 ```
-question → KG+Dense retrieval (k=15 candidates)
-         → Cohere Rerank (top 5)
-         → Analogy-first generation
-             1. Vivid analogy (makes the concept click)
-             2. Technical explanation (grounded in course material)
-             3. Why it matters (practical implication)
-             4. Follow-up question (deepens learning)
-         → Sources list (file + relevance score)
+KG traversal + DenseRetriever (k=15 each)
+         ↓
+   Cohere Rerank (top 8)
+         ↓
+  GPT-4o streaming answer
+  analogy-first, RAG-grounded
+  cites every source file
 ```
 
-- **Multi-hop Knowledge Graph**: embeds query → finds nearest topic nodes in NetworkX graph → traverses edges (up to 2 hops) → Dense retrieval on original query + related topics
-- **Cohere Rerank**: `CohereRerank(model="rerank-v3.5")` reranks the 15-candidate pool to the top 5 most relevant chunks. Skips gracefully if `COHERE_API_KEY` not set.
-- **Strictly grounded**: every claim cited by source file. Low-relevance chunks flagged explicitly rather than hallucinated over.
+- Every answer leads with an analogy, then technical explanation grounded exclusively in retrieved course chunks
+- Sources shown with relevance scores
+- 8-turn conversation memory
+- Streaming SSE
 
-### Content Creation Pipeline
+### 3. Content Pipeline — AI Content Creator (via Chainlit or Share mode)
 
 ```
-create → research (Tavily + X.com)
-       → merge_topics (LLM selects hottest topic)
-       → dedup_check   ← agentic decision point
-           ↓ duplicate       ↓ new
-         inform user    retrieve_context (Dense)
-                        → generate_post (Hook→Analogy→Tech→CTA)
-                        → generate_image (DALL-E 3 HD)
-                        → ingest (Qdrant + Knowledge Graph)
-                        → show sources (Tavily + X.com citations)
+Tavily research + X search
+         ↓
+     Topic selection
+         ↓
+  Dedup check (cosine similarity vs ingested posts)
+         ↓
+  RAG context retrieval
+         ↓
+  GPT-4o LinkedIn post
+         ↓
+  DALL-E 3 image
+         ↓
+  Ingest to Qdrant (prevents future duplicates)
 ```
 
-- **Deduplication**: cosine similarity against stored posts — stops if similarity > 0.85 and suggests a fresh angle
-- **Post structure**: Hook → Analogy → Technical concept (KB-grounded) → CTA + hashtags
-- **Source citations**: Tavily URLs and X.com links shown after every post
-
-### Knowledge Graph View
-
-Type `kg` to see an interactive Plotly network graph:
-
-- **Purple circles** — course modules (8 topics, BUILDS_ON edges)
-- **Blue diamonds** — generated LinkedIn posts (added automatically after `create`)
-- Hover any node for description + related concepts
+The `dedup_check_node` is the agentic decision point — branches to `inform_duplicate` if cosine similarity > threshold.
 
 ---
 
 ## Architecture
 
+> **D2 diagram**: See [`docs/zizi-byte-architecture.d2`](docs/zizi-byte-architecture.d2) for a detailed diagram. Build with `d2 docs/zizi-byte-architecture.d2 docs/zizi-byte-architecture.svg` — [D2 install](https://d2lang.com/tour/intro/).
+
+```mermaid
+flowchart TB
+    subgraph Entry["User Entry Points"]
+        CL[Chainlit :8000]
+        LMS[Next.js LMS :3000]
+    end
+
+    API[FastAPI :8001]
+
+    subgraph Content["Content Pipeline (LangGraph)"]
+        R[research]
+        M[merge_topics]
+        D[dedup_check]
+        RC[retrieve_context]
+        GP[generate_post]
+        GI[generate_image]
+        IN[ingest_post]
+    end
+
+    subgraph Chat["Chat Pipeline"]
+        KG[KGRetriever]
+        DR[DenseRetriever]
+        CR[Cohere Rerank]
+        GEN[generate_answer]
+    end
+
+    subgraph Byte["Byte Pipeline (LMS)"]
+        CACHE[check_cache]
+        AG[analogy_generator]
+        FAN[image | animation | TTS]
+        PERSIST[persist]
+    end
+
+    subgraph AI["AI Services"]
+        OAI[OpenAI]
+        CO[Cohere]
+    end
+
+    subgraph Mem["Memory"]
+        QD[(Qdrant)]
+        TG[(Topic Graph)]
+        SQL[(SQLite)]
+    end
+
+    subgraph Tools["Tools"]
+        TV[Tavily]
+        X[X.com]
+    end
+
+    CL --> API
+    LMS --> API
+    API --> Content
+    API --> Chat
+    API --> Byte
+    Content --> AI
+    Chat --> AI
+    Byte --> AI
+    Content --> Mem
+    Chat --> Mem
+    Byte --> SQL
+    Content --> Tools
+    R --> M --> D --> RC --> GP --> GI --> IN
+    KG --> CR
+    DR --> CR
+    CR --> GEN
+    CACHE --> AG --> FAN --> PERSIST
 ```
-┌──────────────────────────────────────────────────────────┐
-│                Zizi Byte  (app.py / Chainlit)            │
-│  question → Learning Chat                                │
-│  "create" → Content Pipeline                            │
-│  "kg"     → KG Visualization (Plotly)                   │
-└──────────────┬─────────────────────┬─────────────────────┘
-               │                     │
-   ┌───────────▼──────────┐  ┌───────▼───────────────────────────┐
-   │  Content Pipeline    │  │  Learning Chat                     │
-   │  (LangGraph)         │  │                                    │
-   │  research            │  │  1. KG+Dense retrieval (k=15)      │
-   │  merge_topics        │  │     KGRetriever (multi-hop)        │
-   │  dedup_check ←──────│  │     + DenseRetriever (raw query)   │
-   │  [AGENTIC DECISION] │  │                                    │
-   │  retrieve_context   │  │  2. Cohere Rerank → top 5          │
-   │  generate_post      │  │                                    │
-   │  generate_image     │  │  3. Analogy-first generation       │
-   │  ingest_post        │  │  4. Sources list                   │
-   └─────────────────────┘  └────────────────────────────────────┘
-               │
-   ┌───────────▼──────────────────────────────────────────┐
-   │  Shared Infrastructure                               │
-   │  Qdrant (course_knowledge_base + generated_posts)    │
-   │  NetworkX Topic Graph  (data/topic_graph.json)       │
-   │  LangSmith tracing (optional, auto-on when key set)  │
-   └──────────────────────────────────────────────────────┘
+
+### ASCII View
+
+```
+┌─────────────────────────────────────────────────────────────────┐
+│  Next.js 14 LMS Frontend  (localhost:3000)                      │
+│  ByteCardV2 · InteractivePlayer · RegeneratePanel · BuildCard      │
+│  ShareModal · TopicDrawer · ConceptDots                         │
+└─────────────────────┬───────────────────────────────────────────┘
+                      │ HTTP / JSON
+┌─────────────────────▼───────────────────────────────────────────┐
+│  FastAPI LMS API  (localhost:8001)  — api_server.py             │
+│  /api/topics · /api/bytes · /api/topic/*/p5sketch               │
+│  /api/topic/*/analogy-suggestions · /api/topic/*/notebook       │
+└──────┬───────────────┬──────────────────────────────────────────┘
+       │               │
+┌──────▼──────┐ ┌──────▼──────────────────────────────────────────┐
+│  SQLite DB  │ │  src/lms/                                        │
+│ analogies   │ │  ByteGenerator · P5SketchGenerator               │
+│ p5_sketches │ │  analogy_pipeline (LangGraph)                    │
+│ warm_jobs   │ │  analogy_store · learning_path                   │
+└─────────────┘ └──────┬──────────────────────────────────────────┘
+                        │
+┌───────────────────────▼──────────────────────────────────────────┐
+│  Retrieval Stack                                                  │
+│  DenseRetriever · HyDERetriever · KGRetriever                    │
+│                                                                   │
+│  Vector Store: Qdrant (Docker, localhost:6333)                    │
+│  Knowledge Graph: NetworkX DiGraph → data/topic_graph.json       │
+└──────────────────────────────────────────────────────────────────┘
+
+┌──────────────────────────────────────────────────────────────────┐
+│  Chainlit App  (localhost:8000)  — app.py                        │
+│  Intent routing → LMS link / Chat pipeline / Content pipeline    │
+└──────────────────────────────────────────────────────────────────┘
 ```
 
-### Retrieval Stack
+### Key Files
 
-| Retriever | When used | How |
-|-----------|-----------|-----|
-| `KGRetriever` | Chat (primary) | Embed query → cosine-match topic nodes → traverse edges → Dense on each related topic |
-| `DenseRetriever` | Chat (parallel) + Content pipeline | Embed raw query → Qdrant cosine search |
-| `RerankRetriever` | Chat (post-retrieval) | Cohere rerank-v3.5 on 15-candidate pool → top 5 |
-| `HyDERetriever` | Standalone eval only (Task 6) | Generate hypothetical doc → embed → Qdrant |
-| `BM25Retriever` | Module 11 eval only | Sparse keyword index from Qdrant scroll |
-| `MultiQueryRetriever` | Module 11 eval only | LLM generates 3 query variants |
-| `EnsembleRetriever` | Module 11 eval only | RRF fusion of BM25 + Dense |
-| `ParentDocRetriever` | Module 11 eval only | Child chunks retrieved, parent chunks returned |
-| `SemanticChunkingRetriever` | Module 11 eval only | SemanticChunker(percentile) + Dense |
-
-### Stack
-
-| Component | Choice | Why |
-|-----------|--------|-----|
-| LLM | GPT-4o-mini | Best cost/quality for analogy generation + streaming |
-| Image | DALL-E 3 HD | Cinematic poster quality for content creation |
-| Agent orchestration | LangGraph | Native conditional edges for agentic dedup decision |
-| Embedding | text-embedding-3-small | Cost-efficient, 1536-dim |
-| Vector DB | Qdrant (Docker) | Free local, metadata filtering, production-ready |
-| Knowledge Graph | NetworkX + JSON | Lightweight multi-hop traversal, no extra infra |
-| Reranking | Cohere rerank-v3.5 | Best faithfulness in Module 11 eval; free tier available |
-| Search | Tavily + X.com (tweepy v2) | Real-time web + social trend coverage |
-| Monitoring | LangSmith | Native LangGraph tracing, auto-enables when key is set |
-| UI | Chainlit 2.x | Chat-native, streaming, Plotly elements, Steps accordion |
-| Package manager | uv | Fast installs, workspace support |
+| File / Dir | Purpose |
+|---|---|
+| `api_server.py` | FastAPI bridge — all LMS JSON endpoints |
+| `app.py` | Chainlit chat app — intent router |
+| `src/lms/analogy_pipeline.py` | LangGraph byte pipeline: RAG → research → analogy → image → persist |
+| `src/lms/claude_interaction_generator.py` | Claude Sonnet 4.6 SVG animation generator — template shell + JSON fill |
+| `src/lms/byte_generator.py` | ByteGenerator — analogy, build content, analogy suggestions |
+| `src/lms/analogy_store.py` | SQLite store — analogies, claude_interactions tables |
+| `src/agents/content_pipeline.py` | LangGraph content pipeline — research → dedup → RAG → post → image → ingest |
+| `src/agents/chat_pipeline.py` | Chat pipeline — KG+Dense → Cohere → GPT-4o stream |
+| `src/retrieval/` | DenseRetriever, HyDERetriever, KGRetriever |
+| `src/memory/qdrant_store.py` | Qdrant upsert/search |
+| `src/memory/topic_graph.py` | NetworkX KG singleton |
+| `zizi-lms/src/components/ByteCardV2.tsx` | Main learn card — hero (topic/concept/analogy) + 3 tabs |
+| `zizi-lms/src/components/InteractivePlayer.tsx` | Sandboxed Claude SVG iframe with theme CSS injection |
+| `zizi-lms/src/components/RegeneratePanel.tsx` | Slide-down panel — 3 suggestions + custom analogy input (pre-populated) |
+| `zizi-lms/src/components/BuildCard.tsx` | Build mode — widget + animated code panel |
+| `zizi-lms/src/components/ShareModal.tsx` | Share mode — LinkedIn post + image + notebook download |
+| `evals/` | RAGAS evaluation pipeline (baseline + HyDE) |
+| `scripts/` | ingest_courses.py, warm_cache.py, regen_analogies.py, regen_images.py, regen_interactions.py |
 
 ---
 
-## Knowledge Base
+## Tech Stack
 
-**Sources ingested** (20 files, 1,197 chunks across 8 modules):
+**Backend**
+- Python 3.11+, FastAPI, LangGraph, LangChain
+- OpenAI GPT-4o (generation, step metadata), DALL-E 3 (analogy images)
+- Anthropic Claude Sonnet 4.6 (analogy generation, evaluation, SVG interaction generation)
+- Qdrant (vector store), NetworkX (knowledge graph)
+- Cohere Rerank v3.5, HyDE retrieval
+- SQLite + aiosqlite (analogies + claude_interactions cache)
+- Tavily (web research), tweepy (X/Twitter)
+- RAGAS 0.2.x (evaluation)
 
-| Module | Content |
-|--------|---------|
-| 02 Dense Vector Retrieval | Qdrant, embeddings, cosine similarity |
-| 03 The Agent Loop | ReAct pattern, tool calling, LangGraph |
-| 04 Agentic RAG | RAG pipeline, chunking, LangGraph |
-| 05 Multi-Agent with LangGraph | LangGraph, state machines, supervisor patterns |
-| 06 Agent Memory | Episodic + vector memory, Qdrant |
-| 09 Synthetic Data + LangSmith | Tracing, evaluation datasets |
-| 10 Evaluating RAG with RAGAS | Faithfulness, context recall, RAGAS |
-| 11 Advanced Retrieval | BM25, reranking, multi-query, semantic chunking |
+**Frontend**
+- Next.js 14 (App Router), TypeScript, Tailwind CSS
+- Framer Motion (all animations)
+- anime.js 3.2 (SVG step transitions inside interactive widget iframe)
+- Zustand (LMS state), react-hot-toast
 
-**Chunking strategy:**
-- **PDFs**: `RecursiveCharacterTextSplitter` (512 chars, 50 overlap)
-- **Notebooks**: cell-level pairing — each markdown cell paired with the following code cell
-- **Markdown**: fixed-size (512 chars, 50 overlap)
+---
 
-To rebuild the KB from scratch:
+## Setup & Running
+
+### Prerequisites
+- Python 3.11+
+- Node.js 18+
+- Docker (for Qdrant)
+- `uv` package manager
+
+### 1. Environment
+
 ```bash
-uv run python scripts/reingest_fresh.py
+cp .env.example .env
+# Edit .env — set:
+# OPENAI_API_KEY=sk-...     (required)
+# TAVILY_API_KEY=tvly-...   (required)
+# COHERE_API_KEY=...        (optional, enables reranking)
+# LANGCHAIN_API_KEY=...     (optional, enables LangSmith tracing)
+# X_BEARER_TOKEN=...        (optional, enables X/Twitter search)
+```
+
+### 2. Install & Ingest
+
+```bash
+# Python dependencies
+uv sync
+
+# Start Qdrant vector store
+docker compose up -d
+
+# Ingest course materials (PDFs, notebooks, markdown)
+uv run python scripts/ingest_courses.py
+```
+
+### 3. Start All Services
+
+```bash
+# Terminal 1: FastAPI LMS API
+uv run python api_server.py
+# → http://localhost:8001
+
+# Terminal 2: Next.js LMS frontend
+cd zizi-lms && npm install && npm run dev
+# → http://localhost:3000
+
+# Terminal 3: Chainlit chat app (optional)
+uv run chainlit run app.py
+# → http://localhost:8000
+```
+
+### 4. Optional: Warm the Cache
+
+Pre-generate all bytes for all topics (runs in background):
+
+```bash
+uv run python scripts/warm_cache.py --force
+uv run python scripts/warm_cache.py --modules 03,04 --force  # specific modules
 ```
 
 ---
 
-## Evaluation
+## Demo Flow
 
-Full results and analysis: [`evals/EVALUATION_REPORT.md`](evals/EVALUATION_REPORT.md)
+1. Open `http://localhost:3000`
+2. Select any topic from the sidebar (or press `M` for the topic drawer)
+3. In **Learn** mode:
+   - The **Analogy** tab shows the DALL-E image + analogy text
+   - Click **Interactive** — the p5.js sketch generates and runs (first time: ~15s)
+   - Navigate steps with Next/Prev buttons drawn on the canvas
+   - Click **Deep Dive** for the RAG-grounded technical breakdown
+4. Switch to **Build** mode — the sketch re-appears, code panel syncs to each step
+5. Click "Download Notebook" — get a ready-to-run `.ipynb`
+6. Switch to **Share** — generate a LinkedIn post + image
+7. Click **Regenerate** — choose from 3 alternative analogies or type your own
+
+---
+
+## Evaluation (RAGAS)
 
 ```bash
-# Generate 15 synthetic Q&A pairs from the KB
+# Generate synthetic QA pairs from the KB
 uv run python evals/synthetic_data_gen.py --size 15
 
-# Task 5 — Baseline: dense vector retrieval
+# Evaluate baseline (dense retrieval)
 uv run python evals/ragas_baseline.py --delay 1.0
 
-# Task 6 — HyDE: advanced retrieval + comparison
+# Evaluate HyDE retrieval
 uv run python evals/ragas_hyde.py --delay 1.0
-
-# Task 6+ — KG+Dense multi-hop
-uv run python evals/ragas_kg.py --delay 1.0
-
-# Module 11 — All 7 strategies
-uv run python evals/ragas_module11.py --delay 1.5
-
-# Ablation — retriever × k grid
-uv run python evals/ragas_ablation.py --delay 1.0
 ```
 
-### Key Results (Module 11 full comparison)
-
-| Strategy | Context Recall | Faithfulness | Answer Relevancy | Composite |
-|---|---|---|---|---|
-| **Semantic Chunking** | **0.629** | **0.661** | **0.972** | **2.261** |
-| Naive Dense | 0.618 | 0.653 | 0.966 | 2.237 |
-| HyDE | 0.634 | 0.477 | 0.520 | 1.631 |
-| Ensemble (BM25+Dense) | 0.472 | 0.431 | 0.576 | 1.480 |
-| Cohere Rerank | 0.422 | 0.467 | 0.516 | 1.405 |
-| Multi-Query | 0.444 | 0.413 | 0.520 | 1.377 |
-| Parent-Document | 0.459 | 0.398 | 0.449 | 1.307 |
-| BM25 | 0.290 | 0.379 | 0.513 | 1.182 |
-
-> KG+Dense scores 0.822 composite on RAGAS (which rewards focused single-question recall), but excels at multi-hop breadth for exploratory learning questions — retained in the chat pipeline for its pedagogical value.
+Metrics: `faithfulness`, `answer_relevancy`, `context_precision`, `context_recall`
 
 ---
 
-## Configuration
+## What Makes This Different
 
-All settings via `.env` (copy from `.env.example`):
+**Analogy quality**: Claude Sonnet 4.6 generates simple everyday analogies (think "cookies in a jar", not "GPS recalculating"). Each analogy is auto-evaluated for simplicity, clarity, and memorability — retried with feedback if score < 6. 140 concepts pre-generated and cached.
 
-```bash
-# Required
-OPENAI_API_KEY=sk-...
-TAVILY_API_KEY=tvly-...
+**SVG interactive widgets**: Every concept gets a Claude Sonnet 4.6-generated SVG animation in a fixed HTML shell. Claude fills in `svg_content`, `steps`, and `animate_fn` as JSON — no truncation risk, guaranteed iframe structure, anime.js transitions always loaded. Pre-cached for all 140 concepts.
 
-# Optional — enables LangSmith tracing
-LANGCHAIN_API_KEY=lsv2_...
+**Shared widget state**: The Claude interaction is fetched once from the DB cache and shared between Learn (Interactive tab) and Build mode — same API endpoint, no duplicate generation.
 
-# Optional — enables X.com media search
-X_BEARER_TOKEN=AAAA...
+**Grounded at every layer**: Analogy bytes cite source files. Chat answers cite source files with relevance scores. Deep Dive tab shows verbatim course material. Nothing is fabricated.
 
-# Optional — enables Cohere Rerank in chat (free tier available)
-COHERE_API_KEY=...
-
-# Image generation
-IMAGE_MODEL=dall-e-3
-IMAGE_QUALITY=hd
-
-# Tuning
-LLM_MODEL=gpt-4o-mini
-DEDUP_THRESHOLD=0.85
-RELEVANCE_THRESHOLD=0.50
-CONTENT_DOMAIN=Generative AI
-```
+**Full content pipeline**: From learning a concept → sharing it on LinkedIn, with a DALL-E image, dedup protection, and Qdrant ingestion to prevent future duplicates — all in one click.
 
 ---
 
 ## Project Structure
 
 ```
-zizi-byte/  (my-ai-assistant/)
-├── app.py                        # Chainlit entry point — intent routing, UI
-├── pyproject.toml                # uv project + all dependencies
-├── docker-compose.yml            # Qdrant local container
+my-ai-assistant/
+├── api_server.py          # FastAPI LMS bridge
+├── app.py                 # Chainlit entry point
+├── pyproject.toml         # Python deps (uv)
+├── docker-compose.yml     # Qdrant
+├── src/
+│   ├── config.py
+│   ├── llm.py
+│   ├── agents/
+│   │   ├── chat_pipeline.py
+│   │   └── content_pipeline.py
+│   ├── ingestion/
+│   ├── lms/
+│   │   ├── analogy_pipeline.py          # LangGraph byte pipeline
+│   │   ├── analogy_store.py             # SQLite (analogies + claude_interactions)
+│   │   ├── byte_generator.py            # ByteGenerator + analogy suggestions
+│   │   ├── claude_interaction_generator.py  # Claude SVG animation generator
+│   │   └── learning_path.py
+│   ├── memory/
+│   ├── retrieval/
+│   └── tools/
 ├── evals/
-│   ├── EVALUATION_REPORT.md      # Full certification challenge deliverables
-│   ├── synthetic_data_gen.py     # RAGAS TestsetGenerator
-│   ├── ragas_baseline.py         # Task 5 — Dense retrieval baseline
-│   ├── ragas_hyde.py             # Task 6 — HyDE evaluation + comparison
-│   ├── ragas_kg.py               # Task 6+ — KG+Dense multi-hop evaluation
-│   ├── ragas_module11.py         # Module 11 — all 7 strategies
-│   ├── ragas_ablation.py         # Retriever × k ablation study
-│   ├── data/testset.json         # 15-sample synthetic golden dataset
-│   └── results/                  # JSON result files for each strategy
 ├── scripts/
-│   ├── ingest_courses.py         # Bulk ingest + course KG node/edge builder
-│   └── reingest_fresh.py         # Clear + rebuild KB from scratch
-└── src/
-    ├── config.py                 # Pydantic Settings — single source of truth
-    ├── llm.py                    # OpenAI client factory (lru_cache)
-    ├── agents/
-    │   ├── state.py              # ContentState + ChatState TypedDicts
-    │   ├── content_pipeline.py   # LangGraph content creation graph
-    │   └── chat_pipeline.py      # LangGraph KG RAG learning chat graph
-    ├── tools/
-    │   ├── tavily_tool.py        # Trending topic search
-    │   ├── x_tool.py             # X.com tweet + media search
-    │   ├── image_tool.py         # DALL-E 3 HD poster generation
-    │   └── kg_viz_tool.py        # Plotly knowledge graph visualization
-    ├── retrieval/
-    │   ├── base.py               # Retriever protocol
-    │   ├── dense_retriever.py    # Baseline — embed query → Qdrant
-    │   ├── hyde_retriever.py     # HyDE — hypothetical doc → embed → Qdrant (eval only)
-    │   ├── kg_retriever.py       # KG traversal + Dense multi-hop (production)
-    │   ├── bm25_retriever.py     # BM25 sparse keyword (Module 11 eval)
-    │   ├── multi_query_retriever.py  # MultiQueryRetriever (Module 11 eval)
-    │   ├── rerank_retriever.py   # Cohere Rerank v3.5 (Module 11 eval + production)
-    │   ├── ensemble_retriever.py # BM25+Dense RRF (Module 11 eval)
-    │   ├── parent_doc_retriever.py   # ParentDocumentRetriever (Module 11 eval)
-    │   └── semantic_chunking_retriever.py  # SemanticChunker (Module 11 eval)
-    ├── memory/
-    │   ├── qdrant_store.py       # Qdrant upsert/search + LangChain retriever
-    │   └── topic_graph.py        # NetworkX KG — nodes, edges, traversal, JSON persistence
-    └── ingestion/
-        ├── course_ingester.py    # PDF + notebook + markdown loaders
-        └── post_ingester.py      # Store posts + update KG with media metadata
+├── data/
+│   ├── analogies.db              # SQLite cache
+│   ├── topic_graph.json          # KG
+│   └── courses/                  # Ingested course materials
+└── zizi-lms/                     # Next.js 14 frontend
+    └── src/
+        ├── app/learn/[topicId]/page.tsx
+        ├── components/
+        │   ├── ByteCardV2.tsx
+        │   ├── BuildCard.tsx
+        │   ├── InteractivePlayer.tsx
+        │   ├── RegeneratePanel.tsx
+        │   └── ShareModal.tsx
+        ├── lib/api.ts
+        ├── store/lmsStore.ts
+        └── types/index.ts
 ```
+
+---
+
+## License
+
+MIT — see [LICENSE](LICENSE)
+
+---
+
+*Zizi Byte — AIE9 Certification Challenge final submission by Preetam*

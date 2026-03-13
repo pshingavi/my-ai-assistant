@@ -32,30 +32,25 @@ export default function RootLayout({
           rel="stylesheet"
         />
       </head>
-      <body className="antialiased" style={{ background: '#0a0a0f', color: '#f1f5f9' }}>
+      <body className="antialiased">
         <GlobalNav />
         {children}
         <Toaster
           position="bottom-right"
           toastOptions={{
             style: {
-              background: '#13131a',
-              color: '#f1f5f9',
-              border: '1px solid rgba(139,92,246,0.3)',
-              borderRadius: '10px',
+              background: '#ffffff',
+              color: '#1e1b4b',
+              border: '1px solid rgba(124,58,237,0.15)',
+              borderRadius: '12px',
               fontSize: '14px',
+              boxShadow: '0 4px 24px rgba(124,58,237,0.1)',
             },
             success: {
-              iconTheme: {
-                primary: '#8b5cf6',
-                secondary: '#0a0a0f',
-              },
+              iconTheme: { primary: '#7c3aed', secondary: '#ffffff' },
             },
             error: {
-              iconTheme: {
-                primary: '#f87171',
-                secondary: '#0a0a0f',
-              },
+              iconTheme: { primary: '#dc2626', secondary: '#ffffff' },
             },
           }}
         />

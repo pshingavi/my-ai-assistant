@@ -16,6 +16,7 @@ interface LMSStore {
   cacheBytes: (key: string, content: ByteContent) => void;
   cacheBuild: (key: string, content: BuildContent) => void;
   markVisited: (id: string) => void;
+  resetProgress: () => void;
 }
 
 export const useLMSStore = create<LMSStore>()(
@@ -53,25 +54,29 @@ export const useLMSStore = create<LMSStore>()(
         set((state) => ({
           visitedTopicIds: new Set(Array.from(state.visitedTopicIds).concat(id)),
         })),
+
+      resetProgress: () =>
+        set({ visitedTopicIds: new Set<string>() }),
     }),
     {
       name: 'zizi-lms-store',
+      // Only persist lightweight navigation state — NOT content caches.
+      // byteCache/buildCache are large and must stay fresh from the API.
       partialize: (state) => ({
         visitedTopicIds: Array.from(state.visitedTopicIds),
-        byteCache: state.byteCache,
-        buildCache: state.buildCache,
+        currentMode: state.currentMode,
       }),
       merge: (persisted: unknown, current: LMSStore) => {
         const p = persisted as {
           visitedTopicIds?: string[];
-          byteCache?: Record<string, ByteContent>;
-          buildCache?: Record<string, BuildContent>;
+          currentMode?: LearningMode;
         };
         return {
           ...current,
           visitedTopicIds: new Set(p?.visitedTopicIds || []),
-          byteCache: p?.byteCache || {},
-          buildCache: p?.buildCache || {},
+          currentMode: p?.currentMode ?? 'learn',
+          byteCache: {},
+          buildCache: {},
         };
       },
     }

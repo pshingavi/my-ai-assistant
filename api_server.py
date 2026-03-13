@@ -17,7 +17,7 @@ from pathlib import Path
 
 from fastapi import BackgroundTasks, FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import StreamingResponse
+from fastapi.responses import FileResponse, StreamingResponse
 from pydantic import BaseModel
 
 logging.basicConfig(level=logging.INFO)
@@ -304,6 +304,9 @@ async def generate_image(req: ImageRequest):
 
 class ShareRequest(BaseModel):
     topic_id: str
+    concept: str = ""
+    analogy: str = ""
+    image_url: str = ""
     custom_message: str = ""
 
 
@@ -328,15 +331,16 @@ async def create_post(req: ShareRequest):
         "user_request": req.custom_message or f"create a post about {topic.name}",
         "tavily_topics": [],
         "x_topics": [],
-        "selected_topic": topic.name,
+        "selected_topic": f"{topic.name} — {req.concept}" if req.concept else topic.name,
         "topic_description": topic.description,
         "is_duplicate": False,
         "duplicate_reason": "",
         "kb_context": [],
         "linkedin_post": "",
-        "image_url": "",
+        "image_url": req.image_url or "",  # pre-populate if provided
         "image_local_path": "",
-        "analogy_summary": "",
+        "analogy_summary": req.analogy or "",
+        "concept": req.concept or "",
         "messages": [],
         "error": "",
     }
@@ -347,13 +351,17 @@ async def create_post(req: ShareRequest):
 
     state.update(await retrieve_context_node(state))
     state.update(await generate_post_node(state))
-    state.update(await generate_image_node(state))
+    if not req.image_url:
+        state.update(await generate_image_node(state))
+    else:
+        state["image_url"] = req.image_url
     await ingest_post_node(state)
 
     return {
         "is_duplicate": False,
         "topic": topic.name,
-        "post": state["linkedin_post"],
+        "concept": req.concept,
+        "post_text": state["linkedin_post"],
         "image_url": state.get("image_url", ""),
         "image_local_path": state.get("image_local_path", ""),
     }
@@ -516,6 +524,357 @@ async def chat_stream(req: ChatRequest):
 
     return StreamingResponse(event_stream(), media_type="text/event-stream",
                              headers={"X-Accel-Buffering": "no", "Cache-Control": "no-cache"})
+
+
+# ── P5 Sketch endpoints ────────────────────────────────────────────────────────
+
+class RegenerateWithAnalogyRequest(BaseModel):
+    analogy: str | None = None
+
+
+@app.get("/api/topic/{topic_id}/concept/{concept}/p5sketch")
+async def get_p5_sketch(topic_id: str, concept: str):
+    """Return the cached p5 sketch or generate a new one."""
+    from src.lms.analogy_store import get_active_byte, get_p5_sketch, save_p5_sketch
+    from src.lms.learning_path import get_topic_by_id
+    from src.lms.p5_generator import P5SketchGenerator
+    from src.retrieval.dense_retriever import DenseRetriever
+
+    topic = get_topic_by_id(topic_id)
+    if not topic:
+        raise HTTPException(status_code=404, detail="Topic not found")
+
+    # Check cache
+    cached = await get_p5_sketch(topic_id, concept, db_path=_DB_PATH)
+    if cached:
+        logger.info("get_p5_sketch: cache HIT topic=%s concept=%s", topic_id, concept)
+        return {"sketch_code": cached["sketch_code"], "steps": cached["steps"]}
+
+    # Get analogy from byte cache for context
+    byte_row = await get_active_byte(topic_id, concept, db_path=_DB_PATH)
+    analogy = byte_row.get("analogy", "") if byte_row else ""
+
+    # Retrieve RAG context
+    try:
+        retriever = DenseRetriever()
+        chunks = await retriever.retrieve(f"{topic.name}: {concept}", k=8)
+        rag_context = [
+            {
+                "content": c.content if hasattr(c, "content") else c["content"],
+                "source": c.source if hasattr(c, "source") else c["source"],
+            }
+            for c in chunks
+        ]
+    except Exception:
+        logger.warning("get_p5_sketch: RAG retrieval failed", exc_info=True)
+        rag_context = []
+
+    # Generate
+    gen = P5SketchGenerator()
+    result = await gen.generate(
+        concept=concept,
+        analogy=analogy,
+        topic_name=topic.name,
+        rag_context=rag_context,
+    )
+
+    # Persist
+    await save_p5_sketch(
+        topic_id=topic_id,
+        concept=concept,
+        sketch_code=result["sketch_code"],
+        steps_json=result["steps"],
+        analogy=analogy,
+        db_path=_DB_PATH,
+    )
+
+    return result
+
+
+@app.post("/api/topic/{topic_id}/concept/{concept}/p5sketch/regenerate")
+async def regenerate_p5_sketch(topic_id: str, concept: str, req: RegenerateWithAnalogyRequest):
+    """Clear cache and regenerate byte + p5 sketch, optionally with a new analogy."""
+    from src.lms.analogy_store import clear_concept_cache, save_p5_sketch
+    from src.lms.analogy_pipeline import run_byte_pipeline
+    from src.lms.learning_path import get_topic_by_id
+    from src.lms.p5_generator import P5SketchGenerator
+    from src.retrieval.dense_retriever import DenseRetriever
+
+    topic = get_topic_by_id(topic_id)
+    if not topic:
+        raise HTTPException(status_code=404, detail="Topic not found")
+
+    # Clear all caches for this concept
+    await clear_concept_cache(topic_id, concept, db_path=_DB_PATH)
+
+    # Regenerate the byte (force, so it won't use stale cache)
+    byte_result = await run_byte_pipeline(
+        topic_id=topic_id,
+        topic_name=topic.name,
+        concept=concept,
+        force_regenerate=True,
+        db_path=_DB_PATH,
+    )
+
+    # If user provided a specific analogy, override what was saved
+    if req.analogy:
+        import aiosqlite
+        async with aiosqlite.connect(_DB_PATH) as db:
+            await db.execute(
+                "UPDATE analogies SET analogy=? WHERE topic_id=? AND concept=? AND is_active=1",
+                (req.analogy, topic_id, concept)
+            )
+            await db.commit()
+        byte_result["analogy"] = req.analogy
+        analogy = req.analogy
+    else:
+        analogy = byte_result.get("analogy", "")
+
+    # Retrieve RAG context
+    try:
+        retriever = DenseRetriever()
+        chunks = await retriever.retrieve(f"{topic.name}: {concept}", k=8)
+        rag_context = [
+            {
+                "content": c.content if hasattr(c, "content") else c["content"],
+                "source": c.source if hasattr(c, "source") else c["source"],
+            }
+            for c in chunks
+        ]
+    except Exception:
+        rag_context = []
+
+    # Generate new p5 sketch
+    gen = P5SketchGenerator()
+    sketch_result = await gen.generate(
+        concept=concept,
+        analogy=analogy,
+        topic_name=topic.name,
+        rag_context=rag_context,
+    )
+
+    await save_p5_sketch(
+        topic_id=topic_id,
+        concept=concept,
+        sketch_code=sketch_result["sketch_code"],
+        steps_json=sketch_result["steps"],
+        analogy=analogy,
+        db_path=_DB_PATH,
+    )
+
+    # Also regenerate Claude interaction with the new analogy
+    from src.lms.claude_interaction_generator import ClaudeInteractionGenerator
+    from src.lms.analogy_store import save_claude_interaction
+    try:
+        claude_gen = ClaudeInteractionGenerator()
+        claude_result = await claude_gen.generate(
+            concept=concept,
+            analogy=analogy,
+            topic_name=topic.name,
+            rag_context=rag_context,
+        )
+        await save_claude_interaction(
+            topic_id=topic_id,
+            concept=concept,
+            sketch_code=claude_result["sketch_code"],
+            steps_json=claude_result["steps"],
+            analogy=analogy,
+            db_path=_DB_PATH,
+        )
+    except Exception as e:
+        logger.warning("Failed to regenerate Claude interaction: %s", e)
+
+    return {
+        "byte": byte_result,
+        "sketch_code": sketch_result["sketch_code"],
+        "steps": sketch_result["steps"],
+    }
+
+
+@app.get("/api/topic/{topic_id}/concept/{concept}/analogy-suggestions")
+async def get_analogy_suggestions(topic_id: str, concept: str):
+    """Return 3 alternative analogy suggestions for a concept."""
+    from src.lms.analogy_store import get_active_byte
+    from src.lms.byte_generator import ByteGenerator
+    from src.lms.learning_path import get_topic_by_id
+
+    topic = get_topic_by_id(topic_id)
+    if not topic:
+        raise HTTPException(status_code=404, detail="Topic not found")
+
+    # Get current analogy for context
+    byte_row = await get_active_byte(topic_id, concept, db_path=_DB_PATH)
+    current_analogy = byte_row.get("analogy", "") if byte_row else ""
+
+    gen = ByteGenerator()
+    suggestions = await gen.generate_analogy_suggestions(
+        concept=concept,
+        topic_name=topic.name,
+        current_analogy=current_analogy,
+    )
+    return {"suggestions": suggestions}
+
+
+@app.get("/api/topic/{topic_id}/concept/{concept}/notebook")
+async def download_notebook(topic_id: str, concept: str):
+    """Find best matching .ipynb or generate a fresh notebook; returns as file download."""
+    import io
+    import nbformat
+    from pathlib import Path
+    from src.lms.analogy_store import get_p5_sketch
+    from src.lms.learning_path import get_topic_by_id
+
+    topic = get_topic_by_id(topic_id)
+    if not topic:
+        raise HTTPException(status_code=404, detail="Topic not found")
+
+    concept_lower = concept.lower()
+
+    # Search for matching .ipynb in data/
+    data_dir = Path(__file__).parent / "data"
+    best_nb_path: Path | None = None
+    best_score = 0
+
+    for nb_path in data_dir.rglob("*.ipynb"):
+        try:
+            nb_text = nb_path.read_text(errors="ignore")
+            score = nb_text.lower().count(concept_lower)
+            if score > best_score:
+                best_score = score
+                best_nb_path = nb_path
+        except Exception:
+            continue
+
+    if best_nb_path and best_score >= 2:
+        logger.info("download_notebook: returning matched notebook %s (score=%d)", best_nb_path, best_score)
+        safe_name = concept_lower.replace(" ", "_")[:40] + ".ipynb"
+        return FileResponse(
+            path=str(best_nb_path),
+            filename=safe_name,
+            media_type="application/octet-stream",
+        )
+
+    # Generate a fresh notebook from p5 step metadata
+    sketch_row = await get_p5_sketch(topic_id, concept, db_path=_DB_PATH)
+    steps = sketch_row.get("steps", []) if sketch_row else []
+
+    nb = nbformat.v4.new_notebook()
+    cells = []
+
+    # Title cell
+    cells.append(nbformat.v4.new_markdown_cell(
+        f"# {concept}\n\n**Topic:** {topic.name}\n\n"
+        f"*Generated by Zizi Byte — AI micro-learning platform*\n\n---"
+    ))
+
+    # Install cell
+    cells.append(nbformat.v4.new_code_cell(
+        "# Install dependencies\n"
+        "# !pip install openai langchain qdrant-client\n"
+        "import os\n"
+        f"# Notebook: {concept}"
+    ))
+
+    if steps:
+        for step in steps:
+            step_idx = step.get("step_index", 0)
+            title = step.get("title", f"Step {step_idx + 1}")
+            description = step.get("description", "")
+            code = step.get("code_snippet", "")
+            explanation = step.get("explanation", "")
+            language = step.get("language", "python")
+
+            cells.append(nbformat.v4.new_markdown_cell(
+                f"## Step {step_idx + 1}: {title}\n\n{description}"
+            ))
+            if explanation:
+                cells.append(nbformat.v4.new_markdown_cell(f"**Explanation:** {explanation}"))
+            if code:
+                cells.append(nbformat.v4.new_code_cell(code))
+    else:
+        cells.append(nbformat.v4.new_markdown_cell(
+            f"## {concept}\n\nThis notebook covers the concept of {concept} from the topic '{topic.name}'."
+        ))
+        cells.append(nbformat.v4.new_code_cell(
+            f"# Example for {concept}\n"
+            "# See course materials for full implementation details\n"
+            f"print('Exploring: {concept}')"
+        ))
+
+    nb.cells = cells
+    nb_str = nbformat.writes(nb)
+
+    safe_name = concept_lower.replace(" ", "_")[:40] + ".ipynb"
+    return StreamingResponse(
+        io.BytesIO(nb_str.encode("utf-8")),
+        media_type="application/octet-stream",
+        headers={"Content-Disposition": f'attachment; filename="{safe_name}"'},
+    )
+
+
+@app.get("/api/topic/{topic_id}/concept/{concept}/claude-interaction")
+async def get_claude_interaction_endpoint(topic_id: str, concept: str):
+    """Return the cached Claude interaction HTML or generate a new one."""
+    from src.lms.analogy_store import get_active_byte, get_claude_interaction, save_claude_interaction
+    from src.lms.learning_path import get_topic_by_id
+    from src.lms.claude_interaction_generator import ClaudeInteractionGenerator
+    from src.retrieval.dense_retriever import DenseRetriever
+
+    topic = get_topic_by_id(topic_id)
+    if not topic:
+        raise HTTPException(status_code=404, detail="Topic not found")
+
+    # Check cache
+    cached = await get_claude_interaction(topic_id, concept, db_path=_DB_PATH)
+    if cached:
+        logger.info("get_claude_interaction: cache HIT topic=%s concept=%s", topic_id, concept)
+        return {"sketch_code": cached["sketch_code"], "steps": cached["steps"]}
+
+    # Get analogy from byte cache for context
+    byte_row = await get_active_byte(topic_id, concept, db_path=_DB_PATH)
+    analogy = byte_row.get("analogy", "") if byte_row else ""
+
+    # Retrieve RAG context
+    try:
+        retriever = DenseRetriever()
+        chunks = await retriever.retrieve(f"{topic.name}: {concept}", k=8)
+        rag_context = [
+            {
+                "content": c.content if hasattr(c, "content") else c["content"],
+                "source": c.source if hasattr(c, "source") else c["source"],
+            }
+            for c in chunks
+        ]
+    except Exception:
+        logger.warning("get_claude_interaction: RAG retrieval failed", exc_info=True)
+        rag_context = []
+
+    # Generate
+    gen = ClaudeInteractionGenerator()
+    result = await gen.generate(
+        concept=concept,
+        analogy=analogy,
+        topic_name=topic.name,
+        rag_context=rag_context,
+    )
+
+    # Persist
+    await save_claude_interaction(
+        topic_id=topic_id,
+        concept=concept,
+        sketch_code=result["sketch_code"],
+        steps_json=result["steps"],
+        analogy=analogy,
+        db_path=_DB_PATH,
+    )
+
+    return result
+
+
+@app.post("/api/topic/{topic_id}/concept/{concept}/render-video")
+async def render_video(topic_id: str, concept: str):
+    """Stub endpoint for Remotion video render — coming soon."""
+    return {"status": "coming_soon", "message": "Video rendering is coming in a future update."}
 
 
 # ── Health check ──────────────────────────────────────────────────────────────

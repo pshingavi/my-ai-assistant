@@ -1,4 +1,4 @@
-"""Image generation tool — creates LinkedIn poster images using gpt-image-1."""
+"""Image generation — uses gpt-image-1 (OpenAI's latest) for photorealistic analogy scenes."""
 
 from __future__ import annotations
 
@@ -12,61 +12,60 @@ from src.llm import get_async_openai
 
 logger = logging.getLogger(__name__)
 
+
 def _build_prompt(topic: str, analogy: str) -> str:
+    """Build a rich, photorealistic scene prompt that visualises the analogy."""
     return (
-        f"A cinematic, award-winning digital art poster about: {topic[:120]}.\n\n"
-        f"Central visual metaphor: {analogy[:180]}.\n\n"
-        "Art direction:\n"
-        "- Deep space / neon-noir atmosphere: dark background with electric purple, "
-        "cobalt blue, and gold accent lighting\n"
-        "- Surreal, hyper-detailed illustration style — like a Blade Runner concept art meets "
-        "an Escher diagram\n"
-        "- Show abstract data flows, glowing neural-network nodes, geometric fractals, "
-        "or the metaphor object rendered in photorealistic detail against the dark backdrop\n"
-        "- Dramatic volumetric lighting, cinematic depth of field, ultra-sharp focal point\n"
-        "- Absolutely NO text, letters, words, or captions anywhere in the image\n"
-        "- 1:1 square composition, professional magazine quality"
+        f"A photorealistic, cinematic scene illustrating this AI concept through analogy:\n\n"
+        f"Concept: {topic[:100]}\n"
+        f"Analogy: {analogy[:200]}\n\n"
+        "Visual requirements:\n"
+        "- Render the ANALOGY as a real, tangible physical scene — show the actual characters "
+        "and objects from the analogy (e.g. if the analogy mentions a chef, show a real chef in a kitchen)\n"
+        "- Photorealistic quality: dramatic cinematic lighting, shallow depth of field, professional photography style\n"
+        "- Rich colour grading: warm golden-hour tones or cool blue tech atmosphere depending on context\n"
+        "- The scene should feel ALIVE — action in progress, not a still pose\n"
+        "- Characters/objects should be mid-action (chef actively reaching for ingredients, librarian scanning shelves, etc.)\n"
+        "- Include subtle visual metaphors that connect the analogy to the AI concept\n"
+        "- Absolutely NO text, words, labels, or captions in the image\n"
+        "- 16:9 cinematic widescreen composition, magazine cover quality\n"
+        "- Ultra-sharp focal point on the primary character/action, background beautifully blurred"
     )
 
 
-async def generate_poster(topic: str, analogy: str) -> tuple[str, Path | None]:
-    """Generate a high-quality poster image for a LinkedIn post.
+async def generate_poster(topic: str, analogy: str, image_prompt: str | None = None) -> tuple[str, Path | None]:
+    """Generate a high-quality analogy scene image.
 
     Returns (image_url_or_path, local_path). local_path is None on failure.
     """
     cfg = get_settings()
-    prompt = _build_prompt(topic, analogy)
+    prompt = image_prompt if image_prompt else _build_prompt(topic, analogy)
 
     try:
         client = get_async_openai()
 
-        # gpt-image-1 only supports b64_json; dall-e-3 supports both
-        use_b64 = cfg.image_model == "gpt-image-1"
         kwargs: dict = dict(
             model=cfg.image_model,
             prompt=prompt,
             size=cfg.image_size,
             n=1,
+            quality=cfg.image_quality,
         )
-        if use_b64:
-            kwargs["response_format"] = "b64_json"
-        else:
-            kwargs["quality"] = cfg.image_quality   # "hd" for dall-e-3
-            kwargs["style"] = "vivid"               # vivid > natural for dramatic posters
-            kwargs["response_format"] = "url"
 
         response = await client.images.generate(**kwargs)
         item = response.data[0]
 
-        if use_b64:
-            b64 = item.b64_json or ""
-            local_path = _save_b64_image(b64, topic)
+        # gpt-image-1 returns b64_json by default
+        if item.b64_json:
+            local_path = _save_b64_image(item.b64_json, topic)
             url = str(local_path) if local_path else ""
-        else:
-            url = item.url or ""
+        elif item.url:
+            url = item.url
             local_path = await _download_image(url, topic)
+        else:
+            return "", None
 
-        logger.info("Generated image for topic '%s'", topic[:50])
+        logger.info("Generated image for topic '%s' using %s", topic[:50], cfg.image_model)
         return url, local_path
 
     except Exception:
@@ -75,7 +74,6 @@ async def generate_poster(topic: str, analogy: str) -> tuple[str, Path | None]:
 
 
 def _save_b64_image(b64: str, topic: str) -> Path | None:
-    """Decode base64 image bytes and save to disk."""
     if not b64:
         return None
     try:
@@ -92,7 +90,6 @@ def _save_b64_image(b64: str, topic: str) -> Path | None:
 
 
 async def _download_image(url: str, topic: str) -> Path | None:
-    """Download the generated image to local disk and return its path."""
     if not url:
         return None
     try:
@@ -101,7 +98,7 @@ async def _download_image(url: str, topic: str) -> Path | None:
         safe_name = "".join(c if c.isalnum() else "_" for c in topic[:40])
         timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
         out_path = cfg.images_path / f"{timestamp}_{safe_name}.png"
-        async with httpx.AsyncClient(timeout=30) as client:
+        async with httpx.AsyncClient(timeout=60) as client:
             resp = await client.get(url)
             resp.raise_for_status()
             out_path.write_bytes(resp.content)

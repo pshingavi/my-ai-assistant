@@ -1,142 +1,212 @@
 'use client';
 
-import { motion } from 'framer-motion';
-import type { BuildContent } from '@/src/types';
+import { useState, useCallback, useEffect } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
+import dynamic from 'next/dynamic';
+import type { P5Step } from '@/src/types';
+import { fetchClaudeInteraction, downloadNotebook } from '@/src/lib/api';
 
-function SourceChip({ source }: { source: string }) {
-  const fileName = source.split('/').pop() || source;
-  const displayName = fileName.length > 28 ? fileName.slice(0, 25) + '...' : fileName;
-  return (
-    <span
-      className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium"
-      style={{ background: 'rgba(139,92,246,0.1)', color: '#a78bfa', border: '1px solid rgba(139,92,246,0.2)' }}
-      title={source}
-    >
-      <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-        <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z" />
-        <polyline points="14,2 14,8 20,8" />
-      </svg>
-      {displayName}
-    </span>
-  );
-}
-
-interface CodeFallbackProps {
-  code: string;
-  language: string;
-}
-
-function CodeFallback({ code, language }: CodeFallbackProps) {
-  return (
-    <div
-      className="rounded-xl overflow-hidden"
-      style={{ background: '#0d0d14', border: '1px solid rgba(255,255,255,0.08)' }}
-    >
-      <div
-        className="flex items-center justify-between px-4 py-2"
-        style={{ background: 'rgba(255,255,255,0.03)', borderBottom: '1px solid rgba(255,255,255,0.06)' }}
-      >
-        <span className="text-xs font-mono" style={{ color: '#64748b' }}>
-          {language || 'code'}
-        </span>
-        <span
-          className="px-2 py-0.5 rounded-full text-xs font-bold"
-          style={{ background: 'rgba(139,92,246,0.2)', color: '#8b5cf6' }}
-        >
-          {language}
-        </span>
-      </div>
-      <pre
-        className="p-4 overflow-x-auto text-sm leading-relaxed"
-        style={{ color: '#e2e8f0', fontFamily: 'ui-monospace, SFMono-Regular, Menlo, monospace' }}
-      >
-        <code>{code}</code>
-      </pre>
-    </div>
-  );
-}
+const InteractivePlayer = dynamic(() => import('./InteractivePlayer'), { ssr: false });
 
 interface BuildCardProps {
-  content: BuildContent;
+  topicId: string;
+  concept: string;
+  topicName: string;
 }
 
-export default function BuildCard({ content }: BuildCardProps) {
+interface InteractiveSketch {
+  sketch_code: string;
+  steps: P5Step[];
+}
+
+function CodePanel({ step }: { step: P5Step }) {
+  return (
+    <motion.div
+      key={step.step_index}
+      initial={{ opacity: 0, y: 16 }}
+      animate={{ opacity: 1, y: 0 }}
+      exit={{ opacity: 0, y: -16 }}
+      transition={{ duration: 0.25, ease: [0.4, 0, 0.2, 1] }}
+    >
+      <div className="flex items-center justify-between mb-4">
+        <div>
+          <p className="text-xs font-black uppercase tracking-widest"
+            style={{ color: 'var(--accent)', letterSpacing: '0.12em' }}>
+            Step {step.step_index + 1} — {step.title}
+          </p>
+          <p className="text-sm mt-1 leading-relaxed" style={{ color: 'var(--text-3)' }}>
+            {step.description}
+          </p>
+        </div>
+      </div>
+
+      <div className="rounded-2xl overflow-hidden mb-4"
+        style={{
+          background: '#0a0a18',
+          border: '1px solid rgba(139,92,246,0.2)',
+          boxShadow: '0 8px 32px rgba(0,0,0,0.2)',
+        }}
+      >
+        <div className="flex items-center justify-between px-5 py-3.5"
+          style={{ background: 'rgba(139,92,246,0.07)', borderBottom: '1px solid rgba(139,92,246,0.14)' }}>
+          <div className="flex items-center gap-2">
+            <div className="flex items-center gap-1.5">
+              {['#ff5f57', '#febc2e', '#28c840'].map((c, i) => (
+                <span key={i} style={{ width: 10, height: 10, borderRadius: '50%', background: c, opacity: 0.75, display: 'inline-block' }} />
+              ))}
+            </div>
+            <span className="text-xs font-mono ml-3" style={{ color: 'rgba(255,255,255,0.3)' }}>
+              {step.language || 'python'}
+            </span>
+          </div>
+          <span className="px-3 py-1 rounded-full text-xs font-bold"
+            style={{ background: 'rgba(139,92,246,0.2)', color: '#a78bfa', border: '1px solid rgba(139,92,246,0.3)' }}>
+            {step.language || 'python'}
+          </span>
+        </div>
+        <pre className="overflow-x-auto"
+          style={{ padding: '20px 24px 24px', color: '#e2e8f0', fontFamily: 'ui-monospace, SFMono-Regular, Menlo, monospace', lineHeight: 1.8, fontSize: 13.5 }}>
+          <code>{step.code_snippet}</code>
+        </pre>
+      </div>
+
+      {step.explanation && (
+        <div className="rounded-xl px-5 py-4"
+          style={{ background: 'var(--accent-soft)', border: '1px solid var(--border)' }}>
+          <p className="text-sm leading-relaxed" style={{ color: 'var(--text-2)', lineHeight: 1.75 }}>
+            <span className="font-semibold" style={{ color: 'var(--accent)' }}>Explanation: </span>
+            {step.explanation}
+          </p>
+        </div>
+      )}
+    </motion.div>
+  );
+}
+
+export default function BuildCard({ topicId, concept, topicName }: BuildCardProps) {
+  const [sketch, setSketch] = useState<InteractiveSketch | null>(null);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
+  const [currentStep, setCurrentStep] = useState(0);
+
+  const loadSketch = useCallback(async () => {
+    setLoading(true);
+    setError('');
+    try {
+      const result = await fetchClaudeInteraction(topicId, concept);
+      setSketch(result);
+    } catch {
+      setError('Failed to load interactive widget — is the API server running?');
+    } finally {
+      setLoading(false);
+    }
+  }, [topicId, concept]);
+
+  useEffect(() => {
+    loadSketch();
+  }, [loadSketch]);
+
+  // Listen for step changes from the iframe
+  useEffect(() => {
+    const handler = (event: MessageEvent) => {
+      if (event.data?.type === 'step' && typeof event.data.index === 'number') {
+        setCurrentStep(event.data.index);
+      }
+    };
+    window.addEventListener('message', handler);
+    return () => window.removeEventListener('message', handler);
+  }, []);
+
+  const steps = sketch?.steps ?? [];
+  const currentStepData = steps[currentStep] ?? null;
+
   return (
     <motion.div
       initial={{ opacity: 0, y: 16 }}
       animate={{ opacity: 1, y: 0 }}
       exit={{ opacity: 0, y: -16 }}
       transition={{ duration: 0.35, ease: 'easeOut' }}
-      className="space-y-4"
+      className="rounded-3xl overflow-hidden"
+      style={{ boxShadow: 'var(--shadow-lg)' }}
     >
       {/* Header */}
-      <div className="flex items-center gap-3">
-        <span className="text-2xl">🏗️</span>
-        <div className="flex-1">
-          <h2 className="text-xl font-bold" style={{ color: '#f1f5f9' }}>
-            {content.concept}
+      <div className="px-8 py-6 flex items-center gap-5"
+        style={{ background: 'linear-gradient(135deg, var(--bg) 0%, var(--surface) 100%)', borderBottom: '1px solid var(--border)' }}>
+        <div className="w-14 h-14 rounded-2xl flex items-center justify-center text-2xl flex-shrink-0"
+          style={{ background: 'var(--accent-soft)', border: '1px solid var(--border)' }}>
+          🏗️
+        </div>
+        <div className="flex-1 min-w-0">
+          <h2 className="text-xl font-extrabold leading-tight truncate" style={{ color: 'var(--text-1)' }}>
+            {concept}
           </h2>
-          <p className="text-sm mt-0.5" style={{ color: '#64748b' }}>
-            from <span style={{ color: '#8b5cf6' }}>{content.topic_name}</span>
+          <p className="text-xs mt-1.5" style={{ color: 'var(--text-4)' }}>
+            {topicName} · Build Mode
           </p>
         </div>
-        <span
-          className="px-3 py-1 rounded-full text-xs font-bold font-mono"
-          style={{ background: 'rgba(139,92,246,0.15)', color: '#8b5cf6', border: '1px solid rgba(139,92,246,0.3)' }}
+        <motion.button
+          onClick={() => downloadNotebook(topicId, concept)}
+          whileHover={{ scale: 1.04 }}
+          whileTap={{ scale: 0.96 }}
+          className="flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs font-bold flex-shrink-0"
+          style={{ background: 'rgba(16,185,129,0.1)', border: '1px solid rgba(16,185,129,0.25)', color: '#34d399' }}
         >
-          {content.language || 'python'}
-        </span>
+          <span>📓</span>
+          Notebook
+        </motion.button>
       </div>
 
-      {/* Code block */}
-      <div
-        className="rounded-xl overflow-hidden"
-        style={{ border: '1px solid rgba(255,255,255,0.08)' }}
-      >
-        <CodeFallback code={content.code_snippet} language={content.language || 'python'} />
-      </div>
+      <div style={{ background: 'var(--surface)' }}>
+        {error && (
+          <div className="m-6 rounded-2xl p-8 text-sm text-center"
+            style={{ background: 'rgba(220,38,38,0.04)', border: '1px solid rgba(220,38,38,0.12)', color: '#dc2626' }}>
+            {error}
+            <button onClick={loadSketch} className="mt-4 block mx-auto px-4 py-2 rounded-xl text-xs font-semibold"
+              style={{ background: 'rgba(220,38,38,0.08)', border: '1px solid rgba(220,38,38,0.15)', color: '#dc2626' }}>
+              Retry
+            </button>
+          </div>
+        )}
 
-      {/* Line-by-line explanation */}
-      <div
-        className="rounded-xl p-4"
-        style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.07)' }}
-      >
-        <div className="flex items-center gap-2 mb-2">
-          <span className="text-base">📋</span>
-          <span className="text-xs font-bold uppercase tracking-wider" style={{ color: '#94a3b8' }}>
-            Explanation
-          </span>
-        </div>
-        <p className="text-sm leading-relaxed" style={{ color: '#cbd5e1' }}>
-          {content.explanation}
-        </p>
-      </div>
+        {loading && (
+          <div className="flex flex-col items-center justify-center gap-4 py-24">
+            <motion.div animate={{ rotate: 360 }} transition={{ duration: 1.2, repeat: Infinity, ease: 'linear' }}
+              className="w-10 h-10 rounded-full border-2"
+              style={{ borderColor: 'var(--border)', borderTopColor: 'var(--accent)' }} />
+            <p className="text-sm font-medium" style={{ color: 'var(--text-3)' }}>
+              Zizi Byte is preparing your interactive widget…
+            </p>
+          </div>
+        )}
 
-      {/* Run notes */}
-      <div
-        className="rounded-xl p-4"
-        style={{ background: 'rgba(34,211,238,0.05)', borderLeft: '3px solid #22d3ee', paddingLeft: 16 }}
-      >
-        <div className="flex items-center gap-2 mb-2">
-          <span className="text-base">▶️</span>
-          <span className="text-xs font-bold uppercase tracking-wider" style={{ color: '#22d3ee' }}>
-            What to Expect
-          </span>
-        </div>
-        <p className="text-sm leading-relaxed" style={{ color: '#cbd5e1' }}>
-          {content.run_notes}
-        </p>
-      </div>
+        {sketch && !loading && (
+          <div className="p-6 space-y-5">
+            <InteractivePlayer
+              sketchCode={sketch.sketch_code}
+              steps={sketch.steps}
+              onStepChange={setCurrentStep}
+            />
 
-      {/* Sources */}
-      {content.sources && content.sources.length > 0 && (
-        <div className="flex items-start gap-2 flex-wrap pt-1">
-          <span className="text-xs mt-0.5" style={{ color: '#475569' }}>Sources:</span>
-          {content.sources.map((src, i) => (
-            <SourceChip key={i} source={src} />
-          ))}
-        </div>
-      )}
+            <AnimatePresence mode="wait">
+              {currentStepData && (
+                <CodePanel key={`step-${currentStepData.step_index}`} step={currentStepData} />
+              )}
+            </AnimatePresence>
+
+            <div className="flex justify-end pt-2">
+              <motion.button
+                onClick={() => downloadNotebook(topicId, concept)}
+                whileHover={{ scale: 1.04 }} whileTap={{ scale: 0.96 }}
+                className="flex items-center gap-2 px-5 py-2.5 rounded-xl text-xs font-bold"
+                style={{ background: 'rgba(16,185,129,0.08)', border: '1px solid rgba(16,185,129,0.2)', color: '#34d399' }}
+              >
+                <span>📓</span>
+                Download Full Notebook
+              </motion.button>
+            </div>
+          </div>
+        )}
+      </div>
     </motion.div>
   );
 }
