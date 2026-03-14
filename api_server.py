@@ -532,72 +532,13 @@ class RegenerateWithAnalogyRequest(BaseModel):
     analogy: str | None = None
 
 
-@app.get("/api/topic/{topic_id}/concept/{concept}/p5sketch")
-async def get_p5_sketch(topic_id: str, concept: str):
-    """Return the cached p5 sketch or generate a new one."""
-    from src.lms.analogy_store import get_active_byte, get_p5_sketch, save_p5_sketch
-    from src.lms.learning_path import get_topic_by_id
-    from src.lms.p5_generator import P5SketchGenerator
-    from src.retrieval.dense_retriever import DenseRetriever
-
-    topic = get_topic_by_id(topic_id)
-    if not topic:
-        raise HTTPException(status_code=404, detail="Topic not found")
-
-    # Check cache
-    cached = await get_p5_sketch(topic_id, concept, db_path=_DB_PATH)
-    if cached:
-        logger.info("get_p5_sketch: cache HIT topic=%s concept=%s", topic_id, concept)
-        return {"sketch_code": cached["sketch_code"], "steps": cached["steps"]}
-
-    # Get analogy from byte cache for context
-    byte_row = await get_active_byte(topic_id, concept, db_path=_DB_PATH)
-    analogy = byte_row.get("analogy", "") if byte_row else ""
-
-    # Retrieve RAG context
-    try:
-        retriever = DenseRetriever()
-        chunks = await retriever.retrieve(f"{topic.name}: {concept}", k=8)
-        rag_context = [
-            {
-                "content": c.content if hasattr(c, "content") else c["content"],
-                "source": c.source if hasattr(c, "source") else c["source"],
-            }
-            for c in chunks
-        ]
-    except Exception:
-        logger.warning("get_p5_sketch: RAG retrieval failed", exc_info=True)
-        rag_context = []
-
-    # Generate
-    gen = P5SketchGenerator()
-    result = await gen.generate(
-        concept=concept,
-        analogy=analogy,
-        topic_name=topic.name,
-        rag_context=rag_context,
-    )
-
-    # Persist
-    await save_p5_sketch(
-        topic_id=topic_id,
-        concept=concept,
-        sketch_code=result["sketch_code"],
-        steps_json=result["steps"],
-        analogy=analogy,
-        db_path=_DB_PATH,
-    )
-
-    return result
-
-
 @app.post("/api/topic/{topic_id}/concept/{concept}/p5sketch/regenerate")
 async def regenerate_p5_sketch(topic_id: str, concept: str, req: RegenerateWithAnalogyRequest):
-    """Clear cache and regenerate byte + p5 sketch, optionally with a new analogy."""
-    from src.lms.analogy_store import clear_concept_cache, save_p5_sketch
+    """Clear cache and regenerate byte + Claude interaction, optionally with a new analogy."""
+    from src.lms.analogy_store import clear_concept_cache, save_claude_interaction
     from src.lms.analogy_pipeline import run_byte_pipeline
     from src.lms.learning_path import get_topic_by_id
-    from src.lms.p5_generator import P5SketchGenerator
+    from src.lms.claude_interaction_generator import ClaudeInteractionGenerator
     from src.retrieval.dense_retriever import DenseRetriever
 
     topic = get_topic_by_id(topic_id)
@@ -607,7 +548,7 @@ async def regenerate_p5_sketch(topic_id: str, concept: str, req: RegenerateWithA
     # Clear all caches for this concept
     await clear_concept_cache(topic_id, concept, db_path=_DB_PATH)
 
-    # Regenerate the byte (force, so it won't use stale cache)
+    # Regenerate the byte (analogy, explanation, image)
     byte_result = await run_byte_pipeline(
         topic_id=topic_id,
         topic_name=topic.name,
@@ -644,50 +585,27 @@ async def regenerate_p5_sketch(topic_id: str, concept: str, req: RegenerateWithA
     except Exception:
         rag_context = []
 
-    # Generate new p5 sketch
-    gen = P5SketchGenerator()
-    sketch_result = await gen.generate(
+    # Regenerate Claude interaction
+    gen = ClaudeInteractionGenerator()
+    claude_result = await gen.generate(
         concept=concept,
         analogy=analogy,
         topic_name=topic.name,
         rag_context=rag_context,
     )
-
-    await save_p5_sketch(
+    await save_claude_interaction(
         topic_id=topic_id,
         concept=concept,
-        sketch_code=sketch_result["sketch_code"],
-        steps_json=sketch_result["steps"],
+        sketch_code=claude_result["sketch_code"],
+        steps_json=claude_result["steps"],
         analogy=analogy,
         db_path=_DB_PATH,
     )
 
-    # Also regenerate Claude interaction with the new analogy
-    from src.lms.claude_interaction_generator import ClaudeInteractionGenerator
-    from src.lms.analogy_store import save_claude_interaction
-    try:
-        claude_gen = ClaudeInteractionGenerator()
-        claude_result = await claude_gen.generate(
-            concept=concept,
-            analogy=analogy,
-            topic_name=topic.name,
-            rag_context=rag_context,
-        )
-        await save_claude_interaction(
-            topic_id=topic_id,
-            concept=concept,
-            sketch_code=claude_result["sketch_code"],
-            steps_json=claude_result["steps"],
-            analogy=analogy,
-            db_path=_DB_PATH,
-        )
-    except Exception as e:
-        logger.warning("Failed to regenerate Claude interaction: %s", e)
-
     return {
         "byte": byte_result,
-        "sketch_code": sketch_result["sketch_code"],
-        "steps": sketch_result["steps"],
+        "sketch_code": claude_result["sketch_code"],
+        "steps": claude_result["steps"],
     }
 
 

@@ -85,6 +85,8 @@ export default function ByteCardV2({
 
   const handleRegenComplete = (byte: CachedByte, _sketch?: P5Sketch) => {
     setShowRegenPanel(false);
+    setClaudeSketch(null);   // force interactive widget to reload with new Claude interaction
+    setClaudeError('');
     onByteRefresh?.(byte);
   };
 
