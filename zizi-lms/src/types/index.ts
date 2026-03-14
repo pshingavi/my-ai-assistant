@@ -1,39 +1,3 @@
-// Remotion animation props
-export interface AnalogyRevealProps {
-  concept: string;
-  analogy: string;
-  emoji: string;
-  accentColor: string;
-  keywords: string[];
-}
-
-export interface FlowNode {
-  id: string;
-  label: string;
-  x: number;
-  y: number;
-  color: string;
-}
-
-export interface FlowEdge {
-  fromId: string;
-  toId: string;
-  label?: string;
-}
-
-export interface ConceptFlowProps {
-  concept: string;
-  nodes: FlowNode[];
-  edges: FlowEdge[];
-  accentColor: string;
-}
-
-export type RemotionCompositionProps =
-  | { type: 'analogy_reveal'; props: AnalogyRevealProps }
-  | { type: 'concept_flow'; props: ConceptFlowProps }
-  | { type: 'none' };
-
-// Extended ByteContent with cache metadata
 export interface CachedByte {
   id?: number;
   topic_id: string;
@@ -47,19 +11,10 @@ export interface CachedByte {
   image_prompt: string;
   image_url: string;
   image_local_path: string;
-  animation_props: RemotionCompositionProps;
   sources: string[];
   created_at?: string;
-}
-
-export interface TopicSummary {
-  id: string;
-  name: string;
-  description: string;
-  concepts: string[];
-  module_number: string;
-  source_url: string;
-  is_post: boolean;
+  audio_url: string;
+  audio_local_path: string;
 }
 
 export interface ByteContent {
@@ -72,7 +27,6 @@ export interface ByteContent {
   sources: string[];
   image_prompt: string;
   image_url?: string;
-  animation_props?: RemotionCompositionProps;
   version?: number;
 }
 
@@ -84,6 +38,16 @@ export interface BuildContent {
   explanation: string;
   run_notes: string;
   sources: string[];
+}
+
+export interface TopicSummary {
+  id: string;
+  name: string;
+  description: string;
+  concepts: string[];
+  module_number: string;
+  source_url: string;
+  is_post: boolean;
 }
 
 export interface KGNode {
@@ -117,3 +81,19 @@ export interface SharePostResult {
 }
 
 export type LearningMode = 'learn' | 'build' | 'share';
+
+// ── Claude Interaction (replaces P5Sketch) ────────────────────────────────────
+
+export interface P5Step {
+  step_index: number;
+  title: string;
+  description: string;
+  code_snippet: string;
+  language: string;
+  explanation: string;
+}
+
+export interface P5Sketch {
+  sketch_code: string;
+  steps: P5Step[];
+}

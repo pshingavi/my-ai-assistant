@@ -211,3 +211,6 @@ data/posts/
 data/topic_graph.json
 evals/data/
 evals/results/
+.DS_Store
+test.html
+data/analogies.db

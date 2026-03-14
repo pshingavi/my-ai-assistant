@@ -1,0 +1,589 @@
+# Zizi Byte — Architecture Diagram
+# Render: d2 docs/zizi-byte-architecture.d2 docs/zizi-byte-architecture.svg
+# Animated: d2 docs/zizi-byte-architecture.d2 docs/zizi-byte-architecture.svg --animate-interval=1200
+
+direction: down
+
+# Global style — light, clean, professional
+style: {
+  fill: "#F6F9FC"
+  stroke: "#CBD6E0"
+  stroke-width: 2
+  border-radius: 12
+}
+
+title: Zizi Byte Architecture {
+  label: |md
+    **Learn in bytes. Think in leaps.**
+  |
+  shape: text
+  style.font-size: 24
+  style.bold: true
+  style.font-color: "#525F7F"
+}
+
+# ═══════════════════════════════════════════════════════════════
+# 1. DATA INGESTION PIPELINE
+# ═══════════════════════════════════════════════════════════════
+
+ingestion: Data Ingestion Pipeline {
+  style.fill: "#E8F4F8"
+  style.stroke: "#0EA5E9"
+  style.stroke-width: 1
+  style.border-radius: 12
+
+  sources: Course Materials {
+    shape: document
+    style.fill: "#fff"
+    style.stroke-width: 0
+    style.border-radius: 6
+    style.shadow: true
+    style.font-color: "#0369A1"
+
+    pdf: PDFs
+    nb: Jupyter Notebooks
+    md: Markdown
+  }
+
+  sources -> chunker: "512 chars\n50 overlap" {
+    style.stroke: "#0EA5E9"
+    style.stroke-width: 2
+    style.animated: true
+  }
+
+  chunker: Chunker {
+    label: |md
+      *RecursiveCharacterTextSplitter*\
+      Cell-level pairing (notebooks)
+    |
+    shape: step
+    style.fill: "#fff"
+    style.stroke-width: 0
+    style.border-radius: 20
+    style.shadow: true
+    style.font-color: "#0369A1"
+  }
+
+  chunker -> embedder: chunks {
+    style.stroke: "#0EA5E9"
+    style.stroke-width: 2
+    style.animated: true
+  }
+
+  embedder: Embedder {
+    label: "text-embedding-3-small"
+    shape: hexagon
+    style.fill: "#E0E7FF"
+    style.stroke-width: 0
+    style.border-radius: 20
+    style.font-color: "#4F46E5"
+  }
+
+  embedder -> qdrant_ingest: vectors {
+    style.stroke: "#6366F1"
+    style.stroke-width: 2
+    style.animated: true
+  }
+
+  qdrant_ingest: Qdrant Upsert {
+    shape: cylinder
+    style.fill: "#D1FAE5"
+    style.stroke-width: 0
+    style.border-radius: 20
+    style.font-color: "#047857"
+  }
+}
+
+# ═══════════════════════════════════════════════════════════════
+# 2. LEARNING EXPERIENCE — UI LAYER
+# ═══════════════════════════════════════════════════════════════
+
+ui: Learning Experience {
+  style.fill: "#E6EBF1"
+  style.stroke: "#94A3B8"
+  style.stroke-width: 1
+  style.border-radius: 12
+
+  lms: "Next.js LMS :3000" {
+    label: |md
+      *ByteCardV2 · P5SketchPlayer*\
+      BuildCard · ShareModal
+    |
+    shape: page
+    style.fill: "#fff"
+    style.stroke-width: 0
+    style.border-radius: 6
+    style.shadow: true
+    style.font-color: "#6772E5"
+  }
+
+  chainlit: "Chainlit :8000" {
+    label: "Intent router · Chat · Content creator"
+    shape: page
+    style.fill: "#fff"
+    style.stroke-width: 0
+    style.border-radius: 6
+    style.shadow: true
+    style.font-color: "#6772E5"
+  }
+}
+
+# ═══════════════════════════════════════════════════════════════
+# 3. API LAYER
+# ═══════════════════════════════════════════════════════════════
+
+api: "FastAPI Bridge :8001" {
+  label: |md
+    *REST + SSE*\
+    /api/topics · /api/bytes · /api/chat/stream
+  |
+  shape: parallelogram
+  style.fill: "#fff"
+  style.stroke-width: 0
+  style.border-radius: 6
+  style.shadow: true
+  style.font-color: "#B45309"
+}
+
+ui.lms -> api: HTTP/JSON {
+  style.stroke: "#6366F1"
+  style.stroke-width: 2
+  style.animated: true
+}
+
+ui.chainlit -> api: HTTP/JSON {
+  style.stroke: "#6366F1"
+  style.stroke-width: 2
+  style.animated: true
+}
+
+# ═══════════════════════════════════════════════════════════════
+# 4. AGENTIC / MULTI-AGENT BACKEND
+# ═══════════════════════════════════════════════════════════════
+
+agents: Agentic Backend {
+  style.fill: "#F8FAFC"
+  style.stroke: "#94A3B8"
+  style.stroke-width: 1
+  style.border-radius: 12
+
+  content: Content Pipeline Agents {
+    style.fill: "#F3E8FF"
+    style.stroke: "#A78BFA"
+    style.stroke-width: 1
+    style.border-radius: 12
+
+    research_agent: Research Agent {
+      label: "Tavily + X.com"
+      shape: hexagon
+      style.fill: "#fff"
+      style.stroke-width: 0
+      style.border-radius: 20
+      style.shadow: true
+      style.font-color: "#6D28D9"
+    }
+    merge_agent: Merge Agent {
+      label: "LLM topic selection"
+      shape: hexagon
+      style.fill: "#fff"
+      style.stroke-width: 0
+      style.border-radius: 20
+      style.shadow: true
+      style.font-color: "#6D28D9"
+    }
+    dedup_agent: Dedup Agent {
+      label: |md
+        *cosine > 0.85 → halt*
+      |
+      shape: diamond
+      style.fill: "#FEE2E2"
+      style.stroke-width: 0
+      style.border-radius: 20
+      style.font-color: "#9E2146"
+    }
+    rag_agent: RAG Agent {
+      label: "DenseRetriever"
+      shape: hexagon
+      style.fill: "#fff"
+      style.stroke-width: 0
+      style.border-radius: 20
+      style.shadow: true
+      style.font-color: "#6D28D9"
+    }
+    post_agent: Post Generator Agent {
+      label: |md
+        *Hook → Analogy → Tech → CTA*
+      |
+      shape: hexagon
+      style.fill: "#fff"
+      style.stroke-width: 0
+      style.border-radius: 20
+      style.shadow: true
+      style.font-color: "#6D28D9"
+    }
+    image_agent: Image Agent {
+      label: "DALL-E 3 HD"
+      shape: hexagon
+      style.fill: "#fff"
+      style.stroke-width: 0
+      style.border-radius: 20
+      style.shadow: true
+      style.font-color: "#6D28D9"
+    }
+    ingest_agent: Ingest Agent {
+      label: "Qdrant + KG update"
+      shape: hexagon
+      style.fill: "#fff"
+      style.stroke-width: 0
+      style.border-radius: 20
+      style.shadow: true
+      style.font-color: "#6D28D9"
+    }
+  }
+
+  content.research_agent -> content.merge_agent: topics {
+    style.stroke: "#7C3AED"
+    style.stroke-width: 2
+    style.animated: true
+  }
+  content.merge_agent -> content.dedup_agent: selected {
+    style.stroke: "#7C3AED"
+    style.stroke-width: 2
+    style.animated: true
+  }
+  content.dedup_agent -> content.rag_agent: continue {
+    style.stroke: "#7C3AED"
+    style.stroke-width: 2
+    style.animated: true
+  }
+  content.rag_agent -> content.post_agent: context {
+    style.stroke: "#7C3AED"
+    style.stroke-width: 2
+    style.animated: true
+  }
+  content.post_agent -> content.image_agent: post {
+    style.stroke: "#7C3AED"
+    style.stroke-width: 2
+    style.animated: true
+  }
+  content.image_agent -> content.ingest_agent: post + image {
+    style.stroke: "#7C3AED"
+    style.stroke-width: 2
+    style.animated: true
+  }
+
+  chat: Chat Pipeline Agents {
+    style.fill: "#FFF9C9"
+    style.stroke: "#F59E0B"
+    style.stroke-width: 1
+    style.border-radius: 12
+
+    kg_agent: KG Retriever Agent {
+      label: "multi-hop k=15"
+      shape: hexagon
+      style.fill: "#fff"
+      style.stroke-width: 0
+      style.border-radius: 20
+      style.shadow: true
+      style.font-color: "#9D341E"
+    }
+    dense_agent: Dense Retriever Agent {
+      label: "k=15 parallel"
+      shape: hexagon
+      style.fill: "#fff"
+      style.stroke-width: 0
+      style.border-radius: 20
+      style.shadow: true
+      style.font-color: "#9D341E"
+    }
+    rerank_agent: Rerank Agent {
+      label: "Cohere top 8"
+      shape: hexagon
+      style.fill: "#fff"
+      style.stroke-width: 0
+      style.border-radius: 20
+      style.shadow: true
+      style.font-color: "#9D341E"
+    }
+    answer_agent: Answer Agent {
+      label: "analogy-first stream"
+      shape: hexagon
+      style.fill: "#fff"
+      style.stroke-width: 0
+      style.border-radius: 20
+      style.shadow: true
+      style.font-color: "#9D341E"
+    }
+  }
+
+  chat.kg_agent -> chat.rerank_agent: candidates {
+    style.stroke: "#D97706"
+    style.stroke-width: 2
+    style.animated: true
+  }
+  chat.dense_agent -> chat.rerank_agent: candidates {
+    style.stroke: "#D97706"
+    style.stroke-width: 2
+    style.animated: true
+  }
+  chat.rerank_agent -> chat.answer_agent: top 8 {
+    style.stroke: "#D97706"
+    style.stroke-width: 2
+    style.animated: true
+  }
+
+  byte: Byte Pipeline Agents {
+    style.fill: "#D1FAE5"
+    style.stroke: "#10B981"
+    style.stroke-width: 1
+    style.border-radius: 12
+
+    cache_agent: Cache Check Agent {
+      label: "SQLite lookup"
+      shape: hexagon
+      style.fill: "#fff"
+      style.stroke-width: 0
+      style.border-radius: 20
+      style.shadow: true
+      style.font-color: "#047857"
+    }
+    analogy_agent: Analogy Generator Agent {
+      label: |md
+        *mechanism research → analogy*
+      |
+      shape: hexagon
+      style.fill: "#fff"
+      style.stroke-width: 0
+      style.border-radius: 20
+      style.shadow: true
+      style.font-color: "#047857"
+    }
+    media_agent: Media Agent {
+      label: "image | animation | TTS"
+      shape: hexagon
+      style.fill: "#fff"
+      style.stroke-width: 0
+      style.border-radius: 20
+      style.shadow: true
+      style.font-color: "#047857"
+    }
+    persist_agent: Persist Agent {
+      label: "SQLite save"
+      shape: hexagon
+      style.fill: "#fff"
+      style.stroke-width: 0
+      style.border-radius: 20
+      style.shadow: true
+      style.font-color: "#047857"
+    }
+  }
+
+  byte.cache_agent -> byte.analogy_agent: miss {
+    style.stroke: "#059669"
+    style.stroke-width: 2
+    style.animated: true
+  }
+  byte.analogy_agent -> byte.media_agent: fan-out {
+    style.stroke: "#059669"
+    style.stroke-width: 2
+    style.animated: true
+  }
+  byte.media_agent -> byte.persist_agent: bytes {
+    style.stroke: "#059669"
+    style.stroke-width: 2
+    style.animated: true
+  }
+}
+
+api -> agents.content: create {
+  style.stroke: "#B45309"
+  style.stroke-width: 2
+  style.animated: true
+}
+
+api -> agents.chat: query {
+  style.stroke: "#B45309"
+  style.stroke-width: 2
+  style.animated: true
+}
+
+api -> agents.byte: learn {
+  style.stroke: "#B45309"
+  style.stroke-width: 2
+  style.animated: true
+}
+
+# ═══════════════════════════════════════════════════════════════
+# 5. AI SERVICES & TOOLS
+# ═══════════════════════════════════════════════════════════════
+
+ai: AI Services {
+  style.fill: "#F8FAFC"
+  style.stroke: "#94A3B8"
+  style.border-radius: 12
+
+  openai: OpenAI {
+    label: |md
+      *GPT-4o · DALL-E 3 · Embeddings*
+    |
+    shape: cloud
+    style.fill: "#FFE7CB"
+    style.stroke-width: 0
+    style.border-radius: 20
+    style.font-color: "#9E2146"
+  }
+  cohere: Cohere {
+    label: "rerank-v3.5"
+    shape: cloud
+    style.fill: "#FFE7CB"
+    style.stroke-width: 0
+    style.border-radius: 20
+    style.font-color: "#9E2146"
+  }
+}
+
+tools: External Tools {
+  style.fill: "#F8FAFC"
+  style.stroke: "#94A3B8"
+  style.border-radius: 12
+
+  tavily: Tavily {
+    shape: package
+    style.fill: "#FFE0F5"
+    style.stroke-width: 0
+    style.border-radius: 20
+    style.font-color: "#7939A8"
+  }
+  xcom: X.com {
+    shape: package
+    style.fill: "#FFE0F5"
+    style.stroke-width: 0
+    style.border-radius: 20
+    style.font-color: "#7939A8"
+  }
+}
+
+agents.content -> ai.openai: LLM + image {
+  style.stroke: "#D97706"
+  style.stroke-width: 2
+  style.animated: true
+}
+agents.content -> tools.tavily: search {
+  style.stroke: "#7C3AED"
+  style.stroke-width: 2
+  style.animated: true
+}
+agents.content -> tools.xcom: search {
+  style.stroke: "#7C3AED"
+  style.stroke-width: 2
+  style.animated: true
+}
+agents.chat -> ai.openai: stream {
+  style.stroke: "#D97706"
+  style.stroke-width: 2
+  style.animated: true
+}
+agents.chat -> ai.cohere: rerank {
+  style.stroke: "#D97706"
+  style.stroke-width: 2
+  style.animated: true
+}
+agents.byte -> ai.openai: generate {
+  style.stroke: "#059669"
+  style.stroke-width: 2
+  style.animated: true
+}
+
+# ═══════════════════════════════════════════════════════════════
+# 6. STORAGE & CACHE LAYER
+# ═══════════════════════════════════════════════════════════════
+
+storage: Storage Layer {
+  style.fill: "#DBEAFE"
+  style.stroke: "#3B82F6"
+  style.stroke-width: 1
+  style.border-radius: 12
+
+  qdrant: Qdrant {
+    label: |md
+      *course_kb · generated_posts*
+    |
+    shape: cylinder
+    style.fill: "#fff"
+    style.stroke-width: 0
+    style.border-radius: 20
+    style.shadow: true
+    style.font-color: "#1D4ED8"
+  }
+
+  topic_graph: Topic Graph {
+    label: |md
+      *NetworkX DiGraph*\
+      topic_graph.json
+    |
+    shape: cylinder
+    style.fill: "#fff"
+    style.stroke-width: 0
+    style.border-radius: 20
+    style.shadow: true
+    style.font-color: "#1D4ED8"
+  }
+
+  sqlite: SQLite Cache {
+    label: |md
+      *analogies · p5_sketches · warm_jobs*
+    |
+    shape: cylinder
+    style.fill: "#fff"
+    style.stroke-width: 0
+    style.border-radius: 20
+    style.shadow: true
+    style.font-color: "#0369A1"
+  }
+}
+
+ingestion.qdrant_ingest -> storage.qdrant: upsert {
+  style.stroke: "#0EA5E9"
+  style.stroke-width: 2
+  style.animated: true
+}
+agents.content.rag_agent -> storage.qdrant: search {
+  style.stroke: "#7C3AED"
+  style.stroke-width: 2
+  style.animated: true
+}
+agents.content.ingest_agent -> storage.qdrant: ingest {
+  style.stroke: "#7C3AED"
+  style.stroke-width: 2
+  style.animated: true
+}
+agents.content.ingest_agent -> storage.topic_graph: update {
+  style.stroke: "#7C3AED"
+  style.stroke-width: 2
+  style.animated: true
+}
+agents.chat.kg_agent -> storage.topic_graph: traverse {
+  style.stroke: "#D97706"
+  style.stroke-width: 2
+  style.animated: true
+}
+agents.chat.kg_agent -> storage.qdrant: search {
+  style.stroke: "#D97706"
+  style.stroke-width: 2
+  style.animated: true
+}
+agents.chat.dense_agent -> storage.qdrant: search {
+  style.stroke: "#D97706"
+  style.stroke-width: 2
+  style.animated: true
+}
+agents.byte.cache_agent -> storage.sqlite: read {
+  style.stroke: "#059669"
+  style.stroke-width: 2
+  style.animated: true
+}
+agents.byte.persist_agent -> storage.sqlite: write {
+  style.stroke: "#059669"
+  style.stroke-width: 2
+  style.animated: true
+}

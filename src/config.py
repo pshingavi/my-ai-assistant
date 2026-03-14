@@ -32,9 +32,9 @@ class Settings(BaseSettings):
     embedding_dim: int = 1536
 
     # ── Image Generation ──────────────────────────────────────────────────────
-    image_model: str = "dall-e-3"
+    image_model: str = "gpt-image-1"
     image_size: str = "1024x1024"
-    image_quality: str = "hd"
+    image_quality: str = "high"
     images_dir: str = "data/images"
 
     # ── Qdrant ────────────────────────────────────────────────────────────────
@@ -67,6 +67,9 @@ class Settings(BaseSettings):
     # ── Knowledge Graph ───────────────────────────────────────────────────────
     kg_graph_path: str = "data/topic_graph.json"
     kg_max_hops: int = 2
+
+    # ── Anthropic ─────────────────────────────────────────────────────────────
+    anthropic_api_key: str = ""
 
     # ── Cohere ────────────────────────────────────────────────────────────────
     cohere_api_key: str | None = None

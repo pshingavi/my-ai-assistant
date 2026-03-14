@@ -1,0 +1,1799 @@
+{
+  "embeddings": {
+    "domain": "maps",
+    "scene_setting": "city map where distance = similarity",
+    "analogy": "Google Maps puts similar cities near each other \u2014 Paris and Rome are close, Paris and Tokyo are far. Embeddings do this for words: 'King' and 'Queen' are neighbors, 'Cat' and 'Dog' are neighbors, but 'King' and 'Sandwich' are strangers. The model understands meaning through distance in 768-dimensional space."
+  },
+  "cosine similarity": {
+    "concept": "cosine similarity",
+    "topic": "Dense Vector Retrieval",
+    "domain": "music",
+    "analogy": "In a busy music shop, two friends, Leo and Zoe, love discovering new tunes. As they explore, they hum their favorite melodies, and soon realize that some songs share similar notes and rhythms, creating a harmony that makes them want to dance together. They use a special scale that measures how closely each song matches their favorites, allowing them to find the perfect duet and share the joy of music for all to hear.",
+    "scene_setting": "a lively music shop with instruments and colorful sheets of music",
+    "character1": {
+      "emoji": "\ud83c\udfb8",
+      "label": "Leo",
+      "description": "a musical explorer with a guitar"
+    },
+    "character2": {
+      "emoji": "\ud83c\udfa4",
+      "label": "Zoe",
+      "description": "a singing adventurer with a microphone"
+    },
+    "item1": {
+      "emoji": "\ud83c\udfb6",
+      "label": "melodies"
+    },
+    "item2": {
+      "emoji": "\ud83d\udcdd",
+      "label": "songs"
+    },
+    "accentColor": "#FFD700",
+    "image_prompt": "Inside a vibrant music shop, Leo strums his guitar while Zoe sings joyfully. Sheet music cascades around them like fluttering leaves, and colorful notes dance in the air, creating a lively atmosphere. The camera zooms in on their faces, filled with excitement as they discover overlapping rhythms, capturing the essence of friendship through music."
+  },
+  "Qdrant": {
+    "concept": "Qdrant",
+    "topic": "Dense Vector Retrieval",
+    "domain": "treasure hunt",
+    "analogy": "On a sunny beach, a group of children, led by adventurous Timmy, dig for hidden treasure. Instead of traditional maps, they use a magic compass that points them toward the most promising spots, sifting through countless sandy locales to find the buried pirate gold. When they finally discover a chest filled with shimmering coins, they realize that the compass helps them organize their search, leading them to the most valuable treasures hidden within the vast expanse of the beach.",
+    "scene_setting": "a bright sandy beach with children digging and exploring",
+    "character1": {
+      "emoji": "\ud83e\udded",
+      "label": "Compass",
+      "description": "the magical guide of the hunt"
+    },
+    "character2": {
+      "emoji": "\ud83c\udff4\u200d\u2620\ufe0f",
+      "label": "Timmy",
+      "description": "the brave treasure hunter"
+    },
+    "item1": {
+      "emoji": "\ud83e\ude99",
+      "label": "treasure"
+    },
+    "item2": {
+      "emoji": "\ud83d\udd0d",
+      "label": "maps"
+    },
+    "accentColor": "#FFA07A",
+    "image_prompt": "Under the sun at a lively beach, Timmy excitedly points his compass toward a treasure spot as his friends eagerly dig in the sand. The camera captures their expressions of wonder as sparkles of treasure slowly emerge, while waves crash softly in the background, framing their adventure against the vast ocean."
+  },
+  "vector search": {
+    "concept": "vector search",
+    "topic": "Dense Vector Retrieval",
+    "domain": "zoo",
+    "analogy": "At a bustling zoo, Ava the zookeeper is on a mission to find her lost animal friends. Each animal has its own unique traits \u2013 some are furry, others have stripes or colorful feathers. Using her super-powered binoculars that highlight similar animals, Ava quickly finds the pandas by connecting their fuzzy features and colors, rescuing them from their hiding spots and bringing back the fun to the zoo.",
+    "scene_setting": "a lively zoo filled with animals and happy visitors",
+    "character1": {
+      "emoji": "\ud83e\udd93",
+      "label": "Ava",
+      "description": "the dedicated zookeeper"
+    },
+    "character2": {
+      "emoji": "\ud83d\udc3c",
+      "label": "Pandas",
+      "description": "the fuzzy lost animals"
+    },
+    "item1": {
+      "emoji": "\ud83d\udd2d",
+      "label": "binoculars"
+    },
+    "item2": {
+      "emoji": "\ud83c\udfaa",
+      "label": "fun"
+    },
+    "accentColor": "#32CD32",
+    "image_prompt": "In a vibrant zoo filled with colorful animals, Ava peers through her sparkling binoculars, joy lighting up her face as she spots the hidden pandas amidst the bushes. The camera tracks her excited movements as the animals spring out into the open, creating a joyful scene filled with laughter and playful antics."
+  },
+  "text-embedding-3-small": {
+    "domain": "coordinate system",
+    "scene_setting": "GPS coordinate system for meaning",
+    "analogy": "Every address on Earth has GPS coordinates \u2014 two numbers that pin it to an exact location. text-embedding-3-small gives every piece of text its own coordinates \u2014 1536 numbers that pin its meaning in space. Texts that mean similar things get coordinates that are close together."
+  },
+  "ReAct": {
+    "concept": "ReAct",
+    "topic": "The Agent Loop",
+    "domain": "circus",
+    "analogy": "Under the big top of a colorful circus, a daring acrobat named Luna swings high above, dazzling the audience with her flips and jumps. But each time she lands, she learns something new about the trampoline's bounce and how her body moves. She decides to change her routine based on the cheers and gasps from the crowd, reacting and adapting her performance to create the most thrilling show yet, all while soaring through the air.",
+    "scene_setting": "a vibrant circus tent buzzing with excitement and energy",
+    "character1": {
+      "emoji": "\ud83e\udd38\u200d\u2640\ufe0f",
+      "label": "Luna",
+      "description": "the daring acrobat"
+    },
+    "character2": {
+      "emoji": "\ud83c\udf89",
+      "label": "Audience",
+      "description": "the cheering crowd"
+    },
+    "item1": {
+      "emoji": "\ud83c\udfaa",
+      "label": "performance"
+    },
+    "item2": {
+      "emoji": "\ud83c\udfc5",
+      "label": "cheers"
+    },
+    "accentColor": "#FF4500",
+    "image_prompt": "Under the vivid circus tent, Luna performs mid-air, twisting and turning gracefully with the spotlight on her. The audience below erupts in applause, captured mid-cheer, their delight radiating through the scene. The camera focuses on Luna\u2019s concentration as she adapts her moves in real-time, creating a spectacle full of excitement and joy."
+  },
+  "tool calling": {
+    "concept": "tool calling",
+    "topic": "The Agent Loop",
+    "domain": "construction",
+    "analogy": "In a bustling construction site, hardworking Sam oversees a team of builders who each have their own special tool. When a dangerous storm approaches, Sam quickly calls out for his trusty toolbox that holds every tool they might need \u2014 from hammers to drills. With a single command, the tools spring into action, ready to help the builders finish their project just in time, showcasing how teamwork and quick thinking can overcome any challenge.",
+    "scene_setting": "a busy construction site with workers and machinery",
+    "character1": {
+      "emoji": "\ud83d\udc77\u200d\u2642\ufe0f",
+      "label": "Sam",
+      "description": "the diligent foreman"
+    },
+    "character2": {
+      "emoji": "\ud83d\udd27",
+      "label": "Tools",
+      "description": "the magical toolbox"
+    },
+    "item1": {
+      "emoji": "\u2692\ufe0f",
+      "label": "tools"
+    },
+    "item2": {
+      "emoji": "\ud83c\udfd7\ufe0f",
+      "label": "construction"
+    },
+    "accentColor": "#FFD700",
+    "image_prompt": "On a lively construction site, Sam stands with a determined expression, gesturing to a toolbox while workers scurry around with various tools in hand. The sunlight casts sharp shadows as they efficiently prepare for the storm that looms in the distance. The camera captures the dynamic energy of collaboration, showcasing the teamwork that powers their project."
+  },
+  "agent reasoning": {
+    "concept": "agent reasoning",
+    "topic": "The Agent Loop",
+    "domain": "theater",
+    "analogy": "In a grand theater, a talented director named Clara prepares for a big show. As the curtain rises, she observes the actors on stage and discerns their emotions, deciding which scenes need a little more drama or laughter. With a wave of her hand, she guides the action, using her intuition and quick thinking to craft the perfect performance, ensuring that the audience feels every heartbeat of the story unfold.",
+    "scene_setting": "a beautifully lit theater with a grand stage and excited audience",
+    "character1": {
+      "emoji": "\ud83c\udfad",
+      "label": "Clara",
+      "description": "the insightful theater director"
+    },
+    "character2": {
+      "emoji": "\ud83c\udfa4",
+      "label": "Actors",
+      "description": "the talented performers"
+    },
+    "item1": {
+      "emoji": "\ud83c\udf9f\ufe0f",
+      "label": "show"
+    },
+    "item2": {
+      "emoji": "\u2764\ufe0f",
+      "label": "emotions"
+    },
+    "accentColor": "#FF69B4",
+    "image_prompt": "In a dazzling theater, Clara stands at the edge of the stage, gracefully directing her actors with a captivating presence as the audience watches in anticipation. The camera captures the glow of stage lights illuminating the performers as they convey deep emotions, evoking a sense of enchantment and connection with the crowd."
+  },
+  "planning": {
+    "concept": "planning",
+    "topic": "The Agent Loop",
+    "domain": "film_production",
+    "analogy": "In a bustling film studio, a young director named Emma had a dream to shoot the perfect movie. She gathered her team and began scripting scenes, planning every shot like a puzzle piece that fits into a larger picture. But as the day approached, storms threatened to ruin their outdoor scenes! With quick thinking and a bit of teamwork, Emma reshuffled their plans, transforming the chaos into a thrilling indoor adventure. In the end, the movie turned out to be even more magical than they had imagined.",
+    "scene_setting": "a colorful, busy film studio filled with equipment",
+    "character1": {
+      "emoji": "\ud83c\udfac",
+      "label": "Director",
+      "description": "a visionary storyteller who orchestrates creativity"
+    },
+    "character2": {
+      "emoji": "\ud83c\udfa5",
+      "label": "Cameraman",
+      "description": "a helpful partner capturing the vision on film"
+    },
+    "item1": {
+      "emoji": "\ud83d\udcdc",
+      "label": "Script"
+    },
+    "item2": {
+      "emoji": "\u2601\ufe0f",
+      "label": "Plan"
+    },
+    "accentColor": "#FF6F61",
+    "image_prompt": "Inside an exuberant film studio, a young director excitedly points to her colorful script, surrounded by a diverse crew. Bright lights illuminate faces filled with determination. In the background, a cameraman adjusts his camera, focusing on a lively animated sequence on a nearby screen. The scene is vibrant and chaotic with tools and props scattered around, capturing the electric excitement of creativity in full swing."
+  },
+  "LLM loop": {
+    "concept": "LLM loop",
+    "topic": "The Agent Loop",
+    "domain": "space_mission",
+    "analogy": "On a distant planet, astronaut Leo was on a mission to communicate with an alien species. He spoke into his communicator, sending a simple message, but the aliens replied in a language he struggled to understand. Realizing he needed more practice, he revisited his notes and crafted clearer messages. Each time he sent a new message, he learned from their responses, slowly bridging the gap until finally, they were having a joyful conversation about the stars above!",
+    "scene_setting": "a futuristic spacecraft floating near a colorful alien planet",
+    "character1": {
+      "emoji": "\ud83d\ude80",
+      "label": "Astronaut",
+      "description": "an eager explorer determined to make friends"
+    },
+    "character2": {
+      "emoji": "\ud83d\udc7d",
+      "label": "Alien",
+      "description": "a curious being intrigued by communication"
+    },
+    "item1": {
+      "emoji": "\ud83d\udce1",
+      "label": "Message"
+    },
+    "item2": {
+      "emoji": "\ud83d\udd24",
+      "label": "Response"
+    },
+    "accentColor": "#5DADE2",
+    "image_prompt": "Inside a sparkling spacecraft with glowing control panels, astronaut Leo passionately speaks into a communicator, while alien symbols dance across a digital screen. The backdrop features a mesmerizing view of the colorful planet outside, pulsating with light. Leo's eyes gleam with excitement as he listens intently to the alien's vibrant response, showcasing the deep connection forming in the vastness of space."
+  },
+  "RAG": {
+    "concept": "RAG",
+    "topic": "Agentic RAG",
+    "domain": "detective",
+    "analogy": "Detective Sarah stood in a room full of clues, searching for the truth behind a mysterious theft. She needed to organize the jumbled pieces of evidence before she could solve the case. With her trusty notebook, she carefully categorized each clue, linking them to suspects and events. Piece by piece, she constructed a clear picture of the mystery, finally leading her to the culprit just as the clock struck midnight!",
+    "scene_setting": "a dimly lit detective office cluttered with notes and artifacts",
+    "character1": {
+      "emoji": "\ud83d\udd75\ufe0f\u200d\u2640\ufe0f",
+      "label": "Detective",
+      "description": "a determined sleuth piecing together clues"
+    },
+    "character2": {
+      "emoji": "\ud83d\udcda",
+      "label": "Notebook",
+      "description": "a helpful assistant organizing the investigation"
+    },
+    "item1": {
+      "emoji": "\ud83d\udd0d",
+      "label": "Clue"
+    },
+    "item2": {
+      "emoji": "\ud83d\udcdc",
+      "label": "Evidence"
+    },
+    "accentColor": "#C0392B",
+    "image_prompt": "In a shadowy detective's office, Detective Sarah fervently examines scattered clues while holding a magnifying glass. The warm glow of a desk lamp illuminates her focused expression as she jots notes into an organized notebook. The room is filled with mysterious artifacts and an old clock ticking ominously, creating an atmosphere of urgency as the case unfolds."
+  },
+  "chunking": {
+    "concept": "chunking",
+    "topic": "Agentic RAG",
+    "domain": "sports_stadium",
+    "analogy": "In the heart of a bustling stadium, Coach Mike was preparing his team for the big game. As he reviewed the complex plays, he realized the players were overwhelmed. So, he divided the strategies into smaller, digestible chunks\u2014one play at a time. With each mini-practice, players gradually mastered their roles, leading to a spectacular win under the stadium lights, cheers echoing around them!",
+    "scene_setting": "a lively sports stadium filled with cheering fans",
+    "character1": {
+      "emoji": "\ud83c\udfc5",
+      "label": "Coach",
+      "description": "a wise mentor guiding his team to victory"
+    },
+    "character2": {
+      "emoji": "\u26bd\ufe0f",
+      "label": "Player",
+      "description": "a dedicated athlete ready to learn and shine"
+    },
+    "item1": {
+      "emoji": "\ud83d\udccb",
+      "label": "Playbook"
+    },
+    "item2": {
+      "emoji": "\ud83d\udcaa",
+      "label": "Strategy"
+    },
+    "accentColor": "#28B463",
+    "image_prompt": "On a sunlit stadium field, Coach Mike passionately demonstrates a play to his eager players, who gather around him with focused expressions. The stands are packed with excited fans waving colorful banners, their cheers filling the air. The vibrant green grass glistens under the bright lights, embodying the energy and spirit of teamwork about to unfold."
+  },
+  "document loading": {
+    "concept": "document loading",
+    "topic": "Agentic RAG",
+    "domain": "aquarium",
+    "analogy": "At the sparkling aquarium, Lucy the octopus was tasked with delivering a show-stopping performance. First, she needed to gather the right props from different tanks \u2014 colorful shells, shiny stones, and bouncing fish toys. As she carefully loaded her treasures, she felt excited about the grand event ahead. When showtime arrived, Lucy dazzled the audience with her unique display, ensuring her treasures were perfectly in sync with her playful dance!",
+    "scene_setting": "a vibrant aquarium with various tanks full of sea life",
+    "character1": {
+      "emoji": "\ud83d\udc19",
+      "label": "Octopus",
+      "description": "a talented performer preparing for a show"
+    },
+    "character2": {
+      "emoji": "\ud83d\udc20",
+      "label": "Fish",
+      "description": "a playful companion joining the performance"
+    },
+    "item1": {
+      "emoji": "\ud83c\udffa",
+      "label": "Prop"
+    },
+    "item2": {
+      "emoji": "\ud83c\udf89",
+      "label": "Treasure"
+    },
+    "accentColor": "#3498DB",
+    "image_prompt": "Under the shimmering water of a colorful aquarium, Lucy the octopus gracefully glides through her vibrant tank, gathering props with her nimble tentacles. Bright fish dart around excitedly, creating a beautiful backdrop of movement. Soft light filters through the water, illuminating her joyful expression, as she prepares for her thrilling performance, captivating everyone watching."
+  },
+  "conditional logic": {
+    "concept": "conditional logic",
+    "topic": "Agentic RAG",
+    "domain": "courtroom",
+    "analogy": "In a bustling courtroom, young lawyer Mia stood before the judge, ready to unravel a perplexing case. She knew that every question she asked would lead to different answers from the witnesses\u2014if they said yes to one thing, it would mean something entirely different to the outcome! Carefully, she crafted her questions, each one like a key unlocking the next step in the investigation. With each conditional twist, the truth slowly emerged, leading to a just decision!",
+    "scene_setting": "a grand courtroom filled with people and buzzing tension",
+    "character1": {
+      "emoji": "\u2696\ufe0f",
+      "label": "Lawyer",
+      "description": "an earnest seeker of truth in a busy courtroom"
+    },
+    "character2": {
+      "emoji": "\ud83d\udc69\u200d\u2696\ufe0f",
+      "label": "Judge",
+      "description": "a wise figure overseeing justice with a fair hand"
+    },
+    "item1": {
+      "emoji": "\ud83d\udd11",
+      "label": "Question"
+    },
+    "item2": {
+      "emoji": "\ud83d\udde3\ufe0f",
+      "label": "Answer"
+    },
+    "accentColor": "#8E44AD",
+    "image_prompt": "In a stately courtroom, Lawyer Mia passionately presents her case, captivating the audience's attention with her articulate questions. The Judge sits high, observing with keen interest, while witnesses brace themselves to provide answers. Shadows dance across the room from tall windows, adding to the intensity of the moment as the search for truth unfolds."
+  },
+  "retrieval augmentation": {
+    "concept": "retrieval augmentation",
+    "topic": "Agentic RAG",
+    "domain": "journalism",
+    "analogy": "In the bustling newsroom, rookie reporter Jake was on a quest for the perfect story. He gathered basic facts, but soon realized he needed more depth to make his article truly shine. With a sly grin, he turned to the archives, retrieving old interviews and articles, enhancing his story with rich context and quotes. By mixing the old with the new, Jake crafted an article that not only informed but inspired the whole community!",
+    "scene_setting": "a lively newsroom filled with journalists working on stories",
+    "character1": {
+      "emoji": "\ud83d\udcf0",
+      "label": "Reporter",
+      "description": "a young journalist chasing the scoop of a lifetime"
+    },
+    "character2": {
+      "emoji": "\ud83d\udcc2",
+      "label": "Archive",
+      "description": "a treasure trove of stories and history"
+    },
+    "item1": {
+      "emoji": "\ud83d\udcd6",
+      "label": "Facts"
+    },
+    "item2": {
+      "emoji": "\ud83d\udcdc",
+      "label": "Context"
+    },
+    "accentColor": "#E67E22",
+    "image_prompt": "In a vibrant newsroom buzzing with energy, Reporter Jake excitedly flips through old files, searching for forgotten stories to complement his latest article. Papers flutter as he uncovers treasure troves of insight and quotes. The warm glow of desk lamps casts shadows across the room, bringing to life the stories of the past, all while journalists around him type fervently, capturing the heart of the community."
+  },
+  "LangGraph": {
+    "concept": "LangGraph",
+    "topic": "Multi-Agent LangGraph",
+    "domain": "treasure_map",
+    "analogy": "In a world of enchanted forests and hidden treasures, a group of adventurous friends set out to find a legendary treasure. Each friend had a unique way of solving puzzles, and together they formed a map filled with lines connecting clues to their next steps. The more they communicated and shared ideas, the clearer their path became, leading them through secret caves and over mountains. Ultimately, their bond and creativity lit up the way to the treasure awaiting them at the end of their journey.",
+    "scene_setting": "a mystical forest filled with colorful trees and sparkling light",
+    "character1": {
+      "emoji": "\ud83e\udded",
+      "label": "Explorer",
+      "description": "a brave leader guiding friends towards adventure"
+    },
+    "character2": {
+      "emoji": "\ud83e\udde9",
+      "label": "Puzzle-Solver",
+      "description": "an expert connector turning ideas into paths"
+    },
+    "item1": {
+      "emoji": "\ud83d\uddfa\ufe0f",
+      "label": "Map"
+    },
+    "item2": {
+      "emoji": "\ud83d\udc8e",
+      "label": "Treasure"
+    },
+    "accentColor": "#F1C40F",
+    "image_prompt": "In a dreamy forest, a group of diverse friends gathers around a sparkling treasure map, each pointing at different paths. Sunlight filters through the colorful leaves, illuminating their eager faces as they discuss their next moves. The air is filled with excitement and mystery, capturing the essence of adventure as they prepare to navigate the enchanted journey ahead."
+  },
+  "multi-agent": {
+    "concept": "multi-agent",
+    "topic": "Multi-Agent LangGraph",
+    "domain": "honeybee",
+    "analogy": "In a bustling garden under a bright blue sky, a team of curious honeybees buzzes around, each with a special task. One bee gathers nectar from colorful flowers, while another polishes the honeycomb, and a third communicates news of a flower patch filled with sweet blossoms. Together, they work as a mighty hive, sharing information and skills, making sure their home becomes the sweetest spot in the garden. It\u2019s a celebration of teamwork and cooperation!",
+    "scene_setting": "a lively garden buzzing with bees",
+    "character1": {
+      "emoji": "\ud83d\udc1d",
+      "label": "Bee Leader",
+      "description": "the organizer of bee tasks"
+    },
+    "character2": {
+      "emoji": "\ud83c\udf3b",
+      "label": "Flower Friend",
+      "description": "the source of nectar and pollen"
+    },
+    "item1": {
+      "emoji": "\ud83c\udf6f",
+      "label": "Sweet Honey"
+    },
+    "item2": {
+      "emoji": "\ud83c\udf3c",
+      "label": "Flower"
+    },
+    "accentColor": "#FFD700",
+    "image_prompt": "A close-up view of a busy honeybee gathering nectar from a bright yellow flower, sunlight filtering through the petals. In the background, fellow bees can be seen buzzing around a honeycomb. The atmosphere is warm and vibrant, filled with the sounds of nature."
+  },
+  "state machine": {
+    "concept": "state machine",
+    "topic": "Multi-Agent LangGraph",
+    "domain": "weather_forecasting",
+    "analogy": "In a cozy little weather station, a cheerful meteorologist named Mia flips colorful dials and pushes buttons to predict the weather. Each setting represents a different state: sunny, rainy, or snowy. Depending on the day outside, Mia adjusts the machine, and voila! She can see forecasts change as if they were her own magic tricks, helping everyone prepare for whatever Mother Nature has in store.",
+    "scene_setting": "a colorful, bustling weather station",
+    "character1": {
+      "emoji": "\ud83d\udc69\u200d\ud83c\udfeb",
+      "label": "Mia",
+      "description": "the playful meteorologist"
+    },
+    "character2": {
+      "emoji": "\ud83c\udf26\ufe0f",
+      "label": "Weather",
+      "description": "the ever-changing sky"
+    },
+    "item1": {
+      "emoji": "\ud83c\udf1e",
+      "label": "Sunny State"
+    },
+    "item2": {
+      "emoji": "\u2614",
+      "label": "Rainy State"
+    },
+    "accentColor": "#1E90FF",
+    "image_prompt": "A lively meteorologist stands at a colorful weather station, surrounded by dials and monitors. Mia is flashing a big smile as she flips a switch, while a digital screen shows sunshine quickly transforming to raindrops. The room is filled with bright colors and tools that depict changing weather patterns."
+  },
+  "conditional edges": {
+    "concept": "conditional edges",
+    "topic": "Multi-Agent LangGraph",
+    "domain": "safari",
+    "analogy": "On a safari trip, a little explorer named Max is faced with a curious river crossing. He can either hop onto a nearby log if the river is calm or scout for a shallow spot if the water is rushing. With every choice, he learns new paths and possibilities, like a treasure map that changes with each decision he makes in the wild!",
+    "scene_setting": "a vibrant safari landscape with a glistening river",
+    "character1": {
+      "emoji": "\ud83e\uddd2",
+      "label": "Max",
+      "description": "the adventurous explorer"
+    },
+    "character2": {
+      "emoji": "\ud83c\udf0a",
+      "label": "River",
+      "description": "the obstacle to overcome"
+    },
+    "item1": {
+      "emoji": "\ud83e\udeb5",
+      "label": "Log"
+    },
+    "item2": {
+      "emoji": "\ud83c\udfde\ufe0f",
+      "label": "Shallow Spot"
+    },
+    "accentColor": "#8B4513",
+    "image_prompt": "A curious little boy stands at the edge of a shimmering river on a sunny day, contemplating his next move. The river sparkles under the sun, with a sturdy log invitingly floating nearby. Max has a determined look as he considers his choices in the vibrant safari landscape."
+  },
+  "graph orchestration": {
+    "concept": "graph orchestration",
+    "topic": "Multi-Agent LangGraph",
+    "domain": "carpentry",
+    "analogy": "In a bustling carpentry workshop, master woodworker Sam directs his talented team of helpers, like a conductor leading an orchestra. Each helper knows their unique part: one saws, another sands, while a third paints with bright colors. Together, they transform raw timber into beautiful furniture, each distinct task interconnecting, creating a masterpiece worthy of display!",
+    "scene_setting": "a lively carpentry workshop filled with tools",
+    "character1": {
+      "emoji": "\ud83e\ude9a",
+      "label": "Sam",
+      "description": "the master woodworker"
+    },
+    "character2": {
+      "emoji": "\ud83e\ude91",
+      "label": "Woodwork",
+      "description": "the upcoming furniture"
+    },
+    "item1": {
+      "emoji": "\ud83e\udeb5",
+      "label": "Raw Wood"
+    },
+    "item2": {
+      "emoji": "\ud83c\udfa8",
+      "label": "Paint"
+    },
+    "accentColor": "#8B0000",
+    "image_prompt": "A master woodworker stands confidently in a vibrant carpentry workshop, gesturing to his team as they work on a beautiful wooden chair. Sunlight streams through the window, illuminating tools and wood shavings scattered around, creating a warm, inviting atmosphere."
+  },
+  "episodic memory": {
+    "concept": "episodic memory",
+    "topic": "Agent Memory",
+    "domain": "treasure_map",
+    "analogy": "On a rainy day in his attic, young Leo discovers an old, dusty treasure map filled with memories from past adventures. Each marked spot tells a story of laughter, friendship, or a daring leap off a swinging rope. As he carefully retraces his steps on the map, magical images of those moments rise like bubbles, reminding him that every treasure is a memory waiting to be cherished.",
+    "scene_setting": "a cozy attic filled with treasures",
+    "character1": {
+      "emoji": "\ud83d\uddfa\ufe0f",
+      "label": "Leo",
+      "description": "the treasure hunter"
+    },
+    "character2": {
+      "emoji": "\ud83d\udcad",
+      "label": "Memories",
+      "description": "the enchanting past moments"
+    },
+    "item1": {
+      "emoji": "\ud83c\udff4\u200d\u2620\ufe0f",
+      "label": "Treasure Map"
+    },
+    "item2": {
+      "emoji": "\u2728",
+      "label": "Memories"
+    },
+    "accentColor": "#D2691E",
+    "image_prompt": "A young boy sits cross-legged in a cluttered attic, intently studying a faded treasure map. As he touches each marked spot, shimmering memories float up around him like gentle bubbles, capturing joyous moments from past adventures. The soft, warm light creates a nostalgic atmosphere filled with wonder."
+  },
+  "vector memory": {
+    "concept": "vector memory",
+    "topic": "Agent Memory",
+    "domain": "clock_repair",
+    "analogy": "In a quaint clock repair shop, Jenny the clockmaker is surrounded by countless ticking treasures. Each clock holds memories of the times they\u2019ve seen\u2014birthdays, family dinners, and lazy afternoons. As she works, Jenny carefully aligns each hand to a specific angle, creating a precise moment in time, reminding her that every second can be special and should be cherished.",
+    "scene_setting": "a charming clock repair shop filled with clocks",
+    "character1": {
+      "emoji": "\u23f0",
+      "label": "Jenny",
+      "description": "the meticulous clockmaker"
+    },
+    "character2": {
+      "emoji": "\u231b",
+      "label": "Moments",
+      "description": "the special times stored in memories"
+    },
+    "item1": {
+      "emoji": "\ud83d\udd27",
+      "label": "Tools"
+    },
+    "item2": {
+      "emoji": "\ud83d\udd52",
+      "label": "Clock Hands"
+    },
+    "accentColor": "#FFDEAD",
+    "image_prompt": "Inside a charming clock repair shop, a focused clockmaker delicately works on an intricate timepiece. Each clock around her ticks rhythmically, and tiny gears catch the soft light, creating a magical ambiance filled with memories. Jenny's expression is one of deep concentration as she aligns the hands with care."
+  },
+  "conversation history": {
+    "concept": "conversation history",
+    "topic": "Agent Memory",
+    "domain": "journalism",
+    "analogy": "In a bustling newsroom, young reporter Zoe types furiously on her old typewriter, piecing together the stories of her town. Each keystroke echoes memories of interviews, laughter, and heartfelt moments that create a vibrant tapestry of community life. As she looks back at her notes, memories of conversations flood her mind, guiding her to tell tales that matter and connect hearts.",
+    "scene_setting": "a lively newsroom filled with stories",
+    "character1": {
+      "emoji": "\ud83d\udcf0",
+      "label": "Zoe",
+      "description": "the passionate reporter"
+    },
+    "character2": {
+      "emoji": "\ud83d\udcac",
+      "label": "Conversations",
+      "description": "the heart of the community"
+    },
+    "item1": {
+      "emoji": "\u2328\ufe0f",
+      "label": "Typewriter"
+    },
+    "item2": {
+      "emoji": "\ud83d\udcc4",
+      "label": "Notes"
+    },
+    "accentColor": "#FF4500",
+    "image_prompt": "A young reporter sits at an old typewriter surrounded by crumpled papers and buzzing activity in a lively newsroom. Zoe's eyes sparkle with excitement as she glances back at her notes, inspired by the lively conversations she's held. Light pours in from the windows, hinting at a world filled with untold stories awaiting her touch."
+  },
+  "long-term memory": {
+    "concept": "long-term memory",
+    "topic": "Agent Memory",
+    "domain": "archaeology",
+    "analogy": "Deep in a dusty excavation site, archaeologist Ava uncovers ancient pottery, each piece telling a story from the past. These artifacts represent memories that have stood the test of time, narrating tales of love, loss, and adventure. As she carefully cleans each shard, Ava realizes that these fragments connect her to the people who lived long ago, reminding her that some memories can shape the future.",
+    "scene_setting": "a sunny archaeological dig site",
+    "character1": {
+      "emoji": "\ud83e\uddba",
+      "label": "Ava",
+      "description": "the dedicated archaeologist"
+    },
+    "character2": {
+      "emoji": "\ud83c\udffa",
+      "label": "Artifacts",
+      "description": "the ancient memories"
+    },
+    "item1": {
+      "emoji": "\ud83d\udd0d",
+      "label": "Brush"
+    },
+    "item2": {
+      "emoji": "\ud83d\uddff",
+      "label": "Pottery"
+    },
+    "accentColor": "#8B4513",
+    "image_prompt": "An archaeologist kneels in a sunlit excavation site, gently brushing dirt off ancient pottery shards. A golden light captures the moment, showcasing her wonder as she connects with memories of a long-lost civilization. Dust swirls around her, inviting curiosity about the world beneath her fingertips."
+  },
+  "faithfulness": {
+    "concept": "faithfulness",
+    "topic": "RAG Evaluation with RAGAS",
+    "domain": "theater",
+    "analogy": "In a lively theater full of spotlight and laughter, a bright young actor named Ellie performs in a whimsical play. Equipped only with her scripts and heartfelt emotions, she must stay true to her character while navigating a sea of distractions. As she delivers her lines with passion, Ellie learns that staying faithful to her story makes the performance truly shine, captivating the audience's hearts!",
+    "scene_setting": "a lively theater stage with bright lights and a joyful audience",
+    "character1": {
+      "emoji": "\ud83c\udfad",
+      "label": "Ellie",
+      "description": "a bright young actor in a play"
+    },
+    "character2": {
+      "emoji": "\ud83c\udf1f",
+      "label": "Audience",
+      "description": "an engaged, joyful audience"
+    },
+    "item1": {
+      "emoji": "\ud83d\udcdc",
+      "label": "scripts"
+    },
+    "item2": {
+      "emoji": "\ud83d\udc96",
+      "label": "true emotions"
+    },
+    "accentColor": "#FF6347",
+    "image_prompt": "Under the dazzling lights of a lively theater, Ellie, the young actor, passionately delivers her lines, focused on staying true to her character. The audience, a sea of smiling faces, is captivated by her heartfelt performance. Colorful props and costumes surround her, creating a vibrant scene filled with energy."
+  },
+  "context recall": {
+    "concept": "context recall",
+    "topic": "RAG Evaluation with RAGAS",
+    "domain": "detective_case_file",
+    "analogy": "Seasoned detective Iris has 80 pages of case notes spread across her desk. A witness just said 'the suspect wore a blue coat' \u2014 Iris flips through every page and finds three earlier mentions of a blue coat, connecting them into a chain of evidence. She recalled every relevant detail from the case file to answer the question. Context recall measures exactly this: given all the retrieved evidence, how much of the truly relevant information did the answer actually use?",
+    "scene_setting": "Rain-streaked detective office with case files and a single desk lamp",
+    "character1": {
+      "emoji": "\ud83d\udd75\ufe0f",
+      "label": "Detective Iris",
+      "description": "the RAG system recalling context"
+    },
+    "character2": {
+      "emoji": "\ud83d\udcc1",
+      "label": "Case Files",
+      "description": "the retrieved document chunks"
+    },
+    "item1": {
+      "emoji": "\ud83d\udd35",
+      "label": "Blue Coat Clue"
+    },
+    "item2": {
+      "emoji": "\ud83d\udd17",
+      "label": "Evidence Chain"
+    },
+    "accentColor": "#374151",
+    "image_prompt": "Moody detective office at night, rain streaks on a grimy window. A sharp-eyed detective leans over a desk buried in scattered case files and photographs, connecting notes with red string. Single amber lamp casts dramatic shadows. Camera from the doorway looking in. Film noir atmosphere."
+  },
+  "answer relevancy": {
+    "concept": "answer relevancy",
+    "topic": "RAG Evaluation with RAGAS",
+    "domain": "fishing",
+    "analogy": "On a bright sunny day, a seasoned fisherman named Jake sits in his weathered boat, pondering the best spot to cast his line. With a trusty compass that shows not just direction but the fish's favorite hiding spots, he must choose wisely. After several tries, Jake learns it\u2019s not just the bait that matters, but how relevant each spot is to the hungry fish below. In the end, the right location offers a bountiful catch, teaching him that finding the best answers isn\u2019t always about quantity but relevance.",
+    "scene_setting": "a serene lake with a small weathered boat anchored nearby",
+    "character1": {
+      "emoji": "\ud83c\udfa3",
+      "label": "Fisherman",
+      "description": "an old fisherman with a wise smile"
+    },
+    "character2": {
+      "emoji": "\ud83d\udc1f",
+      "label": "Smart Fish",
+      "description": "a slick fish that knows the lake well"
+    },
+    "item1": {
+      "emoji": "\ud83e\udded",
+      "label": "Old Compass"
+    },
+    "item2": {
+      "emoji": "\ud83c\udf74",
+      "label": "Fresh Bait"
+    },
+    "accentColor": "#A2DFF7",
+    "image_prompt": "On a sunny day, a wise old fisherman sits in his small weathered boat, holding an old compass and looking intently at the serene lake's surface. Nearby, a sleek fish peers out from the shimmering water with a glimmer of mischief, pondering whether to bite the fresh bait. The sunlight reflects on the water, creating a tranquil yet suspenseful atmosphere as Jake prepares to cast his line."
+  },
+  "evaluation metrics": {
+    "concept": "evaluation metrics",
+    "topic": "RAG Evaluation with RAGAS",
+    "domain": "arena",
+    "analogy": "In a sparkling sports arena, two teams of colorful creatures gather for a big game of Hooplas, where they must toss glowing orbs through hoops to score points. As their coach, a wise old tortoise named Coach T, watches, he takes out his notepad filled with exciting metrics, tallying each team\u2019s progress. He reminds them that while scoring is important, teamwork and improvement matter just as much. In the end, both teams triumph together, realizing that playing well is the best metric of success.",
+    "scene_setting": "a vibrant sports arena buzzing with eager creatures",
+    "character1": {
+      "emoji": "\ud83d\udc22",
+      "label": "Coach T",
+      "description": "a wise tortoise with a notepad and glasses"
+    },
+    "character2": {
+      "emoji": "\ud83e\udd81",
+      "label": "Team Leader",
+      "description": "a bold lion leading the team"
+    },
+    "item1": {
+      "emoji": "\u26bd",
+      "label": "Glowing Orb"
+    },
+    "item2": {
+      "emoji": "\ud83c\udfc6",
+      "label": "Shiny Trophy"
+    },
+    "accentColor": "#F7C1B3",
+    "image_prompt": "In a vibrant sports arena filled with excited creatures of all shapes and sizes, a wise tortoise in glasses stands with a notepad. He watches as a bold lion leads his team, tossing a glowing orb towards a shimmering hoop. The stands are packed, and the atmosphere is electric as creatures cheer, creating moments of joy and competition under colorful banners."
+  },
+  "HyDE": {
+    "concept": "HyDE",
+    "topic": "Advanced Retrieval",
+    "domain": "beach",
+    "analogy": "On a shimmering beach, a clever little crab named Coco has lost her favorite seashell under the sand. With a special pair of magical glasses that help her see hidden treasures, she scuttles across the shore, looking for clues. As she digs through the sand, the glasses reveal not just her shell, but many other colorful treasures buried deep. In her quest, Coco learns that uncovering hidden gems takes a keen eye and a little help from magic.",
+    "scene_setting": "a lively beach with soft waves and colorful treasures scattered",
+    "character1": {
+      "emoji": "\ud83e\udd80",
+      "label": "Coco Crab",
+      "description": "a clever crab on a treasure hunt"
+    },
+    "character2": {
+      "emoji": "\ud83d\udd76\ufe0f",
+      "label": "Magic Glasses",
+      "description": "glowing glasses revealing hidden treasures"
+    },
+    "item1": {
+      "emoji": "\ud83c\udfd6\ufe0f",
+      "label": "Seashell"
+    },
+    "item2": {
+      "emoji": "\ud83d\udc8e",
+      "label": "Colorful Gem"
+    },
+    "accentColor": "#FFB3A0",
+    "image_prompt": "On a sunny beach, a clever little crab named Coco wears shiny magic glasses as she scuttles across the sand. The water sparkles in the background while colorful treasures peek out beneath the surface. Coco\u2019s eyes shine with excitement as she digs, revealing her favorite seashell along with a rainbow of gems, all set against the vivid shoreline."
+  },
+  "reranking": {
+    "concept": "reranking",
+    "topic": "Advanced Retrieval",
+    "domain": "courtroom",
+    "analogy": "In a grand courtroom, Judge Clara faces a stack of 50 case files \u2014 all about the same crime. Her sharp-eyed clerk, Oliver, quickly skims each file and hands her the top 5 most relevant cases first. Clara reads those carefully, re-orders them by merit, then delivers a verdict grounded in the strongest evidence. Reranking works the same way: a fast retriever grabs many candidates, then a precise re-scorer re-orders them so the very best floats to the top.",
+    "scene_setting": "Sunlit marble courtroom with towering bookshelves of case files",
+    "character1": {
+      "emoji": "\ud83d\udd75\ufe0f",
+      "label": "Clerk Oliver",
+      "description": "fast retriever who fetches candidates"
+    },
+    "character2": {
+      "emoji": "\u2696\ufe0f",
+      "label": "Judge Clara",
+      "description": "precise reranker who re-scores"
+    },
+    "item1": {
+      "emoji": "\ud83d\udccb",
+      "label": "Case Files"
+    },
+    "item2": {
+      "emoji": "\ud83c\udfc5",
+      "label": "Top Verdict"
+    },
+    "accentColor": "#b45309",
+    "image_prompt": "Wide-angle cinematic shot inside a grand marble courtroom at golden hour. A sharp-eyed clerk rushes across polished floors carrying a towering stack of manila folders toward a focused judge seated at an elevated bench. Shafts of amber light cut through tall arched windows. Camera low, looking up. Dramatic shadows."
+  },
+  "knowledge graph": {
+    "concept": "knowledge graph",
+    "topic": "Advanced Retrieval",
+    "domain": "constellation",
+    "analogy": "High in the starry night sky, a curious young owl named Oliver gazes up at the constellations. Each twinkling star connects to the others like fishing lines, creating stories of adventure and mystery. As Oliver traces the constellations with his wing, he realizes that every star holds a piece of knowledge, and together they create a map of the universe. With each discovery, Oliver learns that understanding connections unlocks the secrets of the night.",
+    "scene_setting": "a starry night sky over a tranquil forest",
+    "character1": {
+      "emoji": "\ud83e\udd89",
+      "label": "Oliver Owl",
+      "description": "a curious owl exploring the night sky"
+    },
+    "character2": {
+      "emoji": "\u2b50",
+      "label": "Star Map",
+      "description": "a glowing map of constellations"
+    },
+    "item1": {
+      "emoji": "\ud83c\udf0c",
+      "label": "Night Sky"
+    },
+    "item2": {
+      "emoji": "\ud83d\udd2d",
+      "label": "Shining Star"
+    },
+    "accentColor": "#4B6F7A",
+    "image_prompt": "Under a breathtaking starry night sky, a curious young owl named Oliver spreads his wings wide as he gazes at the twinkling constellations. The forest below is tranquil, illuminated by soft moonlight. As he traces the patterns in the sky, his eyes light up with wonder, discovering new connections between the stars, creating a vivid tapestry of knowledge and adventure."
+  },
+  "multi-hop retrieval": {
+    "concept": "multi-hop retrieval",
+    "topic": "Advanced Retrieval",
+    "domain": "mountain-climbing",
+    "analogy": "On a challenging mountain, an adventurous squirrel named Sammy seeks the tastiest acorns hidden at various heights. To reach his goal, he must make a series of clever jumps from tree to tree, each jump revealing new paths and clues to the next stash. With every hop, Sammy discovers different flavors, and soon he realizes that it wasn't just about the acorns but the fantastic journey that got him there. Each leap made him smarter and bolder, teaching him the value of persistence.",
+    "scene_setting": "a breathtaking mountain landscape with tall trees and hidden acorns",
+    "character1": {
+      "emoji": "\ud83d\udc3f\ufe0f",
+      "label": "Sammy Squirrel",
+      "description": "an adventurous squirrel exploring the mountain"
+    },
+    "character2": {
+      "emoji": "\ud83c\udf30",
+      "label": "Tasty Acorn",
+      "description": "a prized acorn hidden atop a branch"
+    },
+    "item1": {
+      "emoji": "\ud83e\uddd7",
+      "label": "Climbing Gear"
+    },
+    "item2": {
+      "emoji": "\ud83c\udfde\ufe0f",
+      "label": "Mountain Path"
+    },
+    "accentColor": "#6AD3D6",
+    "image_prompt": "On a breathtaking mountain landscape, an adventurous squirrel named Sammy is mid-leap from one sturdy branch to another, eyes fixed on the prize ahead. The sun casts playful shadows through the tall trees as shiny acorns peek out from hidden nooks. Sammy's determination shines through as he embarks on this exciting journey, revealing not just treasures but new paths and discoveries on each jump."
+  },
+  "hypothetical documents": {
+    "concept": "hypothetical documents",
+    "topic": "Advanced Retrieval",
+    "domain": "time travel",
+    "analogy": "In a cozy workshop filled with eccentric gadgets, a brilliant inventor named Ed has created a time machine that allows him to peek into possible worlds. He flips through colorful, glowing documents that show different inventions he could bring to life. Each document represents a hypothetical future \u2014 exciting, hilarious, or even chaotic! With each gleaming page he uncovers, Ed learns the importance of imagination, realizing that every idea has the potential to change his world.",
+    "scene_setting": "a whimsical workshop brimming with inventive tools",
+    "character1": {
+      "emoji": "\ud83e\uddd1\u200d\ud83d\udd27",
+      "label": "Inventor Ed",
+      "description": "an eccentric inventor with a wild imagination"
+    },
+    "character2": {
+      "emoji": "\ud83d\udcc4",
+      "label": "Glowing Document",
+      "description": "a colorful document showing new possibilities"
+    },
+    "item1": {
+      "emoji": "\u2699\ufe0f",
+      "label": "Time Machine"
+    },
+    "item2": {
+      "emoji": "\ud83d\ude80",
+      "label": "Future Idea"
+    },
+    "accentColor": "#FFCE54",
+    "image_prompt": "Inside a whimsical workshop overflowing with colorful gadgets and tools, Inventor Ed excitedly examines a glowing document that floats before him. His eyes sparkle with wonder as he imagines the exciting possibilities it holds. The room is filled with bright, creative chaos, showcasing his imaginative inventions, while the time machine awaits its next adventure in the background."
+  },
+  "natural language processing": {
+    "concept": "natural language processing",
+    "topic": "OpenAI launches GPT-5.4 with financial plugins for Excel and Sheets",
+    "domain": "lighthouse",
+    "analogy": "In a bustling seaside town, a curious little light named Luma stands tall on a rocky cliff. Every night, she dances with beams of glowing words that float through the air, guiding lost boats home. One stormy evening, the boats are confused, trapped by thick fog. Luma focuses her shimmering light, translating the jumbled messages from the boats into clear directions, showing them the safe path. Just like that, she brings harmony to the chaos, reminding everyone how language can connect us.",
+    "scene_setting": "windy cliff by the crashing waves",
+    "character1": {
+      "emoji": "\ud83c\udf0a",
+      "label": "Luma",
+      "description": "a glowing lighthouse guiding boats"
+    },
+    "character2": {
+      "emoji": "\u26f5",
+      "label": "Boats",
+      "description": "lost and confused in the fog"
+    },
+    "item1": {
+      "emoji": "\ud83d\udcac",
+      "label": "Messages"
+    },
+    "item2": {
+      "emoji": "\ud83d\udca1",
+      "label": "Light"
+    },
+    "accentColor": "#A8DADC",
+    "image_prompt": "A whimsical lighthouse stands atop a rocky cliff under a starry night sky, beams of colorful words glowing from it towards a group of small boats struggling through thick fog. Luma's light dances with energy, while excited boats lean towards her guiding glow, their sails billowing in the wind. The scene captures a sense of adventure and hope."
+  },
+  "machine learning": {
+    "concept": "machine learning",
+    "topic": "OpenAI launches GPT-5.4 with financial plugins for Excel and Sheets",
+    "domain": "astronomy_observatory",
+    "analogy": "High on a mountain, astronomer Dr. Kepler trains her telescope on thousands of stars each night. At first the telescope points everywhere randomly and misses most galaxies. But every night, Kepler studies the images it captured, marks which ones actually showed galaxies, and adjusts the telescope's algorithm. Night by night, the telescope gets sharper \u2014 it learns to spot galaxies it would have missed before. Machine learning works the same way: a model trains on examples, measures its mistakes, and keeps adjusting until it's reliably good.",
+    "scene_setting": "Domed observatory on a mountaintop under a star-filled sky",
+    "character1": {
+      "emoji": "\ud83d\udd2d",
+      "label": "Dr. Kepler",
+      "description": "the model being trained on star data"
+    },
+    "character2": {
+      "emoji": "\u2b50",
+      "label": "The Stars",
+      "description": "training data that teaches the model"
+    },
+    "item1": {
+      "emoji": "\ud83c\udf0c",
+      "label": "Galaxy"
+    },
+    "item2": {
+      "emoji": "\ud83d\udce1",
+      "label": "Signal"
+    },
+    "accentColor": "#4f46e5",
+    "image_prompt": "Cinematic night shot of a silver telescope dome open under a vivid Milky Way. Inside, an astronomer in a dark room peers through an eyepiece, surrounded by star charts and monitors glowing blue. Camera behind the astronomer looking toward the open dome slit. Long-exposure style, ethereal, deep indigo sky, stars streaking."
+  },
+  "data analysis": {
+    "concept": "data analysis",
+    "topic": "OpenAI launches GPT-5.4 with financial plugins for Excel and Sheets",
+    "domain": "ocean_exploration",
+    "analogy": "Captain Finn, a brave young explorer, sets sail on his tiny submarine, ready to map the mysteries of the deep blue sea. With his trusty data-diving dolphin, Data, they explore underwater caves teeming with vibrant sea creatures and hidden treasures. But oh no! The currents push them away from their charted course. With quick thinking and clever calculations, they analyze the surrounding water patterns and adjust their path, revealing a treasure trove of new insights hidden beneath the waves.",
+    "scene_setting": "mysterious ocean depths with colorful life",
+    "character1": {
+      "emoji": "\ud83d\udc2c",
+      "label": "Data",
+      "description": "a clever dolphin helping analyze information"
+    },
+    "character2": {
+      "emoji": "\ud83d\udea4",
+      "label": "Captain Finn",
+      "description": "a brave ocean explorer in his submarine"
+    },
+    "item1": {
+      "emoji": "\ud83d\uddfa\ufe0f",
+      "label": "Map"
+    },
+    "item2": {
+      "emoji": "\ud83d\udd0d",
+      "label": "Insights"
+    },
+    "accentColor": "#0A74DA",
+    "image_prompt": "Under the crystal-clear blue ocean, Captain Finn expertly navigates his colorful submarine while Data the dolphin playfully swims alongside. Bright coral reefs burst with colors as fish dart around them, creating a magical environment. Together, they decipher hidden treasures and patterns within the flowing currents, capturing a sense of adventure and discovery."
+  },
+  "predictive analytics": {
+    "concept": "predictive analytics",
+    "topic": "OpenAI launches GPT-5.4 with financial plugins for Excel and Sheets",
+    "domain": "farm",
+    "analogy": "On a sunny farm, wise old Farmer Sage stood beside a field of curious corn, talking to them about the seasons ahead. With a magical crystal ball, he could see patterns in the weather and the growth of crops, predicting when to plant seeds for the best harvest. One day, a storm threatened to ruin everything, but Farmer Sage had prepared\u2014thanks to his early predictions, he covered his crops just in time. The corn danced happily in the wind, grateful for his foresight.",
+    "scene_setting": "lush farm surrounded by golden fields",
+    "character1": {
+      "emoji": "\ud83c\udf3d",
+      "label": "Farmer Sage",
+      "description": "a wise farmer with foresight"
+    },
+    "character2": {
+      "emoji": "\ud83c\udf31",
+      "label": "Corn",
+      "description": "curious corn plants eager to grow"
+    },
+    "item1": {
+      "emoji": "\ud83d\udd2e",
+      "label": "Crystal Ball"
+    },
+    "item2": {
+      "emoji": "\u2614",
+      "label": "Rain"
+    },
+    "accentColor": "#F6D6A0",
+    "image_prompt": "On a sunlit farm filled with golden fields, Farmer Sage stands proudly beside his vibrant corn plants, holding up a mystical crystal ball. The sky above is a mix of clear blue and swirling storm clouds, capturing the tension of impending weather. The corn plants stand tall, swaying gently, reflecting the hope that Farmer Sage's predictions will save their harvest."
+  },
+  "automation": {
+    "concept": "automation",
+    "topic": "OpenAI launches GPT-5.4 with financial plugins for Excel and Sheets",
+    "domain": "railway_dispatch",
+    "analogy": "At a busy train station, dispatcher Rosa used to manually switch every track lever by hand \u2014 exhausting work that caused delays whenever she was away. Then engineers installed an automated dispatch board: it reads incoming train schedules, checks platform availability, and switches the right tracks in milliseconds, all without Rosa lifting a finger. She now supervises 10\u00d7 more trains with zero stress. Automation replaces the repetitive manual steps with a system that executes the same logic, faster and without fatigue.",
+    "scene_setting": "Art-deco train dispatch control room with glowing track boards",
+    "character1": {
+      "emoji": "\ud83d\ude82",
+      "label": "Dispatcher Rosa",
+      "description": "the human process being automated"
+    },
+    "character2": {
+      "emoji": "\ud83d\udda5\ufe0f",
+      "label": "Auto Board",
+      "description": "the automation system taking over"
+    },
+    "item1": {
+      "emoji": "\ud83d\udd00",
+      "label": "Track Switch"
+    },
+    "item2": {
+      "emoji": "\u26a1",
+      "label": "Zero Delay"
+    },
+    "accentColor": "#7c3aed",
+    "image_prompt": "Wide cinematic shot inside a 1930s-style railway dispatch control room. Backlit track maps cover an entire wall, showing live train positions as glowing dots. A dispatcher stands before the board, arms crossed and relaxed as the board auto-switches routes. Warm amber station light. Camera from the side."
+  },
+  "financial modeling": {
+    "concept": "financial modeling",
+    "topic": "OpenAI launches GPT-5.4 with financial plugins for Excel and Sheets",
+    "domain": "painting",
+    "analogy": "In a cozy art studio, a passionate painter named Mia mixed colors on her palette to create a masterpiece. With each brushstroke, she thought deeply about how different shades would affect the final painting, estimating costs and resources wisely. When the canvas was finished, it became a breathtaking scene of vibrant beauty, radiating joy. Her careful planning allowed her to share her colorful dream with the world, each detail shimmering with life.",
+    "scene_setting": "bright art studio filled with colors",
+    "character1": {
+      "emoji": "\ud83c\udfa8",
+      "label": "Mia",
+      "description": "a passionate painter creating a masterpiece"
+    },
+    "character2": {
+      "emoji": "\ud83c\udf08",
+      "label": "Colors",
+      "description": "vivid shades enhancing the canvas"
+    },
+    "item1": {
+      "emoji": "\ud83d\udd8c\ufe0f",
+      "label": "Brush"
+    },
+    "item2": {
+      "emoji": "\ud83d\uddbc\ufe0f",
+      "label": "Canvas"
+    },
+    "accentColor": "#FF6B6B",
+    "image_prompt": "Inside a sunlit art studio, Mia expertly mixes paint on her colorful palette, envisioning her masterpiece. Splashes of vibrant colors surround her, and as she brings her brush to the canvas, the shimmering details of a breathtaking landscape come alive. The scene is filled with passion as Mia's dream takes shape, embodying creativity and excitement."
+  },
+  "user interface design": {
+    "concept": "user interface design",
+    "topic": "OpenAI launches GPT-5.4 with financial plugins for Excel and Sheets",
+    "domain": "grocery_store",
+    "analogy": "In a bustling grocery store, a friendly manager named Sam noticed customers wandering aimlessly, struggling to find their favorite snacks. With a gleam of inspiration, he designed a colorful map that highlighted the aisles and placed friendly signs, making everything easy to find. As they followed the map, smiles lit up the faces of shoppers who found their treasured treats. Sam\u2019s design transformed the shopping experience, turning confusion into joy and satisfaction!",
+    "scene_setting": "vibrant grocery store full of colors",
+    "character1": {
+      "emoji": "\ud83d\uded2",
+      "label": "Sam",
+      "description": "a friendly grocery manager"
+    },
+    "character2": {
+      "emoji": "\ud83e\uddd1\u200d\ud83e\udd1d\u200d\ud83e\uddd1",
+      "label": "Shoppers",
+      "description": "happy customers finding snacks"
+    },
+    "item1": {
+      "emoji": "\ud83d\uddfa\ufe0f",
+      "label": "Map"
+    },
+    "item2": {
+      "emoji": "\ud83e\udd73",
+      "label": "Joy"
+    },
+    "accentColor": "#E7B4D5",
+    "image_prompt": "In a vibrant grocery store filled with colorful products, manager Sam excitedly presents a bright map to amused shoppers who gather around. The aisles are lined with engaging signs, while delighted customers smile and follow the map to their favorite snacks. The atmosphere is lively, reflecting the joy of a well-designed shopping experience."
+  },
+  "test datasets": {
+    "concept": "test datasets",
+    "topic": "Synthetic Data & LangSmith",
+    "domain": "theater",
+    "analogy": "In a grand theater, an aspiring actor named Leo stood nervously backstage, preparing for his big audition. Before stepping into the spotlight, he rehearsed with cardboard cutouts of imaginary characters, each representing different types of roles he could play. These cutouts helped him practice different emotions and learn the script without the pressure of real actors. When it was time for his performance, Leo dazzled the audience with his confidence, proving that even practice with pretend helps achieve greatness.",
+    "scene_setting": "dramatic theater backstage hustling with energy",
+    "character1": {
+      "emoji": "\ud83c\udfad",
+      "label": "Leo",
+      "description": "a nervous actor rehearsing for his audition"
+    },
+    "character2": {
+      "emoji": "\ud83d\udce6",
+      "label": "Cutouts",
+      "description": "cardboard characters for practice"
+    },
+    "item1": {
+      "emoji": "\ud83c\udfa4",
+      "label": "Audition"
+    },
+    "item2": {
+      "emoji": "\ud83c\udf1f",
+      "label": "Confidence"
+    },
+    "accentColor": "#8E44AD",
+    "image_prompt": "Backstage in a bustling theater, Leo nervously holds a microphone, rehearsing his lines with cardboard cutouts of characters. The dramatic lighting casts shadows on the wall, creating a vibrant yet intense atmosphere. With a confident smile, he prepares to step into the spotlight, embodying the excitement of unique practice that leads him to greatness."
+  },
+  "model validation": {
+    "concept": "model validation",
+    "topic": "Synthetic Data & LangSmith",
+    "domain": "ballroom",
+    "analogy": "In a grand ballroom, a young dance instructor named Bella prepares for the big dance competition. She needs to make sure her students can perform well, so she watches them practice and offers tips, just like a judge would in the contest. With every turn and twirl, she corrects their moves, validating their progress until they\u2019re ready to dazzle the audience. On the day of the competition, Bella beams with pride, knowing her timely guidance led to their success.",
+    "scene_setting": "an ornate ballroom with sparkling chandeliers",
+    "character1": {
+      "emoji": "\ud83d\udc69\u200d\ud83c\udfeb",
+      "label": "dance coach",
+      "description": "guides the dancers in their preparations"
+    },
+    "character2": {
+      "emoji": "\ud83e\ude70",
+      "label": "ballet student",
+      "description": "practices the dance routines with enthusiasm"
+    },
+    "item1": {
+      "emoji": "\ud83c\udfb6",
+      "label": "dance steps"
+    },
+    "item2": {
+      "emoji": "\ud83c\udfc6",
+      "label": "competition prize"
+    },
+    "accentColor": "#FAD02E",
+    "image_prompt": "A lively ballroom scene, with Bella correcting the ballet student in mid-leap beneath a glowing chandelier. Soft light cascades around, illuminating their focused expressions. The image captures the charm and tension of a dance competition, with spectators in the background eagerly anticipating."
+  },
+  "data generation": {
+    "concept": "data generation",
+    "topic": "Synthetic Data & LangSmith",
+    "domain": "beekeeping",
+    "analogy": "In a vibrant flower garden, a curious little bee named Buzz is on a mission. With every flower visited, he gathers nectar, storing it in his special pouch. As he dances from bloom to bloom, he creates a delicious blend of honey that never existed before, ensuring his hive has enough sweet treats for winter. Buzz\u2019s hard work means that the hive will thrive, just like data generation ensures a steady flow of information for learning.",
+    "scene_setting": "a colorful flower garden buzzing with bees",
+    "character1": {
+      "emoji": "\ud83d\udc1d",
+      "label": "little bee",
+      "description": "collects nectar to create honey"
+    },
+    "character2": {
+      "emoji": "\ud83c\udf6f",
+      "label": "honey jar",
+      "description": "holds the precious nectar blend from flowers"
+    },
+    "item1": {
+      "emoji": "\ud83c\udf38",
+      "label": "nectar"
+    },
+    "item2": {
+      "emoji": "\ud83e\uddf4",
+      "label": "honey"
+    },
+    "accentColor": "#F5D05C",
+    "image_prompt": "A sunny day in a vibrant garden where Buzz the bee joyfully flits from flower to flower. The scene captures his dedication as he gathers nectar, with colorful flowers surrounding him. Soft sunlight shines down, making the honey in the jar glimmer enticingly, hinting at the treats he\u2019ll help create."
+  },
+  "efficiency in AI": {
+    "concept": "efficiency in AI",
+    "topic": "Synthetic Data & LangSmith",
+    "domain": "train_station",
+    "analogy": "At a bustling train station, a conductor named Clara prepares for the long journey ahead. As she checks the train\u2019s schedule and runs through her checklist, she realizes she can replace one old engine with a newer, more efficient model. With this upgrade, the train will use less fuel and arrive at its destination in record time. Clara smiles, knowing her smart decision will save money and time for all the passengers.",
+    "scene_setting": "a busy train station with colorful trains and passengers",
+    "character1": {
+      "emoji": "\ud83d\ude82",
+      "label": "efficient train",
+      "description": "upgraded to save energy and time"
+    },
+    "character2": {
+      "emoji": "\ud83d\udc69\u200d\u2708\ufe0f",
+      "label": "train conductor",
+      "description": "oversees the journey of the train"
+    },
+    "item1": {
+      "emoji": "\u23f1\ufe0f",
+      "label": "schedule"
+    },
+    "item2": {
+      "emoji": "\ud83d\udcb0",
+      "label": "savings"
+    },
+    "accentColor": "#4A6E9E",
+    "image_prompt": "A vibrant train station scene with Clara the conductor checking her schedule as bright trains stand ready. Sunlight streams into the station, creating a warm glow as passengers bustle about, excited for their journey. The image captures the essence of mobility and progress, emphasizing the importance of smart decisions."
+  },
+  "machine learning experimentation": {
+    "concept": "machine learning experimentation",
+    "topic": "Synthetic Data & LangSmith",
+    "domain": "fireworks",
+    "analogy": "In a lively fireworks factory, a young inventor named Leo is determined to create the most dazzling display ever. He carefully mixes different chemicals and adjusts the sparkler sizes, but not all his attempts soar into the night sky. Each failed launch teaches him something new, guiding him to refine his designs until, finally, he ignites the perfect firework that lights up the sky in breathtaking colors. Leo learns that experimentation fuels creativity and sparks incredible results.",
+    "scene_setting": "a colorful fireworks factory full of sparkling materials",
+    "character1": {
+      "emoji": "\ud83e\uddd1\u200d\ud83d\udd2c",
+      "label": "young inventor",
+      "description": "designs unique fireworks"
+    },
+    "character2": {
+      "emoji": "\ud83c\udf87",
+      "label": "firework",
+      "description": "explodes into a beautiful display"
+    },
+    "item1": {
+      "emoji": "\ud83d\udca5",
+      "label": "firework trial"
+    },
+    "item2": {
+      "emoji": "\ud83c\udf0c",
+      "label": "night sky"
+    },
+    "accentColor": "#F47142",
+    "image_prompt": "A dynamic scene in the fireworks factory where young Leo adjusts his firework mixtures. Bright sparks and colorful powders fill the air, and one firework is mid-launch, illuminating the darkening sky. The image captures the thrill of experimentation and innovation, radiating excitement and energy."
+  },
+  "iterative development": {
+    "concept": "iterative development",
+    "topic": "Synthetic Data & LangSmith",
+    "domain": "painting",
+    "analogy": "In a cozy art studio, a talented painter named Mia stands in front of a large canvas, her brush poised to create her masterpiece. With each stroke, she steps back to examine her work, making adjustments and adding layers until the painting evolves into something even more beautiful than she originally imagined. It\u2019s a delightful process of refining her vision, showing that great art, like development, comes to life through thoughtful iterations.",
+    "scene_setting": "a bright art studio with colorful paints everywhere",
+    "character1": {
+      "emoji": "\ud83c\udfa8",
+      "label": "creative painter",
+      "description": "works on her evolving masterpiece"
+    },
+    "character2": {
+      "emoji": "\ud83d\udd8c\ufe0f",
+      "label": "paintbrush",
+      "description": "transforms the canvas with every stroke"
+    },
+    "item1": {
+      "emoji": "\ud83d\uddbc\ufe0f",
+      "label": "canvas"
+    },
+    "item2": {
+      "emoji": "\ud83c\udf08",
+      "label": "color palette"
+    },
+    "accentColor": "#FF6F61",
+    "image_prompt": "A sunlit art studio where Mia expertly applies brush strokes to her canvas, surrounded by vibrant paint pots. Her focused expression captures her determination as she pauses to reflect on her evolving masterpiece, with splashes of color creating a lively atmosphere. The image illustrates the beauty of creativity and iterative improvement."
+  },
+  "what is an LLM": {
+    "concept": "what is an LLM",
+    "topic": "AI Engineering Foundations",
+    "domain": "jazz_orchestra",
+    "analogy": "In a smoky jazz club, legendary conductor Miles stands before a 200-piece orchestra that has rehearsed ten million songs. When a stranger walks in and hums just four notes, Miles instantly conducts a full improvised symphony that matches the stranger's mood, tempo, and style \u2014 drawing on every song his orchestra ever learned. He never saw those four notes before, but he knows music so deeply he can respond with something perfect. An LLM works the same way: trained on billions of sentences, it generates fluent, meaningful text from any prompt it has never seen.",
+    "scene_setting": "Smoky 1950s jazz club with amber spotlights and a vast orchestra",
+    "character1": {
+      "emoji": "\ud83c\udfb7",
+      "label": "Conductor Miles",
+      "description": "the LLM generating a response"
+    },
+    "character2": {
+      "emoji": "\ud83c\udfb6",
+      "label": "The Stranger",
+      "description": "the user giving a prompt"
+    },
+    "item1": {
+      "emoji": "\ud83c\udfb5",
+      "label": "4-Note Hum"
+    },
+    "item2": {
+      "emoji": "\ud83c\udfbc",
+      "label": "Symphony"
+    },
+    "accentColor": "#b45309",
+    "image_prompt": "Cinematic wide shot inside a packed 1950s jazz club, amber spotlights cut through cigarette smoke. A silver-haired conductor with closed eyes gestures expressively to a massive orchestra. In the front row, a lone stranger leans forward listening. Warm gold and sepia tones. Camera from behind the conductor."
+  },
+  "tokens and tokenisation": {
+    "concept": "tokens and tokenisation",
+    "topic": "AI Engineering Foundations",
+    "domain": "game show",
+    "analogy": "In a lively game show setting, a cheerful host named Max explains the rules to contestants eager to win prizes. Each contestant is given special tokens for each correct answer they provide, and at the end of the show, they can trade these tokens for fantastic rewards. Max emphasizes how every question they answer correctly allows them to gain more tokens, illustrating the importance of tokens as building blocks for success in the game. Everyone cheers, understanding that every small triumph counts!",
+    "scene_setting": "a vibrant game show stage with a cheering audience",
+    "character1": {
+      "emoji": "\ud83c\udfa4",
+      "label": "game host",
+      "description": "cheers on contestants and guides the game"
+    },
+    "character2": {
+      "emoji": "\ud83c\udfc6",
+      "label": "contestant",
+      "description": "gathers tokens for correct answers"
+    },
+    "item1": {
+      "emoji": "\ud83d\udcb0",
+      "label": "tokens"
+    },
+    "item2": {
+      "emoji": "\ud83c\udf81",
+      "label": "prizes"
+    },
+    "accentColor": "#FFB600",
+    "image_prompt": "A lively game show scene with Max animatedly explaining the rules while contestants enthusiastically participate, counting their tokens. Bright lights and cheers fill the air, reflecting the excitement of competition. The image captures the joy of winning and the fun of learning, like tokens building toward bigger rewards."
+  },
+  "context window": {
+    "concept": "context window",
+    "topic": "AI Engineering Foundations",
+    "domain": "nature documentary",
+    "analogy": "In a serene forest, a passionate wildlife filmmaker named Ava is eager to capture the beauty of its inhabitants. With her trusty camera, she focuses on a family of deer frolicking in a sunlit glade. However, to tell the whole story, Ava must keep a wider view of the surrounding trees and flowers, giving context to their playful antics. This broader perspective allows her audience to appreciate the full richness of nature, just like a context window provides important information in AI learning.",
+    "scene_setting": "a peaceful forest glade with sunlight streaming through trees",
+    "character1": {
+      "emoji": "\ud83c\udfa5",
+      "label": "wildlife filmmaker",
+      "description": "captures the essence of nature on film"
+    },
+    "character2": {
+      "emoji": "\ud83e\udd8c",
+      "label": "playful deer",
+      "description": "frolics in the glade, unaware of the camera"
+    },
+    "item1": {
+      "emoji": "\ud83d\udcf8",
+      "label": "camera"
+    },
+    "item2": {
+      "emoji": "\ud83c\udf33",
+      "label": "forest"
+    },
+    "accentColor": "#A8D8B9",
+    "image_prompt": "A beautiful forest scene with Ava behind her camera, focused on a family of deer playing in a sunlit glade. Soft light filters through the lush trees, highlighting the vibrant greenery and the delicate flowers around her. The image captures the harmony of nature, reflecting the importance of context in storytelling."
+  },
+  "prompt engineering basics": {
+    "concept": "prompt engineering basics",
+    "topic": "AI Engineering Foundations",
+    "domain": "lighthouse",
+    "analogy": "On a rocky coastline, lighthouse keeper Marina must signal ships through thick fog. She discovers that a single short flash tells ships almost nothing \u2014 they sail off in the wrong direction. But when she gives a precise pattern \u2014 three long flashes, a pause, two short \u2014 the ships understand exactly where the safe harbor is. Prompt engineering works the same way: vague instructions send the AI wandering, but a well-structured prompt lights the exact path to the answer you need.",
+    "scene_setting": "Storm-battered lighthouse on a rocky cliff at dusk",
+    "character1": {
+      "emoji": "\ud83c\udfe0",
+      "label": "Keeper Marina",
+      "description": "the engineer crafting precise prompts"
+    },
+    "character2": {
+      "emoji": "\ud83d\udea2",
+      "label": "The Ships",
+      "description": "the AI model navigating by the signal"
+    },
+    "item1": {
+      "emoji": "\ud83d\udca1",
+      "label": "Flash Signal"
+    },
+    "item2": {
+      "emoji": "\ud83d\uddfa\ufe0f",
+      "label": "Safe Route"
+    },
+    "accentColor": "#0891b2",
+    "image_prompt": "Dramatic wide shot of a tall white lighthouse on a jagged cliff at stormy dusk. Waves crash far below. Inside the lamp room, a determined keeper adjusts a complex Fresnel lens that beams a brilliant pattern of light across dark churning water. Camera from the cliff below looking up. Teal and gold light, cinematic fog."
+  },
+  "temperature and sampling": {
+    "concept": "temperature and sampling",
+    "topic": "AI Engineering Foundations",
+    "domain": "ocean_voyage",
+    "analogy": "On a vibrant ocean voyage, Captain Leo sails his colorful ship, the S.S. Adventure, across the sparkling blue sea. As he adjusts the 'temperature' of his sail \u2014 a special sailcloth that controls how wild the winds are \u2014 he discovers that a higher temperature leads to unpredictable storms, while a lower temperature creates a gentle, smooth ride. With a smile, he learns to balance adventure and safety, guiding his crew to treasure shores just right for exploration.",
+    "scene_setting": "a dazzling ocean with waves and a lively ship sailing",
+    "character1": {
+      "emoji": "\ud83e\uddd1\u200d\u2708\ufe0f",
+      "label": "Captain Leo",
+      "description": "a brave captain exploring the azure sea"
+    },
+    "character2": {
+      "emoji": "\ud83e\udded",
+      "label": "Navigator",
+      "description": "a wise navigator with a map in hand"
+    },
+    "item1": {
+      "emoji": "\ud83c\udf0a",
+      "label": "waves"
+    },
+    "item2": {
+      "emoji": "\ud83c\udff4\u200d\u2620\ufe0f",
+      "label": "treasure"
+    },
+    "accentColor": "#3b8bba",
+    "image_prompt": "On a sunny day, Captain Leo stands confidently at the helm of the S.S. Adventure, adjusting the vibrant sail that flutters in the wind. The ocean waves splash playfully against the sides of the ship, glistening in the sunlight. In the background, a treasure island looms, hinting at the adventure ahead. The crew works together, smiling in anticipation of what lies beyond the horizon."
+  },
+  "system prompts": {
+    "domain": "job briefing",
+    "scene_setting": "hiring manager briefing a new employee",
+    "analogy": "When you hire a contractor, you give them a briefing before they start: your company rules, their role, what they can and can't do. A system prompt is that briefing for an AI \u2014 it runs silently before the conversation and shapes every response the model gives."
+  },
+  "the AI engineering stack": {
+    "concept": "the AI engineering stack",
+    "topic": "AI Engineering Foundations",
+    "domain": "construction",
+    "analogy": "In a bustling construction site, a skilled architect named Max sketches plans for a magnificent tower. Each layer of the construction stack \u2014 the foundation, the walls, and the roof \u2014 is crucial, just like the different parts of the AI system. One day, when the wall is put up too soon without a strong base, the tower wobbles dangerously! With quick thinking, Max scrambles back to the blueprints and ensures each piece fits perfectly, rising tall and strong against the sky.",
+    "scene_setting": "a dynamic construction site bustling with activity",
+    "character1": {
+      "emoji": "\ud83c\udfd7\ufe0f",
+      "label": "Architect Max",
+      "description": "a visionary architect designing a strong tower"
+    },
+    "character2": {
+      "emoji": "\ud83d\udc77",
+      "label": "Foreman",
+      "description": "a diligent foreman overseeing the construction"
+    },
+    "item1": {
+      "emoji": "\ud83e\uddf1",
+      "label": "bricks"
+    },
+    "item2": {
+      "emoji": "\ud83d\udcd0",
+      "label": "blueprints"
+    },
+    "accentColor": "#e4a25a",
+    "image_prompt": "Amidst the clang of tools and the hum of activity, Architect Max stands confidently before a large construction site, holding blueprints high in the air. Workers bustled around, lifting bricks and hammering beams into place. The sun shines brightly above, highlighting the ambitious tower that\u2019s slowly taking shape. Max smiles, proud of the teamwork and dedication that will make his dream come true."
+  },
+  "API vs fine-tuning": {
+    "concept": "API vs fine-tuning",
+    "topic": "AI Engineering Foundations",
+    "domain": "jungle",
+    "analogy": "In a vibrant jungle, a curious monkey named Lulu swings from tree to tree, excited to discover delicious fruits. She has a magical friend, a wise parrot named Pedro, who can either share his fruity knowledge through simple calls \u2014 an API \u2014 or offer detailed advice on how to pick the ripest fruits \u2014 fine-tuning. One day, when Lulu is puzzled about which fruit to choose, she learns that while APIs give quick tips, fine-tuning helps her become a master fruit picker, matching the best fruits to her unique tastes!",
+    "scene_setting": "a lush jungle filled with colorful plants and trees",
+    "character1": {
+      "emoji": "\ud83d\udc12",
+      "label": "Monkey Lulu",
+      "description": "a playful monkey eager to gather fruits"
+    },
+    "character2": {
+      "emoji": "\ud83e\udd9c",
+      "label": "Parrot Pedro",
+      "description": "a knowledgeable parrot with a zest for sharing wisdom"
+    },
+    "item1": {
+      "emoji": "\ud83c\udf4c",
+      "label": "fruit"
+    },
+    "item2": {
+      "emoji": "\ud83e\udd6d",
+      "label": "mango"
+    },
+    "accentColor": "#88db63",
+    "image_prompt": "In a bright and colorful jungle, Monkey Lulu swings joyfully through the trees, her eyes wide with excitement. Parrot Pedro perches nearby, sharing wisdom while vibrant fruits hang enticingly from the branches around them. Sunlight filters through the leaves, creating a magical atmosphere filled with anticipation and discovery. Lulu pauses mid-swing, ready to learn the best way to choose her next fruity treasure."
+  },
+  "latency and cost tradeoffs": {
+    "concept": "latency and cost tradeoffs",
+    "topic": "AI Engineering Foundations",
+    "domain": "race_track",
+    "analogy": "At the exhilarating race track, two speedy cars, Turbo Tim and Fast Fiona, prepare to zoom towards the finish line. Turbo Tim strives for lightning-fast speed but burns through fuel, while Fast Fiona balances speed with careful fuel usage. As the race begins, Tim zooms ahead but soon finds himself stuck in the pit for refueling! Fiona catches up and teaches him that in racing \u2014 just like in AI \u2014 finding the right balance between speed and cost can lead to victory.",
+    "scene_setting": "an exciting race track buzzing with energy and spectators",
+    "character1": {
+      "emoji": "\ud83c\udfce\ufe0f",
+      "label": "Turbo Tim",
+      "description": "a daring race car eager for speed"
+    },
+    "character2": {
+      "emoji": "\ud83d\ude97",
+      "label": "Fast Fiona",
+      "description": "a balanced racer who thinks smartly"
+    },
+    "item1": {
+      "emoji": "\u26fd",
+      "label": "fuel"
+    },
+    "item2": {
+      "emoji": "\ud83c\udfc1",
+      "label": "finish line"
+    },
+    "accentColor": "#ffcc00",
+    "image_prompt": "As the race begins, Turbo Tim speeds past the starting line, leaving a trail of dust and excitement. Fast Fiona is close behind, eyes focused on the road ahead. Spectators cheer loudly from the sidelines as both cars compete for victory. The contrast between Turbo Tim's reckless speed and Fiona's calculated approach creates a thrilling atmosphere filled with the promise of an unforgettable race."
+  },
+  "context windows": {
+    "concept": "context windows",
+    "topic": "AI Engineering Foundations",
+    "domain": "fishing",
+    "analogy": "On a serene lake, a wise fisherman named Old Joe casts his line into the water, patiently awaiting his catch. He knows that the longer he observes the water around him \u2014 his 'context window' \u2014 the better his chances of landing a big fish! Sometimes, he moves to a new spot to check for changes, learning that a wider view helps him decide when to reel in. With every cast, he grows wiser about the best moments to catch the fish of a lifetime.",
+    "scene_setting": "a peaceful lake surrounded by green trees and mountains",
+    "character1": {
+      "emoji": "\ud83d\udc74",
+      "label": "Old Joe",
+      "description": "a seasoned fisherman with a wealth of knowledge"
+    },
+    "character2": {
+      "emoji": "\ud83d\udc1f",
+      "label": "Big Fish",
+      "description": "a clever fish swimming below the surface"
+    },
+    "item1": {
+      "emoji": "\ud83c\udfa3",
+      "label": "fishing rod"
+    },
+    "item2": {
+      "emoji": "\ud83c\udf0a",
+      "label": "water"
+    },
+    "accentColor": "#5bc2e5",
+    "image_prompt": "On a tranquil lake at sunset, Old Joe patiently sits by the water, casting his fishing line as the colors of the sky reflect in the calm surface. Around him, birds chirp and trees sway gently. The peaceful yet focused expression on Joe\u2019s face reveals his deep understanding of the lake\u2019s secrets. The scene captures a moment of anticipation as he waits for the perfect catch, a testament to patience and wisdom."
+  },
+  "tokens": {
+    "concept": "tokens",
+    "topic": "AI Engineering Foundations",
+    "domain": "treasure_map",
+    "analogy": "In an adventurous treasure map quest, young adventurer Mia unrolls a crinkled map filled with symbols, each representing a unique clue \u2014 these are her 'tokens.' Each token provides hints toward a hidden treasure, like a sparkling gemstone or a golden coin. When Mia finds each token, it unlocks knowledge and helps her navigate through thick forests and dark caves. Using these magical tokens, she bravely uncovers treasures beyond her wildest dreams.",
+    "scene_setting": "an ancient forest with towering trees and mysterious caves",
+    "character1": {
+      "emoji": "\ud83d\uddfa\ufe0f",
+      "label": "Adventurer Mia",
+      "description": "a brave girl with a heart for adventure"
+    },
+    "character2": {
+      "emoji": "\ud83d\udc8e",
+      "label": "Treasure",
+      "description": "a sparkling jewel hidden in the forest"
+    },
+    "item1": {
+      "emoji": "\ud83d\udddd\ufe0f",
+      "label": "token"
+    },
+    "item2": {
+      "emoji": "\ud83c\udff4\u200d\u2620\ufe0f",
+      "label": "map"
+    },
+    "accentColor": "#ffab79",
+    "image_prompt": "In the heart of an ancient forest, Mia kneels excitedly as she studies her crinkled treasure map, illuminated by dappled sunlight filtering through the trees. Symbols adorn the map, sparking her curiosity as she holds a shiny token in her hand. Towering trees surround her, and the promise of adventure glimmers in her eyes. The atmosphere buzzes with anticipation, hinting at the treasures waiting to be discovered."
+  },
+  "large language models": {
+    "concept": "large language models",
+    "topic": "AI Engineering Foundations",
+    "domain": "pottery",
+    "analogy": "In a lively pottery studio, a young artist named Maya dreams of crafting the perfect vase. She has a magical clay that reshapes itself based on the stories she whispers to it. As she tells tales of ancient gardens and wild adventures, the clay morphs into stunning shapes, each telling a story. But when her stories start to blend and twist, she learns that to create her masterpiece, she must choose her words carefully, guiding her clay with intention.",
+    "scene_setting": "a vibrant pottery studio with colorful clay everywhere",
+    "character1": {
+      "emoji": "\ud83d\udc69\u200d\ud83c\udfa8",
+      "label": "Artist",
+      "description": "Maya, the dreamy potter with a passion for stories"
+    },
+    "character2": {
+      "emoji": "\ud83c\udf3f",
+      "label": "Magic Clay",
+      "description": "The playful clay that transforms with each story"
+    },
+    "item1": {
+      "emoji": "\ud83c\udffa",
+      "label": "Vase"
+    },
+    "item2": {
+      "emoji": "\ud83d\udcdc",
+      "label": "Story"
+    },
+    "accentColor": "#FFB6C1",
+    "image_prompt": "A young potter, Maya, with a look of wonder, shapes colorful clay on her spinning wheel. Magic swirls around her as she whispers stories, and the clay comes alive, transforming into intricate forms. Sunlight filters through the window, illuminating the vibrant colors and creating an atmosphere of creativity and imagination."
+  },
+  "algorithms": {
+    "concept": "algorithms",
+    "topic": "AI Engineering Foundations",
+    "domain": "navigation",
+    "analogy": "On a bustling city street filled with twists and turns, a lost puppy named Max is trying to find his way home. He spots an old, wise pigeon named Percy sitting on a lamppost, who tells him about a secret map that reveals the best routes in the city. With every decision Max makes, he remembers Percy\u2019s advice, discovering short paths and avoiding crowded places. Soon, he learns that by following the right steps, he can navigate through the forest of buildings to find his cozy home.",
+    "scene_setting": "a busy city street with tall buildings and moving cars",
+    "character1": {
+      "emoji": "\ud83d\udc36",
+      "label": "Lost Puppy",
+      "description": "Max, the adventurous puppy searching for home"
+    },
+    "character2": {
+      "emoji": "\ud83d\udd4a\ufe0f",
+      "label": "Wise Pigeon",
+      "description": "Percy, the knowledgeable guide with a bird\u2019s view"
+    },
+    "item1": {
+      "emoji": "\ud83d\uddfa\ufe0f",
+      "label": "Map"
+    },
+    "item2": {
+      "emoji": "\ud83c\udfe1",
+      "label": "Home"
+    },
+    "accentColor": "#FFD700",
+    "image_prompt": "A little puppy, Max, looks up at a wise pigeon, Percy, perched atop a lamppost. The city bustles around them with colorful cars and people rushing by. Sunlight shines down, creating a warm glow as Max\u2019s eyes sparkle with determination, ready to follow the pigeon\u2019s guidance on the path home."
+  },
+  "coherent responses": {
+    "concept": "coherent responses",
+    "topic": "AI Engineering Foundations",
+    "domain": "puppet theater",
+    "analogy": "In a vibrant puppet theater, a nervous puppet named Lilly wants to tell a story on stage but keeps fumbling her words. As the wise stage manager, Mr. Strings, guides her, he teaches her to connect her thoughts like beads on a beautiful necklace. With each bead carefully chosen, Lilly learns to weave her tale seamlessly, captivating the audience with her enchanting performance. By the end, she realizes that a strong connection between her words can make her story truly magical.",
+    "scene_setting": "a colorful puppet theater with a lively audience",
+    "character1": {
+      "emoji": "\ud83e\uddda\u200d\u2640\ufe0f",
+      "label": "Nervous Puppet",
+      "description": "Lilly, the puppet dreaming of storytelling"
+    },
+    "character2": {
+      "emoji": "\ud83d\udc68\u200d\ud83c\udfa4",
+      "label": "Stage Manager",
+      "description": "Mr. Strings, the wise guide helping Lilly shine"
+    },
+    "item1": {
+      "emoji": "\ud83c\udfad",
+      "label": "Story"
+    },
+    "item2": {
+      "emoji": "\u2728",
+      "label": "Magic"
+    },
+    "accentColor": "#FF69B4",
+    "image_prompt": "A nervous puppet, Lilly, stands center stage under bright theater lights, while Mr. Strings, a wise figure, gestures encouragingly from the side. The audience, a sea of delighted faces, watches intently as Lilly magically connects her story, with strands of light weaving through the air, creating an atmosphere of wonder and excitement."
+  },
+  "ingredient interaction": {
+    "concept": "ingredient interaction",
+    "topic": "AI Engineering Foundations",
+    "domain": "chemistry_lab",
+    "analogy": "In a colorful chemistry lab, a curious young scientist named Eliza is conducting an exciting experiment with bubbling liquids. She carefully mixes blue and yellow liquids, each representing different ingredients. Suddenly, when she combines them, a vibrant green pops up, filling the room with sparkling energy! Eliza learns that each ingredient plays a special role, and when they come together, they create something far more magical than either could alone.",
+    "scene_setting": "a lively chemistry lab filled with colorful beakers and bubbling mixtures",
+    "character1": {
+      "emoji": "\ud83d\udc69\u200d\ud83d\udd2c",
+      "label": "Curious Scientist",
+      "description": "Eliza, the young scientist exploring ingredients"
+    },
+    "character2": {
+      "emoji": "\ud83d\udd2e",
+      "label": "Magic Liquid",
+      "description": "The bubbling mixture showcasing ingredient magic"
+    },
+    "item1": {
+      "emoji": "\ud83e\uddea",
+      "label": "Blue Liquid"
+    },
+    "item2": {
+      "emoji": "\ud83e\uddea",
+      "label": "Yellow Liquid"
+    },
+    "accentColor": "#32CD32",
+    "image_prompt": "Eliza the scientist, with wide eyes and messy hair, joyfully mixes two brightly colored liquids in a beaker, surrounded by a rainbow of bubbling experiments. The lab is alive with energy as vibrant green sparks dance in the air, creating a whimsical atmosphere of discovery and excitement."
+  },
+  "balance in AI": {
+    "concept": "balance in AI",
+    "topic": "AI Engineering Foundations",
+    "domain": "tightrope_walking",
+    "analogy": "On a warm sunny day, a brave tightrope walker named Leo stands high above the circus ground, balancing himself on an impossibly thin rope. Below, a cheering crowd holds their breath as Leo navigates between two towering trees, asking himself how to maintain his center. He learns that by focusing on his breath and keeping his arms steady, he can find balance, no matter how wobbly the rope feels. With his heart pounding and a smile of courage, Leo shares his daring journey, proving that balance is the key to reaching new heights.",
+    "scene_setting": "a sunny circus ground under a big top tent",
+    "character1": {
+      "emoji": "\ud83e\udd39",
+      "label": "Tightrope Walker",
+      "description": "Leo, the daring performer finding balance"
+    },
+    "character2": {
+      "emoji": "\ud83c\udfaa",
+      "label": "Cheering Crowd",
+      "description": "A spirited audience supporting Leo's journey"
+    },
+    "item1": {
+      "emoji": "\ud83c\udfa9",
+      "label": "Top Hat"
+    },
+    "item2": {
+      "emoji": "\u2764\ufe0f",
+      "label": "Courage"
+    },
+    "accentColor": "#FF4500",
+    "image_prompt": "Leo, with a colorful costume, gracefully walks across a thin tightrope, arms outstretched in determination against a bright blue sky. The crowd below gasps and cheers, filled with excitement and energy, as sunlight glimmers off his top hat, capturing the thrill of his daring performance balancing high above the circus ground."
+  },
+  "memory retrieval": {
+    "concept": "memory retrieval",
+    "topic": "",
+    "domain": "treasure_map",
+    "analogy": "Old captain Remy has sailed every sea in the world and drawn a new spot on his map after every voyage. One stormy night, his first mate shouts 'Where did we find fresh water last time we crossed the equator?' In seconds, Remy unrolls the map, scans the ink marks, and points to a cove on a distant island. He didn't re-sail the ocean \u2014 he retrieved the right memory instantly. Memory retrieval works the same: the system scans stored experiences and surfaces the most relevant one in response to the current need.",
+    "scene_setting": "Creaking ship captain's cabin with map-covered walls and lantern glow",
+    "character1": {
+      "emoji": "\ud83d\uddfa\ufe0f",
+      "label": "Captain Remy",
+      "description": "the memory retrieval system"
+    },
+    "character2": {
+      "emoji": "\u2693",
+      "label": "First Mate",
+      "description": "the query requesting a memory"
+    },
+    "item1": {
+      "emoji": "\ud83d\udccd",
+      "label": "Map Pin"
+    },
+    "item2": {
+      "emoji": "\ud83d\udca7",
+      "label": "Fresh Water"
+    },
+    "accentColor": "#0369a1",
+    "image_prompt": "Low-lit ship captain's cabin at night. Weather-worn captain spreads a giant hand-drawn map across a table cluttered with compasses and lanterns. His first mate points urgently at a region. Amber candlelight. Camera from the corner looking down. Cinematic shadow and warm glow."
+  },
+  "LangSmith": {
+    "concept": "LangSmith",
+    "topic": "",
+    "domain": "film_director",
+    "analogy": "On a Hollywood set, director Vera watches every single take on a monitor and marks the exact frame where the actor flubbed a line. After each scene, she reviews the playback, compares take 3 vs take 7, and pinpoints which direction changed the performance. Without that monitor, she'd be guessing in the dark. LangSmith is Vera's monitor for AI chains \u2014 it records every LLM call, input, output, latency, and cost so engineers can replay, compare, and debug exactly what went wrong.",
+    "scene_setting": "Bustling Hollywood film set with monitors, clapboards and camera cranes",
+    "character1": {
+      "emoji": "\ud83c\udfac",
+      "label": "Director Vera",
+      "description": "the developer debugging an AI chain"
+    },
+    "character2": {
+      "emoji": "\ud83d\udcf9",
+      "label": "The Monitor",
+      "description": "LangSmith tracing every call"
+    },
+    "item1": {
+      "emoji": "\ud83c\udf9e\ufe0f",
+      "label": "Take 3"
+    },
+    "item2": {
+      "emoji": "\u2705",
+      "label": "Best Take"
+    },
+    "accentColor": "#7c3aed",
+    "image_prompt": "Wide cinematic shot on a busy Hollywood film set. A focused director sits before a wall of monitors showing footage playback. Camera crew, lights, and cranes surround a dramatic scene being filmed. Neon monitor glow on the director's face. Camera behind the director looking at screens. Cool blue-purple tones."
+  },
+  "synthetic data": {
+    "concept": "synthetic data",
+    "topic": "",
+    "domain": "film_prop_workshop",
+    "analogy": "In a Hollywood prop workshop, craftsman Hugo builds perfect fake diamonds from resin \u2014 they look, feel, and catch light exactly like real ones. Film directors use them for close-ups because they're cheaper, safer, and can be made in any color. Real diamonds are rare and priceless; Hugo's replicas let the movie be made. Synthetic data is Hugo's workshop: when real data is scarce, private, or expensive, a generator creates artificial examples that look and behave like the real thing \u2014 letting AI models train without needing the originals.",
+    "scene_setting": "Cluttered prop workshop with molds, paints, and glittering fake gems",
+    "character1": {
+      "emoji": "\ud83d\udc8e",
+      "label": "Craftsman Hugo",
+      "description": "the synthetic data generator"
+    },
+    "character2": {
+      "emoji": "\ud83c\udfac",
+      "label": "Film Director",
+      "description": "the ML model trained on fake data"
+    },
+    "item1": {
+      "emoji": "\ud83e\udea8",
+      "label": "Resin Mold"
+    },
+    "item2": {
+      "emoji": "\u2728",
+      "label": "Fake Diamond"
+    },
+    "accentColor": "#0891b2",
+    "image_prompt": "Cinematic close-up in a dim prop workshop. A craftsman holds a gleaming fake diamond up to a bright work light, comparing it to a photo of the real gem. Workbench covered in molds, paint jars, and half-finished props. Warm tungsten light. Camera at eye level, shallow depth of field."
+  },
+  "contextual understanding": {
+    "concept": "contextual understanding",
+    "topic": "",
+    "domain": "safari_guide",
+    "analogy": "In the Serengeti, master guide Amara watches a single wildebeest twitch its ear and knows a lion is 200 metres away \u2014 in the grass no one else can see. A tourist sees just a wildebeest; Amara sees the whole ecosystem of clues: the direction the herd is facing, the bird alarm calls, the bent grass. Contextual understanding means not just reading the words, but reading the whole scene around them \u2014 using every surrounding signal to grasp what something really means.",
+    "scene_setting": "Vast open Serengeti at golden hour with tall grass and distant acacia trees",
+    "character1": {
+      "emoji": "\ud83e\udd81",
+      "label": "Guide Amara",
+      "description": "the model reading full context"
+    },
+    "character2": {
+      "emoji": "\ud83d\udc03",
+      "label": "The Herd",
+      "description": "the surrounding contextual signals"
+    },
+    "item1": {
+      "emoji": "\ud83d\udc41\ufe0f",
+      "label": "Ear Twitch"
+    },
+    "item2": {
+      "emoji": "\ud83c\udf3f",
+      "label": "Bent Grass"
+    },
+    "accentColor": "#d97706",
+    "image_prompt": "Golden-hour wide shot on the Serengeti. A khaki-dressed guide kneels in tall golden grass, eyes scanning the horizon. Behind, a massive wildebeest herd moves. Distant acacia trees silhouetted against an orange sky. Camera low behind the guide. Dust haze, warm amber light, cinematic."
+  },
+  "semantic search": {
+    "concept": "semantic search",
+    "topic": "",
+    "domain": "wine_sommelier",
+    "analogy": "At a five-star restaurant, sommelier Clara closes her eyes, swirls a mystery wine, and says 'This is from the south slope of Burgundy, 2018 \u2014 you want something similar?' She doesn't search by label; she searches by meaning \u2014 by taste, region, and character. She brings back wines that share the same soul, not the same name. Semantic search works the same way: instead of matching your exact words, it matches the meaning and intent behind them, surfacing results that are conceptually close even if they use completely different vocabulary.",
+    "scene_setting": "Candlelit wine cellar with floor-to-ceiling racks of dusty bottles",
+    "character1": {
+      "emoji": "\ud83c\udf77",
+      "label": "Sommelier Clara",
+      "description": "the semantic search engine"
+    },
+    "character2": {
+      "emoji": "\ud83e\udec5",
+      "label": "The Diner",
+      "description": "the user with a query"
+    },
+    "item1": {
+      "emoji": "\ud83e\uded7",
+      "label": "Mystery Wine"
+    },
+    "item2": {
+      "emoji": "\ud83c\udfaf",
+      "label": "Perfect Match"
+    },
+    "accentColor": "#7c2d12",
+    "image_prompt": "Cinematic low shot inside a candlelit wine cellar. An elegant sommelier holds a glass of deep red wine up to a single candle flame, eyes half-closed in concentration. Floor-to-ceiling stone walls lined with dusty wine racks stretch behind her. Rich burgundy and gold tones. Camera close, shallow focus."
+  },
+  "similarity measurement": {
+    "concept": "similarity measurement",
+    "topic": "",
+    "domain": "twin_study",
+    "analogy": "In a genetics lab, scientist Dr. Chen studies identical twins raised apart. She measures dozens of traits \u2014 height, fingerprints, eye color, personality scores \u2014 and calculates exactly how similar they still are despite living different lives. The closer the score, the more alike they really are. Similarity measurement in AI does the same thing: it takes two pieces of data, compares them across many hidden dimensions (like fingerprints of meaning), and returns a number that says precisely how close they are.",
+    "scene_setting": "Bright genetics research lab with comparison charts and twin photos",
+    "character1": {
+      "emoji": "\ud83e\uddec",
+      "label": "Dr. Chen",
+      "description": "the similarity scoring function"
+    },
+    "character2": {
+      "emoji": "\ud83d\udc6f",
+      "label": "The Twins",
+      "description": "two vectors being compared"
+    },
+    "item1": {
+      "emoji": "\ud83d\udcd0",
+      "label": "Measurement"
+    },
+    "item2": {
+      "emoji": "\ud83d\udcaf",
+      "label": "Similarity Score"
+    },
+    "accentColor": "#0284c7",
+    "image_prompt": "Clean bright genetics laboratory. A focused scientist stands before a large comparison board showing side-by-side photos of twins with measurements and score overlays. Lab coats, neon light, charts on whiteboards. Camera from across the lab at medium distance. Cool clinical blue-white tones."
+  },
+  "information retrieval": {
+    "concept": "information retrieval",
+    "topic": "",
+    "domain": "search_and_rescue",
+    "analogy": "When a hiker goes missing in the mountains, rescue coordinator Felix spreads out a topographic map and splits his 12-person team into zones. Each unit radios back reports; Felix listens, ranks the most promising leads, and sends the best team to the highest-probability area first. Within hours they find the hiker. Information retrieval is Felix's operation: given a query (the missing person), it systematically searches a vast space and returns the most relevant results \u2014 ranked by relevance \u2014 as fast as possible.",
+    "scene_setting": "Mountain rescue command post at dawn with radios and topographic maps",
+    "character1": {
+      "emoji": "\ud83d\uddfb",
+      "label": "Coordinator Felix",
+      "description": "the retrieval system orchestrating search"
+    },
+    "character2": {
+      "emoji": "\ud83e\uddd7",
+      "label": "Rescue Teams",
+      "description": "the search agents scanning the index"
+    },
+    "item1": {
+      "emoji": "\ud83d\udcfb",
+      "label": "Radio Report"
+    },
+    "item2": {
+      "emoji": "\ud83c\udfaf",
+      "label": "Found Hiker"
+    },
+    "accentColor": "#16a34a",
+    "image_prompt": "Dramatic dawn shot at a mountain rescue command post. Coordinator leans over a wide topographic map, radio in hand, headlamp still on from the night. Rescue workers in orange jackets point at map zones. Misty mountain peaks behind. Camera from the tent entrance looking in. Cold blue dawn light, warm headlamp glow."
+  }
+}

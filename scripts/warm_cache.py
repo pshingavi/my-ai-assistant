@@ -50,6 +50,11 @@ def _parse_args() -> argparse.Namespace:
         action="store_true",
         help="Skip DALL-E image generation (faster for dev / testing).",
     )
+    parser.add_argument(
+        "--force",
+        action="store_true",
+        help="Force regeneration of all bytes, even if already cached.",
+    )
     return parser.parse_args()
 
 
@@ -80,7 +85,7 @@ async def _main(args: argparse.Namespace) -> None:
     for topic in topics:
         for concept in topic.concepts:
             existing = await get_active_byte(topic.id, concept, db_path=_DB_PATH)
-            if existing:
+            if existing and not args.force:
                 skip_count += 1
                 continue
             work.append((topic, concept))
@@ -127,6 +132,7 @@ async def _main(args: argparse.Namespace) -> None:
                 topic_id=topic.id,
                 topic_name=topic.name,
                 concept=concept,
+                force_regenerate=args.force,
                 db_path=_DB_PATH,
             )
             emoji = result.get("emoji", "")
