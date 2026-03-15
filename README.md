@@ -20,15 +20,15 @@ Dense technical courses — PDFs, Jupyter notebooks, code — are hard to retain
 2. **Connect** ideas across modules (e.g., Module 02 embeddings → Module 11 reranking → Module 09 LangSmith)
 3. **Apply** abstract AI/ML concepts to their own professional context
 
-**Zizi Byte's answer:** RAG retrieval over the actual course knowledge base, two-step mechanism research, analogy-first explanations, interactive p5.js visualizations, grounded technical deep dives — and a chat interface that cites every claim to its source file.
+**Zizi Byte's answer:** RAG retrieval over the actual course knowledge base, analogy-first explanations, Claude Sonnet 4.6-generated SVG animations, grounded technical deep dives — and a chat interface that cites every claim to its source file.
 
 ---
 
-## What It Does — Three Surfaces
+## What It Does — Four Surfaces
 
 ### 1. LMS — Byte-Sized Learning (`localhost:3000`)
 
-Every concept gets a complete **Zizi Byte**: one focused learning artifact that covers the concept from three angles:
+Every concept gets a complete **Zizi Byte**: one focused learning artifact covering the concept from three angles:
 
 **Learn Mode — 3 tabs:**
 
@@ -52,7 +52,21 @@ Every concept gets a complete **Zizi Byte**: one focused learning artifact that 
 - Clicking Regenerate opens a slide-down panel with 3 LLM-generated alternative analogies + a custom text input
 - Selecting or submitting clears all caches and regenerates the byte, sketch, and deep dive from scratch
 
-### 2. Chat — Grounded Q&A (`localhost:8000` via Chainlit)
+### 2. Architecture Explorer (`localhost:3000/architecture`)
+
+Interactive system architecture diagrams built with React Flow — four tabbed views:
+
+| Diagram | What It Shows |
+|---------|---------------|
+| **Full System** | All services and how they connect — entry points → FastAPI → pipelines → memory → AI services |
+| **LMS Pipeline** | Byte generation, cache hit/miss branching, parallel analogy+SVG generation |
+| **Chat Pipeline** | Dual retrieval (KG + Dense) → Cohere Rerank → GPT-4o streaming |
+| **Content Pipeline** | Research → dedup branch → post → image → Qdrant ingest |
+
+- Click any node to open a slide-in detail panel: what it does, why it's there, how it's used, tech details, AIE9 module reference
+- Animated flowing edges, mini-map, zoom/pan, fitView per tab
+
+### 3. Chat — Grounded Q&A (`localhost:8000` via Chainlit)
 
 Ask anything about the AIE9 course content:
 
@@ -71,7 +85,7 @@ KG traversal + DenseRetriever (k=15 each)
 - 8-turn conversation memory
 - Streaming SSE
 
-### 3. Content Pipeline — AI Content Creator (via Chainlit or Share mode)
+### 4. Content Pipeline — AI Content Creator (via Chainlit or Share mode)
 
 ```
 Tavily research + X search
@@ -95,7 +109,7 @@ The `dedup_check_node` is the agentic decision point — branches to `inform_dup
 
 ## Architecture
 
-> **D2 diagram**: See [`docs/zizi-byte-architecture.d2`](docs/zizi-byte-architecture.d2) for a detailed diagram. Build with `d2 docs/zizi-byte-architecture.d2 docs/zizi-byte-architecture.svg` — [D2 install](https://d2lang.com/tour/intro/).
+> **Interactive diagrams**: Visit [`localhost:3000/architecture`](http://localhost:3000/architecture) for clickable, animated React Flow diagrams of all four pipelines.
 
 ```mermaid
 flowchart TB
@@ -126,12 +140,13 @@ flowchart TB
     subgraph Byte["Byte Pipeline (LMS)"]
         CACHE[check_cache]
         AG[analogy_generator]
-        FAN[image | animation | TTS]
+        FAN[image | SVG animation]
         PERSIST[persist]
     end
 
     subgraph AI["AI Services"]
-        OAI[OpenAI]
+        OAI[OpenAI GPT-4o]
+        CL2[Claude Sonnet 4.6]
         CO[Cohere]
     end
 
@@ -170,21 +185,21 @@ flowchart TB
 ```
 ┌─────────────────────────────────────────────────────────────────┐
 │  Next.js 14 LMS Frontend  (localhost:3000)                      │
-│  ByteCardV2 · InteractivePlayer · RegeneratePanel · BuildCard      │
-│  ShareModal · TopicDrawer · ConceptDots                         │
+│  ByteCardV2 · InteractivePlayer · RegeneratePanel · BuildCard   │
+│  ShareModal · TopicDrawer · ArchitectureFlow                    │
 └─────────────────────┬───────────────────────────────────────────┘
                       │ HTTP / JSON
 ┌─────────────────────▼───────────────────────────────────────────┐
 │  FastAPI LMS API  (localhost:8001)  — api_server.py             │
-│  /api/topics · /api/bytes · /api/topic/*/p5sketch               │
+│  /api/topics · /api/bytes · /api/topic/*/claude-interaction     │
 │  /api/topic/*/analogy-suggestions · /api/topic/*/notebook       │
 └──────┬───────────────┬──────────────────────────────────────────┘
        │               │
 ┌──────▼──────┐ ┌──────▼──────────────────────────────────────────┐
 │  SQLite DB  │ │  src/lms/                                        │
-│ analogies   │ │  ByteGenerator · P5SketchGenerator               │
-│ p5_sketches │ │  analogy_pipeline (LangGraph)                    │
-│ warm_jobs   │ │  analogy_store · learning_path                   │
+│ analogies   │ │  ByteGenerator · ClaudeInteractionGenerator      │
+│ claude_     │ │  analogy_pipeline (LangGraph)                    │
+│ interactions│ │  analogy_store · learning_path                   │
 └─────────────┘ └──────┬──────────────────────────────────────────┘
                         │
 ┌───────────────────────▼──────────────────────────────────────────┐
@@ -207,10 +222,10 @@ flowchart TB
 |---|---|
 | `api_server.py` | FastAPI bridge — all LMS JSON endpoints |
 | `app.py` | Chainlit chat app — intent router |
-| `src/lms/analogy_pipeline.py` | LangGraph byte pipeline: RAG → research → analogy → image → persist |
-| `src/lms/claude_interaction_generator.py` | Claude Sonnet 4.6 SVG animation generator — template shell + JSON fill |
-| `src/lms/byte_generator.py` | ByteGenerator — analogy, build content, analogy suggestions |
-| `src/lms/analogy_store.py` | SQLite store — analogies, claude_interactions tables |
+| `src/lms/analogy_pipeline.py` | LangGraph byte pipeline: RAG → analogy → image → SVG → persist |
+| `src/lms/claude_interaction_generator.py` | Claude Sonnet 4.6 SVG animation generator — fixed HTML shell + JSON fill |
+| `src/lms/byte_generator.py` | ByteGenerator — analogy generation, evaluation, suggestions |
+| `src/lms/analogy_store.py` | SQLite store — analogies + claude_interactions tables |
 | `src/agents/content_pipeline.py` | LangGraph content pipeline — research → dedup → RAG → post → image → ingest |
 | `src/agents/chat_pipeline.py` | Chat pipeline — KG+Dense → Cohere → GPT-4o stream |
 | `src/retrieval/` | DenseRetriever, HyDERetriever, KGRetriever |
@@ -218,7 +233,8 @@ flowchart TB
 | `src/memory/topic_graph.py` | NetworkX KG singleton |
 | `zizi-lms/src/components/ByteCardV2.tsx` | Main learn card — hero (topic/concept/analogy) + 3 tabs |
 | `zizi-lms/src/components/InteractivePlayer.tsx` | Sandboxed Claude SVG iframe with theme CSS injection |
-| `zizi-lms/src/components/RegeneratePanel.tsx` | Slide-down panel — 3 suggestions + custom analogy input (pre-populated) |
+| `zizi-lms/src/components/ArchitectureFlow.tsx` | React Flow interactive architecture diagrams |
+| `zizi-lms/src/components/RegeneratePanel.tsx` | Slide-down panel — 3 suggestions + custom analogy input |
 | `zizi-lms/src/components/BuildCard.tsx` | Build mode — widget + animated code panel |
 | `zizi-lms/src/components/ShareModal.tsx` | Share mode — LinkedIn post + image + notebook download |
 | `evals/` | RAGAS evaluation pipeline (baseline + HyDE) |
@@ -240,7 +256,8 @@ flowchart TB
 
 **Frontend**
 - Next.js 14 (App Router), TypeScript, Tailwind CSS
-- Framer Motion (all animations)
+- React Flow / `@xyflow/react` (interactive architecture diagrams)
+- Framer Motion (all UI animations)
 - anime.js 3.2 (SVG step transitions inside interactive widget iframe)
 - Zustand (LMS state), react-hot-toast
 
@@ -259,11 +276,12 @@ flowchart TB
 ```bash
 cp .env.example .env
 # Edit .env — set:
-# OPENAI_API_KEY=sk-...     (required)
-# TAVILY_API_KEY=tvly-...   (required)
-# COHERE_API_KEY=...        (optional, enables reranking)
-# LANGCHAIN_API_KEY=...     (optional, enables LangSmith tracing)
-# X_BEARER_TOKEN=...        (optional, enables X/Twitter search)
+# OPENAI_API_KEY=sk-...         (required)
+# ANTHROPIC_API_KEY=sk-ant-...  (required)
+# TAVILY_API_KEY=tvly-...       (required)
+# COHERE_API_KEY=...            (optional, enables reranking)
+# LANGCHAIN_API_KEY=...         (optional, enables LangSmith tracing)
+# X_BEARER_TOKEN=...            (optional, enables X/Twitter search)
 ```
 
 ### 2. Install & Ingest
@@ -312,13 +330,14 @@ uv run python scripts/warm_cache.py --modules 03,04 --force  # specific modules
 2. Select any topic from the sidebar (or press `M` for the topic drawer)
 3. In **Learn** mode:
    - The **Analogy** tab shows the DALL-E image + analogy text
-   - Click **Interactive** — the p5.js sketch generates and runs (first time: ~15s)
-   - Navigate steps with Next/Prev buttons drawn on the canvas
+   - Click **Interactive** — the Claude SVG animation loads (~2s from cache)
+   - Navigate steps with Next/Prev buttons; code panel syncs in Build mode
    - Click **Deep Dive** for the RAG-grounded technical breakdown
-4. Switch to **Build** mode — the sketch re-appears, code panel syncs to each step
+4. Switch to **Build** mode — animation re-appears, code panel syncs to each step
 5. Click "Download Notebook" — get a ready-to-run `.ipynb`
 6. Switch to **Share** — generate a LinkedIn post + image
 7. Click **Regenerate** — choose from 3 alternative analogies or type your own
+8. Visit `http://localhost:3000/architecture` — explore the interactive system diagram
 
 ---
 
@@ -337,6 +356,8 @@ uv run python evals/ragas_hyde.py --delay 1.0
 
 Metrics: `faithfulness`, `answer_relevancy`, `context_precision`, `context_recall`
 
+HyDE outperforms baseline dense retrieval across all four RAGAS metrics.
+
 ---
 
 ## What Makes This Different
@@ -350,6 +371,8 @@ Metrics: `faithfulness`, `answer_relevancy`, `context_precision`, `context_recal
 **Grounded at every layer**: Analogy bytes cite source files. Chat answers cite source files with relevance scores. Deep Dive tab shows verbatim course material. Nothing is fabricated.
 
 **Full content pipeline**: From learning a concept → sharing it on LinkedIn, with a DALL-E image, dedup protection, and Qdrant ingestion to prevent future duplicates — all in one click.
+
+**Interactive architecture**: React Flow diagrams with animated edges and click-to-expand node details — making the system design self-documenting.
 
 ---
 
@@ -369,9 +392,9 @@ my-ai-assistant/
 │   │   └── content_pipeline.py
 │   ├── ingestion/
 │   ├── lms/
-│   │   ├── analogy_pipeline.py          # LangGraph byte pipeline
-│   │   ├── analogy_store.py             # SQLite (analogies + claude_interactions)
-│   │   ├── byte_generator.py            # ByteGenerator + analogy suggestions
+│   │   ├── analogy_pipeline.py              # LangGraph byte pipeline
+│   │   ├── analogy_store.py                 # SQLite (analogies + claude_interactions)
+│   │   ├── byte_generator.py                # ByteGenerator + analogy suggestions
 │   │   ├── claude_interaction_generator.py  # Claude SVG animation generator
 │   │   └── learning_path.py
 │   ├── memory/
@@ -385,8 +408,11 @@ my-ai-assistant/
 │   └── courses/                  # Ingested course materials
 └── zizi-lms/                     # Next.js 14 frontend
     └── src/
-        ├── app/learn/[topicId]/page.tsx
+        ├── app/
+        │   ├── learn/[topicId]/page.tsx
+        │   └── architecture/page.tsx        # Interactive architecture diagrams
         ├── components/
+        │   ├── ArchitectureFlow.tsx          # React Flow diagrams
         │   ├── ByteCardV2.tsx
         │   ├── BuildCard.tsx
         │   ├── InteractivePlayer.tsx
