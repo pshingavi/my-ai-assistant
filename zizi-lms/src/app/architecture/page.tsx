@@ -14,10 +14,11 @@ const ArchitectureFlow = dynamic(
 );
 
 const TABS = [
-  { id: 'system',  label: 'Full System',      icon: '🏗️', desc: 'All services and how they connect' },
-  { id: 'lms',     label: 'LMS Pipeline',     icon: '📚', desc: 'Byte generation, caching, rendering' },
-  { id: 'chat',    label: 'Chat Pipeline',    icon: '⚡', desc: 'KG+Dense → Cohere → GPT-4o stream' },
-  { id: 'content', label: 'Content Pipeline', icon: '🔄', desc: 'Research → dedup → post → ingest' },
+  { id: 'system',  label: 'Full System',         icon: '🏗️', desc: 'All services and how they connect — entry points, pipelines, memory, AI' },
+  { id: 'ingest',  label: 'Ingestion Pipeline',  icon: '📥', desc: 'Course files → chunk → embed → Qdrant + Knowledge Graph (run once offline)' },
+  { id: 'lms',     label: 'Byte Generator',      icon: '📚', desc: 'Cache check → analogy + SVG generation → persist → serve' },
+  { id: 'chat',    label: 'Chat Pipeline',       icon: '⚡', desc: 'KG+Dense dual retrieval → Cohere Rerank → GPT-4o streaming answer' },
+  { id: 'content', label: 'LinkedIn Creator',    icon: '🔄', desc: 'Research → dedup check → RAG → post + image → Qdrant ingest' },
 ];
 
 export default function ArchitecturePage() {
