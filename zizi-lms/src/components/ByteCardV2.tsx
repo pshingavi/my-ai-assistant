@@ -405,13 +405,30 @@ export default function ByteCardV2({
                   <div className="text-sm font-black uppercase tracking-widest" style={{ color: 'var(--text-1)', letterSpacing: '0.12em' }}>
                     Technical Breakdown
                   </div>
-                  <div className="text-xs mt-1" style={{ color: 'var(--text-4)' }}>Go deeper — verbatim from course materials</div>
+                  <div className="text-xs mt-1" style={{ color: 'var(--text-4)' }}>Verbatim from indexed course materials · cited sources</div>
                 </div>
               </div>
-              <p className="leading-relaxed whitespace-pre-wrap mb-8"
-                style={{ color: 'var(--text-2)', fontSize: 15.5, lineHeight: 1.9 }}>
-                {content.explanation}
-              </p>
+              {content.explanation?.trim() ? (
+                <p className="leading-relaxed whitespace-pre-wrap mb-8"
+                  style={{ color: 'var(--text-2)', fontSize: 15.5, lineHeight: 1.9 }}>
+                  {content.explanation}
+                </p>
+              ) : (
+                <div className="rounded-2xl p-8 mb-8 flex flex-col items-center gap-4 text-center"
+                  style={{ background: 'rgba(6,182,212,0.04)', border: '1px solid rgba(6,182,212,0.15)' }}>
+                  <span style={{ fontSize: 36 }}>📭</span>
+                  <div>
+                    <p className="text-sm font-semibold mb-2" style={{ color: 'var(--text-2)' }}>
+                      No verbatim course material indexed for this concept yet.
+                    </p>
+                    <p className="text-xs" style={{ color: 'var(--text-4)', lineHeight: 1.7 }}>
+                      The Analogy tab has a grounded explanation, or ask in{' '}
+                      <a href="/chat" style={{ color: '#0891b2', fontWeight: 600 }}>Chat</a>{' '}
+                      for a cited, source-grounded deep dive with relevance scores.
+                    </p>
+                  </div>
+                </div>
+              )}
               {content.sources && content.sources.length > 0 && (
                 <div className="pt-6" style={{ borderTop: '1px solid var(--border)' }}>
                   <div className="text-xs font-bold mb-4 flex items-center gap-2" style={{ color: 'var(--text-4)' }}>

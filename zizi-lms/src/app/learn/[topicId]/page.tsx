@@ -11,6 +11,7 @@ import {
   fetchTopics, fetchTopic, fetchTopicNeighbors,
   generateBytes,
   fetchCachedByte,
+  fetchClaudeInteraction,
 } from '@/src/lib/api';
 import type { TopicSummary, ByteContent, TopicNeighbors, LearningMode, CachedByte } from '@/src/types';
 
@@ -47,6 +48,7 @@ export default function LearnPage() {
   const [loadError, setLoadError]      = useState('');
   const [drawerOpen, setDrawerOpen]    = useState(false);
   const [isRegenerating, setIsRegenerating] = useState(false);
+  const [buildHasCode, setBuildHasCode] = useState<boolean | null>(null);
 
   // Keyboard shortcuts
   useEffect(() => {
@@ -133,10 +135,25 @@ export default function LearnPage() {
     }
   }, [currentMode, concept, topic, loadByte]);
 
+  // Background check: does this concept have hands-on code snippets?
+  useEffect(() => {
+    if (!byteContent || !topicId || !concept) return;
+    setBuildHasCode(null); // reset to unknown while checking
+    fetchClaudeInteraction(topicId, concept)
+      .then(result => {
+        const steps: { code_snippet?: string }[] = result.steps ?? [];
+        const hasCode = steps.some(s => (s.code_snippet || '').trim().length > 5);
+        setBuildHasCode(hasCode);
+      })
+      .catch(() => setBuildHasCode(true)); // on error keep Build enabled
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [byteContent, topicId, concept]);
+
   const handleConceptChange = (idx: number) => {
     if (idx === currentConceptIndex) return;
     setConceptIndex(idx);
     setByteContent(null);
+    setBuildHasCode(null);
   };
 
   const handleByteRefresh = useCallback((byte: CachedByte) => {
@@ -347,36 +364,44 @@ export default function LearnPage() {
           {/* Mode selector — inline, prominent */}
           <div className="mb-6 flex rounded-2xl overflow-hidden self-stretch"
             style={{ border: '1px solid rgba(124,58,237,0.15)', background: 'var(--surface)' }}>
-            {MODES.map((m, i) => (
-              <motion.button
-                key={m.id}
-                onClick={() => setMode(m.id)}
-                className="flex-1 flex flex-col items-center gap-1 py-4 px-3 relative"
-                whileHover={{ scale: 1.01 }}
-                whileTap={{ scale: 0.98 }}
-                style={currentMode === m.id ? {
-                  background: 'linear-gradient(135deg, rgba(124,58,237,0.12), rgba(124,58,237,0.06))',
-                } : {}}
-              >
-                {/* Divider between tabs */}
-                {i > 0 && <div className="absolute left-0 top-1/4 bottom-1/4 w-px" style={{ background: 'rgba(124,58,237,0.12)' }} />}
+            {MODES.map((m, i) => {
+              const isBuildDisabled = m.id === 'build' && buildHasCode === false;
+              return (
+                <motion.button
+                  key={m.id}
+                  onClick={() => !isBuildDisabled && setMode(m.id)}
+                  className="flex-1 flex flex-col items-center gap-1 py-4 px-3 relative"
+                  whileHover={isBuildDisabled ? {} : { scale: 1.01 }}
+                  whileTap={isBuildDisabled ? {} : { scale: 0.98 }}
+                  title={isBuildDisabled ? 'No hands-on code for this concept — try Interactive or Chat' : undefined}
+                  style={{
+                    cursor: isBuildDisabled ? 'not-allowed' : 'pointer',
+                    opacity: isBuildDisabled ? 0.45 : 1,
+                    ...(currentMode === m.id ? {
+                      background: 'linear-gradient(135deg, rgba(124,58,237,0.12), rgba(124,58,237,0.06))',
+                    } : {}),
+                  }}
+                >
+                  {/* Divider between tabs */}
+                  {i > 0 && <div className="absolute left-0 top-1/4 bottom-1/4 w-px" style={{ background: 'rgba(124,58,237,0.12)' }} />}
 
-                <span style={{ fontSize: 20 }}>{m.icon}</span>
-                <span className="text-xs font-bold" style={{ color: currentMode === m.id ? '#7c3aed' : 'var(--text-3)' }}>
-                  {m.label}
-                </span>
-                <span className="text-xs hidden sm:block" style={{ color: 'var(--text-5)', fontSize: 10 }}>
-                  {m.desc}
-                </span>
-                {currentMode === m.id && (
-                  <motion.div
-                    layoutId="mode-indicator"
-                    className="absolute bottom-0 left-4 right-4 h-0.5 rounded-full"
-                    style={{ background: '#7c3aed' }}
-                  />
-                )}
-              </motion.button>
-            ))}
+                  <span style={{ fontSize: 20 }}>{m.icon}</span>
+                  <span className="text-xs font-bold" style={{ color: currentMode === m.id ? '#7c3aed' : 'var(--text-3)' }}>
+                    {m.label}
+                  </span>
+                  <span className="text-xs hidden sm:block" style={{ color: 'var(--text-5)', fontSize: 10 }}>
+                    {isBuildDisabled ? 'No code for this concept' : m.desc}
+                  </span>
+                  {currentMode === m.id && !isBuildDisabled && (
+                    <motion.div
+                      layoutId="mode-indicator"
+                      className="absolute bottom-0 left-4 right-4 h-0.5 rounded-full"
+                      style={{ background: '#7c3aed' }}
+                    />
+                  )}
+                </motion.button>
+              );
+            })}
           </div>
 
           {/* Content area — no intermediate placeholder state to avoid AnimatePresence key flicker */}
