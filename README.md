@@ -399,6 +399,12 @@ my-ai-assistant/
 
 ---
 
+## Pitch Deck
+
+📊 [ZIZI-BYTE.pdf](docs/ZIZI-BYTE.pdf) — Full product pitch deck (AIE9 Certification Challenge)
+
+---
+
 ## License
 
 MIT — see [LICENSE](LICENSE)
