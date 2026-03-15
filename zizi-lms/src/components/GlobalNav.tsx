@@ -9,6 +9,7 @@ const NAV_LINKS = [
   { href: '/', label: 'Galaxy', icon: '🌌' },
   { href: '/learn', label: 'Learn', icon: '📚' },
   { href: '/chat', label: 'Chat', icon: '⚡' },
+  { href: '/architecture', label: 'Architecture', icon: '🏛️' },
 ];
 
 export default function GlobalNav() {
