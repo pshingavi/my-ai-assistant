@@ -81,7 +81,13 @@ async def on_message(message: cl.Message) -> None:
     is_lms_mode = any(kw in text for kw in _LMS_KEYWORDS) and not is_create_mode
 
     if is_create_mode:
-        await _run_content_pipeline(message.content)
+        try:
+            await _run_content_pipeline(message.content)
+        except Exception as exc:
+            logger.exception("Content pipeline failed")
+            await cl.Message(
+                content=f"⚠️ Content pipeline error: `{exc}`\n\nTry again or check server logs."
+            ).send()
     elif is_kg_mode:
         await _show_knowledge_graph()
     elif is_lms_mode:

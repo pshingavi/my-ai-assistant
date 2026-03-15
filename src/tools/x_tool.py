@@ -6,6 +6,7 @@ so the content pipeline continues with Tavily results only.
 
 from __future__ import annotations
 
+import asyncio
 import logging
 from dataclasses import dataclass
 
@@ -37,9 +38,14 @@ async def search_x_topics(domain: str | None = None) -> list[TopicResult]:
             sort_order="relevancy",
         )
         # Prefer tweets with media; fall back to all tweets if none found
-        response = client.search_recent_tweets(query=f"{base_query} has:media", **common_kwargs)
+        # tweepy.Client is synchronous — run in thread to avoid blocking event loop
+        response = await asyncio.to_thread(
+            client.search_recent_tweets, f"{base_query} has:media", **common_kwargs
+        )
         if not response.data:
-            response = client.search_recent_tweets(query=base_query, **common_kwargs)
+            response = await asyncio.to_thread(
+                client.search_recent_tweets, base_query, **common_kwargs
+            )
 
         # Build media key → URL lookup from includes
         media_lookup: dict[str, str] = {}

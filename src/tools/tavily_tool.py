@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import asyncio
 import logging
 from dataclasses import dataclass, field
 
@@ -36,8 +37,10 @@ async def search_trending_topics(domain: str | None = None) -> list[TopicResult]
         f"OR site:venturebeat.com OR site:techcrunch.com"
     )
     try:
-        response = client.search(
-            query=query,
+        # TavilyClient.search is synchronous — run in thread to avoid blocking event loop
+        response = await asyncio.to_thread(
+            client.search,
+            query,
             max_results=cfg.tavily_max_results,
             search_depth="advanced",
             include_answer=True,
