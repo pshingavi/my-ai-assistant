@@ -16,6 +16,7 @@ interface ShareModalProps {
 export default function ShareModal({ topic, currentConcept, byteAnalogy, byteImageUrl }: ShareModalProps) {
   const [loading, setLoading] = useState(false);
   const [postText, setPostText] = useState('');
+  const [editablePost, setEditablePost] = useState('');
   const [isDuplicate, setIsDuplicate] = useState(false);
   const [duplicateReason, setDuplicateReason] = useState('');
   const [customMessage, setCustomMessage] = useState('');
@@ -44,6 +45,7 @@ export default function ShareModal({ topic, currentConcept, byteAnalogy, byteIma
           (r.content as string) ||
           '';
         setPostText(text);
+        setEditablePost(text);
         if (text) toast.success('LinkedIn post generated!');
       }
     } catch {
@@ -55,13 +57,21 @@ export default function ShareModal({ topic, currentConcept, byteAnalogy, byteIma
 
   const handleCopy = async () => {
     try {
-      await navigator.clipboard.writeText(postText);
+      await navigator.clipboard.writeText(editablePost || postText);
       setCopied(true);
       toast.success('Copied to clipboard!');
       setTimeout(() => setCopied(false), 2000);
     } catch {
       toast.error('Failed to copy');
     }
+  };
+
+  const handlePostToLinkedIn = () => {
+    const text = editablePost || postText;
+    if (!text) return;
+    const url = `https://www.linkedin.com/feed/?shareActive=true&text=${encodeURIComponent(text)}`;
+    window.open(url, '_blank', 'noopener,noreferrer');
+    toast.success('LinkedIn composer opened!');
   };
 
   const handleDownloadNotebook = () => {
@@ -244,8 +254,8 @@ export default function ShareModal({ topic, currentConcept, byteAnalogy, byteIma
                 </button>
               </div>
               <textarea
-                readOnly
-                value={postText}
+                value={editablePost}
+                onChange={(e) => setEditablePost(e.target.value)}
                 rows={13}
                 className="w-full rounded-xl px-5 py-4 text-sm resize-none outline-none"
                 style={{
@@ -255,8 +265,29 @@ export default function ShareModal({ topic, currentConcept, byteAnalogy, byteIma
                   fontFamily: 'Inter, sans-serif',
                   lineHeight: 1.7,
                 }}
+                onFocus={(e) => (e.target.style.borderColor = 'rgba(139,92,246,0.4)')}
+                onBlur={(e) => (e.target.style.borderColor = 'var(--border)')}
               />
+              <p className="text-xs mt-1.5" style={{ color: 'var(--text-5)' }}>
+                Edit before posting — changes are local only.
+              </p>
             </div>
+
+            {/* Post to LinkedIn */}
+            <button
+              onClick={handlePostToLinkedIn}
+              className="w-full py-4 rounded-xl font-bold transition-all duration-200 flex items-center justify-center gap-2.5 text-sm hover:scale-[1.01]"
+              style={{
+                background: 'linear-gradient(135deg, #0077b5 0%, #00a0dc 100%)',
+                boxShadow: '0 4px 20px rgba(0,119,181,0.35)',
+                color: '#fff',
+              }}
+            >
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433a2.062 2.062 0 01-2.063-2.065 2.064 2.064 0 112.063 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/>
+              </svg>
+              Post to LinkedIn
+            </button>
           </motion.div>
         )}
       </AnimatePresence>
