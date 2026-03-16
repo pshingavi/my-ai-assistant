@@ -200,11 +200,17 @@ export default function QAExplorer({ initialData }: Props) {
   const grouped = useMemo(() => {
     const groups: Record<string, TopicQA[]> = {};
     for (const t of filteredTopics) {
-      const key = t.module_number ? `Module ${t.module_number}` : 'Other';
+      const key = t.topic_id?.startsWith('project-')
+        ? '🏗️ Project Q&A'
+        : t.module_number ? `Module ${t.module_number}` : 'Other';
       if (!groups[key]) groups[key] = [];
       groups[key].push(t);
     }
-    return Object.entries(groups).sort(([a], [b]) => a.localeCompare(b));
+    return Object.entries(groups).sort(([a], [b]) => {
+      if (a.startsWith('🏗️')) return -1;
+      if (b.startsWith('🏗️')) return 1;
+      return a.localeCompare(b);
+    });
   }, [filteredTopics]);
 
   const totalQA = useMemo(() => initialData.reduce((sum, t) => sum + t.qa_pairs.length, 0), [initialData]);
@@ -294,7 +300,7 @@ export default function QAExplorer({ initialData }: Props) {
                     background: 'rgba(124,58,237,0.1)', color: '#7c3aed',
                     letterSpacing: '0.08em', textTransform: 'uppercase',
                   }}>
-                    Module {selectedTopic.module_number}
+                    {selectedTopic.topic_id?.startsWith('project-') ? 'Project' : `Module ${selectedTopic.module_number}`}
                   </span>
                 )}
                 <span style={{ fontSize: 10, color: 'var(--text-4)', fontWeight: 600 }}>
