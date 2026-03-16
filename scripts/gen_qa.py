@@ -35,11 +35,8 @@ RULES:
 1. Questions must be SPECIFIC and TECHNICAL — not "what is X?" but "how does X achieve Y in practice?" or "why does X outperform Y in Z scenario?"
 2. Each answer: 2-4 sentences, grounded ONLY in retrieved context, cite source file in parentheses at least once, e.g. (Session04_RAG.pdf)
 3. Cover different angles across the 6 pairs: mechanism, tradeoff, implementation detail, comparison, real-world application, limitation
-4. Return ONLY valid JSON array — no markdown, no extra text:
-[
-  {"question": "...", "answer": "...", "sources": ["Session04_RAG.pdf"]},
-  ...
-]
+4. Return a JSON object with a single key "qa_pairs" containing an array:
+{"qa_pairs": [{"question": "...", "answer": "...", "sources": ["Session04_RAG.pdf"]}, ...]}
 """
 
 
@@ -103,17 +100,26 @@ async def generate_qa_for_topic(topic_id: str, topic_name: str, description: str
     raw = (resp.choices[0].message.content or "").strip()
     try:
         parsed = json.loads(raw)
-        # GPT might wrap in a key
+        # Expected: {"qa_pairs": [...]}
         if isinstance(parsed, dict):
-            for v in parsed.values():
-                if isinstance(v, list):
-                    parsed = v
-                    break
+            # Try "qa_pairs" key first
+            if "qa_pairs" in parsed and isinstance(parsed["qa_pairs"], list):
+                parsed = parsed["qa_pairs"]
+            # Fallback: single Q&A object {"question": ..., "answer": ...}
+            elif "question" in parsed and "answer" in parsed:
+                parsed = [parsed]
+            else:
+                # Find first list of dicts
+                for v in parsed.values():
+                    if isinstance(v, list) and v and isinstance(v[0], dict):
+                        parsed = v
+                        break
         if not isinstance(parsed, list):
+            logger.warning("Unexpected response shape for %s: %.200s", topic_name, raw)
             return []
-        return [p for p in parsed if p.get("question") and p.get("answer")]
-    except json.JSONDecodeError:
-        logger.warning("JSON parse failed for %s", topic_name)
+        return [p for p in parsed if isinstance(p, dict) and p.get("question") and p.get("answer")]
+    except (json.JSONDecodeError, Exception) as e:
+        logger.warning("Parse failed for %s: %s — raw: %.200s", topic_name, e, raw)
         return []
 
 
