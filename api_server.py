@@ -795,6 +795,83 @@ async def render_video(topic_id: str, concept: str):
     return {"status": "coming_soon", "message": "Video rendering is coming in a future update."}
 
 
+# ── Q&A endpoints ──────────────────────────────────────────────────────────────
+
+@app.get("/api/qa")
+async def get_all_qa_endpoint():
+    """Return all pre-generated Q&A pairs grouped by topic."""
+    from src.lms.analogy_store import get_all_qa
+    topics = await get_all_qa(_DB_PATH)
+    return {"topics": topics}
+
+
+@app.get("/api/qa/{topic_id}")
+async def get_topic_qa_endpoint(topic_id: str):
+    """Return Q&A pairs for a specific topic."""
+    from src.lms.analogy_store import get_topic_qa
+    pairs = await get_topic_qa(_DB_PATH, topic_id)
+    return {"topic_id": topic_id, "qa_pairs": pairs}
+
+
+class QAAskRequest(BaseModel):
+    question: str
+    topic_id: str | None = None
+    topic_name: str | None = None
+
+
+@app.post("/api/qa/ask")
+async def ask_qa_question(req: QAAskRequest):
+    """Answer a custom question using KG+Dense RAG retrieval."""
+    from src.retrieval.dense_retriever import DenseRetriever
+    from src.retrieval.kg_retriever import KGRetriever
+    from src.llm import get_async_openai
+
+    query = req.question
+    if req.topic_name:
+        query = f"{req.topic_name}: {req.question}"
+
+    try:
+        dense = await DenseRetriever().retrieve(query, k=8)
+        kg = await KGRetriever().retrieve(query, k=6)
+        seen: dict[str, dict] = {}
+        for c in [*dense, *kg]:
+            content = c.content if hasattr(c, "content") else c["content"]
+            source = c.source if hasattr(c, "source") else c["source"]
+            score = c.score if hasattr(c, "score") else c.get("score", 0.0)
+            key = content[:120]
+            if key not in seen:
+                seen[key] = {"content": content, "source": source, "score": score}
+        chunks = sorted(seen.values(), key=lambda x: x["score"], reverse=True)[:8]
+    except Exception as e:
+        logger.warning("Retrieval failed for QA ask: %s", e)
+        chunks = []
+
+    context_str = "\n\n---\n\n".join(
+        f"[Source: {c['source']}, score={c['score']:.2f}]\n{c['content']}" for c in chunks
+    ) or "No relevant context found."
+
+    _ASK_SYSTEM = (
+        "You are a precise AI engineering educator. Answer the question in 3-5 sentences "
+        "grounded ONLY in the retrieved context. Cite source file names in parentheses. "
+        "If context is insufficient, say so directly.\n\n"
+        f"## Retrieved context:\n{context_str}"
+    )
+
+    client = get_async_openai()
+    resp = await client.chat.completions.create(
+        model="gpt-4o",
+        messages=[
+            {"role": "system", "content": _ASK_SYSTEM},
+            {"role": "user", "content": req.question},
+        ],
+        max_tokens=400,
+        temperature=0.3,
+    )
+    answer = (resp.choices[0].message.content or "").strip()
+    sources = list({c["source"] for c in chunks})
+    return {"answer": answer, "sources": sources}
+
+
 # ── Health check ──────────────────────────────────────────────────────────────
 
 @app.get("/health")

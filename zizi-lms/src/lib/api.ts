@@ -7,6 +7,8 @@ import type {
   SharePostResult,
   CachedByte,
   P5Sketch,
+  QAPair,
+  TopicQA,
 } from '@/src/types';
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8001';
@@ -146,4 +148,25 @@ export function downloadNotebook(topicId: string, concept: string): void {
   a.href = url;
   a.download = `${concept.toLowerCase().replace(/\s+/g, '_')}.ipynb`;
   a.click();
+}
+
+export async function fetchAllQA(): Promise<TopicQA[]> {
+  const data = await apiFetch<{ topics: TopicQA[] }>('/api/qa');
+  return data.topics;
+}
+
+export async function fetchTopicQA(topicId: string): Promise<QAPair[]> {
+  const data = await apiFetch<{ qa_pairs: QAPair[] }>(`/api/qa/${encodeURIComponent(topicId)}`);
+  return data.qa_pairs;
+}
+
+export async function askQAQuestion(
+  question: string,
+  topicId?: string,
+  topicName?: string,
+): Promise<{ answer: string; sources: string[] }> {
+  return apiFetch('/api/qa/ask', {
+    method: 'POST',
+    body: JSON.stringify({ question, topic_id: topicId, topic_name: topicName }),
+  });
 }

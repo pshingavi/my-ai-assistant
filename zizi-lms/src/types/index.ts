@@ -97,3 +97,16 @@ export interface P5Sketch {
   sketch_code: string;
   steps: P5Step[];
 }
+
+export interface QAPair {
+  question: string;
+  answer: string;
+  sources: string[];
+}
+
+export interface TopicQA {
+  topic_id: string;
+  topic_name: string;
+  module_number: string;
+  qa_pairs: QAPair[];
+}

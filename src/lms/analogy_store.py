@@ -99,6 +99,23 @@ _CREATE_CLAUDE_INDEX = """
 CREATE INDEX IF NOT EXISTS idx_claude_lookup ON claude_interactions(topic_id, concept, version);
 """
 
+_CREATE_TOPIC_QA = """
+CREATE TABLE IF NOT EXISTS topic_qa (
+    id           INTEGER PRIMARY KEY AUTOINCREMENT,
+    topic_id     TEXT    NOT NULL,
+    topic_name   TEXT    NOT NULL,
+    module_number TEXT   NOT NULL DEFAULT '',
+    question     TEXT    NOT NULL,
+    answer       TEXT    NOT NULL,
+    sources      TEXT    NOT NULL DEFAULT '[]',
+    created_at   TEXT    NOT NULL DEFAULT (datetime('now'))
+);
+"""
+
+_CREATE_TOPIC_QA_INDEX = """
+CREATE INDEX IF NOT EXISTS idx_qa_topic ON topic_qa(topic_id);
+"""
+
 
 async def init_db(db_path: str) -> None:
     """Create tables and indexes idempotently. Creates DB file if not present."""
@@ -126,6 +143,8 @@ async def init_db(db_path: str) -> None:
             stmt = stmt.strip()
             if stmt:
                 await db.execute(stmt)
+        await db.execute(_CREATE_TOPIC_QA)
+        await db.execute(_CREATE_TOPIC_QA_INDEX)
 
         # Migrate: add audio columns if they don't exist yet (idempotent)
         async with db.execute("PRAGMA table_info(analogies)") as cursor:
@@ -478,3 +497,51 @@ async def save_claude_interaction(
         "analogy_store: saved claude interaction topic=%s concept=%s version=%s",
         topic_id, concept, new_version,
     )
+
+
+# ── Topic Q&A store ─────────────────────────────────────────────────────────────
+
+async def save_qa_pairs(db_path: str, topic_id: str, topic_name: str, module_number: str, pairs: list[dict]) -> None:
+    """Save Q&A pairs for a topic, replacing any existing ones."""
+    import aiosqlite
+    async with aiosqlite.connect(db_path) as db:
+        await db.execute("DELETE FROM topic_qa WHERE topic_id = ?", (topic_id,))
+        for p in pairs:
+            await db.execute(
+                "INSERT INTO topic_qa (topic_id, topic_name, module_number, question, answer, sources) VALUES (?,?,?,?,?,?)",
+                (topic_id, topic_name, module_number, p["question"], p["answer"], json.dumps(p.get("sources", []))),
+            )
+        await db.commit()
+
+
+async def get_topic_qa(db_path: str, topic_id: str) -> list[dict]:
+    """Return Q&A pairs for a topic."""
+    import aiosqlite
+    async with aiosqlite.connect(db_path) as db:
+        db.row_factory = aiosqlite.Row
+        rows = await db.execute_fetchall(
+            "SELECT question, answer, sources FROM topic_qa WHERE topic_id = ? ORDER BY id",
+            (topic_id,),
+        )
+        return [{"question": r["question"], "answer": r["answer"], "sources": json.loads(r["sources"])} for r in rows]
+
+
+async def get_all_qa(db_path: str) -> list[dict]:
+    """Return all Q&A pairs grouped by topic_id."""
+    import aiosqlite
+    async with aiosqlite.connect(db_path) as db:
+        db.row_factory = aiosqlite.Row
+        rows = await db.execute_fetchall(
+            "SELECT topic_id, topic_name, module_number, question, answer, sources FROM topic_qa ORDER BY module_number, topic_name, id"
+        )
+        topics: dict[str, dict] = {}
+        for r in rows:
+            tid = r["topic_id"]
+            if tid not in topics:
+                topics[tid] = {"topic_id": tid, "topic_name": r["topic_name"], "module_number": r["module_number"], "qa_pairs": []}
+            topics[tid]["qa_pairs"].append({
+                "question": r["question"],
+                "answer": r["answer"],
+                "sources": json.loads(r["sources"]),
+            })
+        return list(topics.values())
