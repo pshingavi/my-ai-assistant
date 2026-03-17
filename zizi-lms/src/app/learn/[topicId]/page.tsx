@@ -406,13 +406,13 @@ export default function LearnPage() {
 
           {/* Content area — no intermediate placeholder state to avoid AnimatePresence key flicker */}
           <AnimatePresence mode="wait">
-            {currentMode === 'share' ? (
+            {currentMode === 'share' && topic ? (
               <motion.div key="share"
                 initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -8 }}
                 transition={{ duration: 0.3 }}
               >
                 <ShareModal
-                  topic={topic!}
+                  topic={topic}
                   currentConcept={concept}
                   byteAnalogy={byteContent && 'analogy' in byteContent ? (byteContent as CachedByte).analogy : undefined}
                   byteImageUrl={byteContent && 'image_url' in byteContent ? (byteContent as any).image_url : undefined}
