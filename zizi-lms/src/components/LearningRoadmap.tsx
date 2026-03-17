@@ -41,125 +41,6 @@ function svgPathBetween(a: NodePos, b: NodePos): string {
   return `M ${ax} ${ay} Q ${cx} ${ay} ${bx} ${by}`;
 }
 
-// ── Background themes ──────────────────────────────────────────────────────
-
-const CosmicBg = () => (
-  <div className="fixed inset-0 pointer-events-none" style={{ zIndex: 0, overflow: 'hidden', background: 'radial-gradient(ellipse 120% 80% at 50% 10%, #0d0520 0%, #050210 60%, #000 100%)' }}>
-    <style>{`
-      @keyframes twinkle { 0%,100%{opacity:0.15} 50%{opacity:0.9} }
-      @keyframes nebula-drift { 0%{transform:translateX(0) translateY(0) scale(1)} 50%{transform:translateX(30px) translateY(-20px) scale(1.05)} 100%{transform:translateX(0) translateY(0) scale(1)} }
-    `}</style>
-    {Array.from({ length: 60 }).map((_, i) => (
-      <div key={i} style={{
-        position: 'absolute',
-        left: `${(i * 37 + 13) % 100}%`,
-        top: `${(i * 53 + 7) % 100}%`,
-        width: i % 5 === 0 ? 3 : i % 3 === 0 ? 2 : 1,
-        height: i % 5 === 0 ? 3 : i % 3 === 0 ? 2 : 1,
-        borderRadius: '50%',
-        background: '#fff',
-        animation: `twinkle ${2 + (i % 4)}s ${(i * 0.3) % 3}s ease-in-out infinite`,
-      }} />
-    ))}
-    <div style={{ position: 'absolute', top: '10%', left: '20%', width: 500, height: 300, background: 'radial-gradient(ellipse, rgba(124,58,237,0.12) 0%, transparent 70%)', filter: 'blur(40px)', animation: 'nebula-drift 18s ease-in-out infinite' }} />
-    <div style={{ position: 'absolute', bottom: '20%', right: '10%', width: 400, height: 250, background: 'radial-gradient(ellipse, rgba(6,182,212,0.08) 0%, transparent 70%)', filter: 'blur(40px)', animation: 'nebula-drift 22s 4s ease-in-out infinite' }} />
-  </div>
-);
-
-const CircuitBg = () => (
-  <div className="fixed inset-0 pointer-events-none" style={{ zIndex: 0, background: '#050f05' }}>
-    <style>{`
-      @keyframes pulse-line { 0%,100%{opacity:0.04} 50%{opacity:0.18} }
-    `}</style>
-    <svg width="100%" height="100%" style={{ position: 'absolute', inset: 0 }}>
-      <defs>
-        <pattern id="circuit" x="0" y="0" width="80" height="80" patternUnits="userSpaceOnUse">
-          <path d="M0 40 H30 M50 40 H80 M40 0 V30 M40 50 V80" stroke="#00ff41" strokeWidth="0.4" fill="none" opacity="0.12" />
-          <circle cx="40" cy="40" r="3" fill="none" stroke="#00ff41" strokeWidth="0.5" opacity="0.15" />
-          <circle cx="30" cy="40" r="1.5" fill="#00ff41" opacity="0.1" />
-          <circle cx="50" cy="40" r="1.5" fill="#00ff41" opacity="0.1" />
-        </pattern>
-      </defs>
-      <rect width="100%" height="100%" fill="url(#circuit)" />
-    </svg>
-    {Array.from({ length: 8 }).map((_, i) => (
-      <div key={i} style={{
-        position: 'absolute',
-        left: `${(i * 12 + 5) % 90}%`,
-        top: `${(i * 17 + 3) % 90}%`,
-        width: 2, height: `${60 + i * 20}px`,
-        background: 'linear-gradient(to bottom, transparent, #00ff41, transparent)',
-        opacity: 0.12,
-        animation: `pulse-line ${3 + i}s ${i * 0.5}s ease-in-out infinite`,
-      }} />
-    ))}
-  </div>
-);
-
-const WaveBg = () => (
-  <div className="fixed inset-0 pointer-events-none" style={{ zIndex: 0, background: '#020818', overflow: 'hidden' }}>
-    <style>{`
-      @keyframes wave-move { 0%{transform:translateX(0)} 100%{transform:translateX(-50%)} }
-    `}</style>
-    {[0, 1, 2].map(i => (
-      <div key={i} style={{
-        position: 'absolute',
-        bottom: `${i * 15}%`,
-        left: 0,
-        width: '200%',
-        height: `${100 + i * 40}px`,
-        opacity: 0.06 - i * 0.015,
-        background: `radial-gradient(ellipse 50% 100% at 25% 50%, #1e40af, transparent),radial-gradient(ellipse 50% 100% at 75% 50%, #0e7490, transparent)`,
-        borderRadius: '50% 50% 0 0',
-        animation: `wave-move ${12 + i * 4}s linear infinite`,
-        animationDelay: `${i * -3}s`,
-      }} />
-    ))}
-  </div>
-);
-
-const MatrixBg = () => (
-  <div className="fixed inset-0 pointer-events-none" style={{ zIndex: 0, background: '#010a01', overflow: 'hidden' }}>
-    <style>{`
-      @keyframes fall { 0%{transform:translateY(-100%);opacity:0} 10%{opacity:1} 90%{opacity:1} 100%{transform:translateY(100vh);opacity:0} }
-    `}</style>
-    {Array.from({ length: 20 }).map((_, i) => (
-      <div key={i} style={{
-        position: 'absolute',
-        left: `${i * 5 + 1}%`,
-        top: 0,
-        color: '#00ff41',
-        fontSize: 10,
-        fontFamily: 'monospace',
-        opacity: 0.07,
-        animation: `fall ${6 + (i % 5) * 2}s ${(i * 0.8) % 5}s linear infinite`,
-        userSelect: 'none',
-        whiteSpace: 'nowrap',
-        letterSpacing: 4,
-        writingMode: 'vertical-rl',
-      }}>
-        {'01アイAI10ニュー01アイ10'.split('').map((c, j) => (
-          <span key={j} style={{ opacity: Math.random() > 0.5 ? 1 : 0.3 }}>{c}</span>
-        ))}
-      </div>
-    ))}
-  </div>
-);
-
-const AuroraBg = () => (
-  <div className="fixed inset-0 pointer-events-none" style={{ zIndex: 0, background: '#030a0f', overflow: 'hidden' }}>
-    <style>{`
-      @keyframes aurora1 { 0%,100%{transform:rotate(-5deg) scaleY(1)} 50%{transform:rotate(5deg) scaleY(1.3)} }
-      @keyframes aurora2 { 0%,100%{transform:rotate(3deg) scaleY(1.1)} 50%{transform:rotate(-4deg) scaleY(0.9)} }
-    `}</style>
-    <div style={{ position: 'absolute', top: '-20%', left: '-10%', width: '70%', height: '60%', background: 'linear-gradient(160deg, rgba(124,58,237,0.15) 0%, rgba(6,182,212,0.1) 50%, transparent 100%)', filter: 'blur(60px)', transformOrigin: 'center bottom', animation: 'aurora1 14s ease-in-out infinite' }} />
-    <div style={{ position: 'absolute', top: '-10%', right: '-10%', width: '60%', height: '50%', background: 'linear-gradient(200deg, rgba(16,185,129,0.1) 0%, rgba(124,58,237,0.08) 50%, transparent 100%)', filter: 'blur(50px)', transformOrigin: 'center bottom', animation: 'aurora2 18s ease-in-out infinite' }} />
-    <div style={{ position: 'absolute', bottom: '10%', left: '20%', width: '60%', height: '30%', background: 'radial-gradient(ellipse, rgba(6,182,212,0.06) 0%, transparent 70%)', filter: 'blur(40px)' }} />
-  </div>
-);
-
-const BG_COMPONENTS = [CosmicBg, CircuitBg, WaveBg, MatrixBg, AuroraBg];
-
 // ── Sparkle ────────────────────────────────────────────────────────────────
 
 function Sparkle({ x, y }: { x: number; y: number }) {
@@ -170,7 +51,7 @@ function Sparkle({ x, y }: { x: number; y: number }) {
           initial={{ x: 0, y: 0, opacity: 1, scale: 1 }}
           animate={{ x: Math.cos((i / 6) * Math.PI * 2) * 18, y: Math.sin((i / 6) * Math.PI * 2) * 18, opacity: 0, scale: 0 }}
           transition={{ duration: 0.8, ease: 'easeOut', delay: i * 0.05 }}
-          style={{ position: 'absolute', width: 4, height: 4, borderRadius: '50%', background: '#a855f7' }}
+          style={{ position: 'absolute', width: 4, height: 4, borderRadius: '50%', background: '#7c3aed' }}
         />
       ))}
     </div>
@@ -186,12 +67,10 @@ interface Props {
 }
 
 export default function LearningRoadmap({ topics, visitedTopicIds, onReset }: Props) {
-  const [BgComponent] = useState(() => BG_COMPONENTS[Math.floor(Math.random() * BG_COMPONENTS.length)]);
   const [tooltip, setTooltip] = useState<string | null>(null);
   const [tooltipPos, setTooltipPos] = useState({ x: 0, y: 0 });
   const [sparkles, setSparkles] = useState<{ id: number; x: number; y: number }[]>([]);
   const sparkleId = useRef(0);
-  const pathRef = useRef<SVGPathElement | null>(null);
 
   const sorted = [...topics]
     .filter(t => !t.is_post && !!t.module_number)
@@ -228,9 +107,16 @@ export default function LearningRoadmap({ topics, visitedTopicIds, onReset }: Pr
   }, []);
 
   return (
-    <div style={{ position: 'relative', width: '100%', minHeight: '100vh' }}>
-      {/* Background */}
-      <BgComponent />
+    <div style={{ position: 'relative', width: '100%', minHeight: '100vh', background: 'var(--bg-1)' }}>
+      {/* Subtle dot grid background */}
+      <div
+        className="fixed inset-0 pointer-events-none"
+        style={{
+          zIndex: 0,
+          backgroundImage: 'radial-gradient(circle, rgba(124,58,237,0.08) 1px, transparent 1px)',
+          backgroundSize: '28px 28px',
+        }}
+      />
 
       {/* Sparkles (fixed to viewport) */}
       {sparkles.map(s => (
@@ -240,19 +126,29 @@ export default function LearningRoadmap({ topics, visitedTopicIds, onReset }: Pr
       ))}
 
       {/* Stats bar */}
-      <div style={{ position: 'relative', zIndex: 10, display: 'flex', alignItems: 'center', gap: 20, padding: '18px 28px', background: 'rgba(10,4,20,0.75)', backdropFilter: 'blur(14px)', borderBottom: '1px solid rgba(124,58,237,0.22)' }}>
+      <div style={{
+        position: 'relative',
+        zIndex: 10,
+        display: 'flex',
+        alignItems: 'center',
+        gap: 20,
+        padding: '14px 28px',
+        background: 'var(--surface-2)',
+        backdropFilter: 'blur(14px)',
+        borderBottom: '1px solid var(--border)',
+      }}>
         {/* XP */}
         <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-          <span style={{ fontSize: 18 }}>⚡</span>
-          <span style={{ fontWeight: 700, color: '#a855f7', fontSize: 15 }}>{xp} XP</span>
+          <span style={{ fontSize: 16 }}>⚡</span>
+          <span style={{ fontWeight: 700, color: 'var(--accent)', fontSize: 14 }}>{xp} XP</span>
         </div>
 
         {/* Progress */}
         <div style={{ flex: 1, display: 'flex', alignItems: 'center', gap: 10 }}>
-          <span style={{ fontSize: 12, color: 'rgba(255,255,255,0.55)', whiteSpace: 'nowrap' }}>
+          <span style={{ fontSize: 12, color: 'var(--text-4)', whiteSpace: 'nowrap' }}>
             {visitedCount} of {sorted.length} modules complete
           </span>
-          <div style={{ flex: 1, height: 6, borderRadius: 3, background: 'rgba(255,255,255,0.1)', overflow: 'hidden' }}>
+          <div style={{ flex: 1, height: 6, borderRadius: 3, background: 'var(--border)', overflow: 'hidden' }}>
             <motion.div
               initial={{ width: 0 }}
               animate={{ width: `${sorted.length ? (visitedCount / sorted.length) * 100 : 0}%` }}
@@ -268,7 +164,12 @@ export default function LearningRoadmap({ topics, visitedTopicIds, onReset }: Pr
             initial={{ scale: 0 }}
             animate={{ scale: 1 }}
             transition={{ type: 'spring', stiffness: 300 }}
-            style={{ fontSize: 12, fontWeight: 700, color: '#fbbf24', background: 'rgba(251,191,36,0.1)', border: '1px solid rgba(251,191,36,0.3)', borderRadius: 20, padding: '4px 10px' }}
+            style={{
+              fontSize: 12, fontWeight: 700, color: '#92400e',
+              background: 'rgba(251,191,36,0.15)',
+              border: '1px solid rgba(251,191,36,0.4)',
+              borderRadius: 20, padding: '4px 10px',
+            }}
           >
             🏆 Course Master
           </motion.div>
@@ -277,9 +178,21 @@ export default function LearningRoadmap({ topics, visitedTopicIds, onReset }: Pr
         {/* Reset */}
         <button
           onClick={onReset}
-          style={{ fontSize: 11, color: 'rgba(255,255,255,0.35)', background: 'transparent', border: '1px solid rgba(255,255,255,0.1)', borderRadius: 8, padding: '4px 10px', cursor: 'pointer', transition: 'all 0.2s' }}
-          onMouseEnter={e => { (e.currentTarget as HTMLElement).style.color = 'rgba(255,80,80,0.8)'; (e.currentTarget as HTMLElement).style.borderColor = 'rgba(255,80,80,0.3)'; }}
-          onMouseLeave={e => { (e.currentTarget as HTMLElement).style.color = 'rgba(255,255,255,0.35)'; (e.currentTarget as HTMLElement).style.borderColor = 'rgba(255,255,255,0.1)'; }}
+          style={{
+            fontSize: 11, color: 'var(--text-4)',
+            background: 'transparent',
+            border: '1px solid var(--border)',
+            borderRadius: 8, padding: '4px 10px',
+            cursor: 'pointer', transition: 'all 0.2s',
+          }}
+          onMouseEnter={e => {
+            (e.currentTarget as HTMLElement).style.color = '#dc2626';
+            (e.currentTarget as HTMLElement).style.borderColor = 'rgba(220,38,38,0.3)';
+          }}
+          onMouseLeave={e => {
+            (e.currentTarget as HTMLElement).style.color = 'var(--text-4)';
+            (e.currentTarget as HTMLElement).style.borderColor = 'var(--border)';
+          }}
         >
           ↺ Reset
         </button>
@@ -302,18 +215,16 @@ export default function LearningRoadmap({ topics, visitedTopicIds, onReset }: Pr
               const visited = visitedTopicIds.has(pos.topic.id) && visitedTopicIds.has(next.topic.id);
               return (
                 <g key={i}>
-                  {/* base path */}
-                  <path d={d} fill="none" stroke="rgba(124,58,237,0.15)" strokeWidth={2} />
-                  {/* animated dash */}
+                  <path d={d} fill="none" stroke="rgba(124,58,237,0.12)" strokeWidth={2} />
                   <path
                     d={d}
                     fill="none"
-                    stroke={visited ? '#a855f7' : 'rgba(124,58,237,0.35)'}
+                    stroke={visited ? '#7c3aed' : 'rgba(124,58,237,0.3)'}
                     strokeWidth={visited ? 2.5 : 1.5}
                     strokeDasharray="8 12"
                     strokeDashoffset={dashOffset}
                     strokeLinecap="round"
-                    opacity={visited ? 0.9 : 0.4}
+                    opacity={visited ? 0.8 : 0.4}
                   />
                 </g>
               );
@@ -364,14 +275,14 @@ export default function LearningRoadmap({ topics, visitedTopicIds, onReset }: Pr
                       justifyContent: 'center',
                       gap: 4,
                       background: visited
-                        ? 'linear-gradient(135deg, rgba(124,58,237,0.25) 0%, rgba(168,85,247,0.2) 100%)'
-                        : 'rgba(10,4,20,0.7)',
+                        ? 'linear-gradient(135deg, rgba(124,58,237,0.1) 0%, rgba(168,85,247,0.08) 100%)'
+                        : 'var(--bg-2)',
                       border: visited
-                        ? '1.5px solid rgba(168,85,247,0.6)'
-                        : '1.5px dashed rgba(124,58,237,0.25)',
+                        ? '1.5px solid rgba(124,58,237,0.4)'
+                        : '1.5px dashed rgba(124,58,237,0.2)',
                       boxShadow: visited
-                        ? '0 0 20px rgba(124,58,237,0.35), 0 0 6px rgba(168,85,247,0.2)'
-                        : '0 2px 8px rgba(0,0,0,0.4)',
+                        ? '0 4px 20px rgba(124,58,237,0.15), 0 0 0 3px rgba(124,58,237,0.06)'
+                        : '0 2px 8px rgba(0,0,0,0.06)',
                       backdropFilter: 'blur(8px)',
                       cursor: 'pointer',
                       transition: 'box-shadow 0.2s, border-color 0.2s',
@@ -385,8 +296,8 @@ export default function LearningRoadmap({ topics, visitedTopicIds, onReset }: Pr
                       fontSize: 9,
                       fontWeight: 700,
                       fontFamily: 'monospace',
-                      color: visited ? '#c084fc' : 'rgba(124,58,237,0.5)',
-                      background: visited ? 'rgba(124,58,237,0.2)' : 'rgba(124,58,237,0.08)',
+                      color: visited ? '#7c3aed' : 'rgba(124,58,237,0.45)',
+                      background: visited ? 'rgba(124,58,237,0.1)' : 'rgba(124,58,237,0.06)',
                       borderRadius: 4,
                       padding: '1px 5px',
                       lineHeight: 1.6,
@@ -400,7 +311,7 @@ export default function LearningRoadmap({ topics, visitedTopicIds, onReset }: Pr
                         position: 'absolute',
                         top: 4,
                         right: 6,
-                        fontSize: 11,
+                        fontSize: 10,
                         width: 18,
                         height: 18,
                         borderRadius: '50%',
@@ -408,14 +319,15 @@ export default function LearningRoadmap({ topics, visitedTopicIds, onReset }: Pr
                         display: 'flex',
                         alignItems: 'center',
                         justifyContent: 'center',
-                        boxShadow: '0 0 8px rgba(16,185,129,0.5)',
+                        color: '#fff',
+                        boxShadow: '0 2px 8px rgba(16,185,129,0.3)',
                       }}>
                         ✓
                       </div>
                     )}
 
                     {/* Emoji */}
-                    <div style={{ fontSize: 28, lineHeight: 1, filter: visited ? 'none' : 'grayscale(0.4) opacity(0.6)' }}>
+                    <div style={{ fontSize: 28, lineHeight: 1, opacity: visited ? 1 : 0.55 }}>
                       {emoji}
                     </div>
 
@@ -423,7 +335,7 @@ export default function LearningRoadmap({ topics, visitedTopicIds, onReset }: Pr
                     <div style={{
                       fontSize: 10.5,
                       fontWeight: 600,
-                      color: visited ? 'rgba(255,255,255,0.92)' : 'rgba(255,255,255,0.45)',
+                      color: visited ? 'var(--text-1)' : 'var(--text-3)',
                       textAlign: 'center',
                       padding: '0 8px',
                       lineHeight: 1.35,
@@ -436,16 +348,16 @@ export default function LearningRoadmap({ topics, visitedTopicIds, onReset }: Pr
                       {topic.name}
                     </div>
 
-                    {/* Glow ring for visited */}
+                    {/* Pulse ring for visited */}
                     {visited && (
                       <motion.div
-                        animate={{ opacity: [0.4, 0.7, 0.4] }}
+                        animate={{ opacity: [0.3, 0.6, 0.3] }}
                         transition={{ duration: 2.5, repeat: Infinity, ease: 'easeInOut' }}
                         style={{
                           position: 'absolute',
                           inset: -4,
                           borderRadius: 20,
-                          border: '1px solid rgba(168,85,247,0.3)',
+                          border: '1px solid rgba(124,58,237,0.25)',
                           pointerEvents: 'none',
                         }}
                       />
@@ -456,7 +368,7 @@ export default function LearningRoadmap({ topics, visitedTopicIds, onReset }: Pr
             );
           })}
 
-          {/* Invisible spacer to give the container correct height */}
+          {/* Spacer */}
           <div style={{ height: totalH, width: totalW }} />
         </div>
       </div>
@@ -468,18 +380,18 @@ export default function LearningRoadmap({ topics, visitedTopicIds, onReset }: Pr
           left: tooltipPos.x,
           top: tooltipPos.y,
           transform: 'translateX(-50%) translateY(-100%)',
-          background: 'rgba(10,4,20,0.95)',
-          border: '1px solid rgba(124,58,237,0.4)',
+          background: 'var(--bg-2)',
+          border: '1px solid var(--border)',
           borderRadius: 8,
           padding: '5px 10px',
           fontSize: 11,
-          color: 'rgba(255,255,255,0.9)',
+          color: 'var(--text-1)',
           fontWeight: 600,
           whiteSpace: 'nowrap',
           zIndex: 9999,
           pointerEvents: 'none',
           backdropFilter: 'blur(8px)',
-          boxShadow: '0 4px 16px rgba(0,0,0,0.5)',
+          boxShadow: '0 4px 16px rgba(0,0,0,0.1)',
         }}>
           {tooltip}
         </div>
